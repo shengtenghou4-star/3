@@ -1,4 +1,4 @@
-"""Command-line interface for the first Football Republic campaign."""
+"""Command-line interface for Football Republic."""
 
 from __future__ import annotations
 
@@ -22,43 +22,85 @@ def _interactive_plan() -> PresidentialPlan:
         coach_budget=_ask_millions("Coach education", 12.0),
         match_budget=_ask_millions("Youth match programme", 10.0),
         school_cofunding=_ask_millions("Education-ministry cofunding", 7.0),
-        licensing_strictness=float(input("Club licensing strictness 0-1 [0.58]: ").strip() or "0.58"),
+        licensing_strictness=float(
+            input("Club licensing strictness 0-1 [0.58]: ").strip() or "0.58"
+        ),
         audit_budget=_ask_millions("Licensing audit budget", 2.5),
         senior_team_budget=_ask_millions("Senior national team", 14.0),
     )
     if plan.total_budget > 60_000_000:
-        raise ValueError(f"plan costs {_money(plan.total_budget)}, above the 60.0m treasury")
+        raise ValueError(
+            f"plan costs {_money(plan.total_budget)}, above the 60.0m treasury"
+        )
     return plan
 
 
-def _print_campaign(label: str, plan: PresidentialPlan, campaign: Campaign, review: object) -> None:
+def _print_campaign(
+    label: str,
+    plan: PresidentialPlan,
+    campaign: Campaign,
+    review: object,
+) -> None:
     print(f"FOOTBALL REPUBLIC — 2026 PRESIDENTIAL TERM ({label})")
     print(
         "Opening plan: "
         f"coaches {_money(plan.coach_budget)}, matches {_money(plan.match_budget)}, "
         f"schools {_money(plan.school_cofunding)}, audits {_money(plan.audit_budget)}, "
-        f"senior team {_money(plan.senior_team_budget)}, licensing {plan.licensing_strictness:.0%}"
+        f"senior team {_money(plan.senior_team_budget)}, "
+        f"licensing {plan.licensing_strictness:.0%}"
     )
     print()
-    print("MONTH  TREASURY  TRUST  LEAGUE  YOUTH ENV  PLAYERS  COACHES  SOLVENT CLUBS")
+    print(
+        "MONTH  TREASURY  TRUST  LEAGUE  YOUTH ENV  PLAYERS  COACHES  "
+        "SOLVENT  WC POS/PTS  LEAGUE LEADER"
+    )
     for dash in campaign.dashboards:
         print(
-            f"{dash.month:>5}  {_money(dash.treasury):>8}  {dash.fan_trust:>5.0%}  "
-            f"{dash.league_financial_health:>6.0%}  {dash.youth_environment:>9.2f}  "
-            f"{dash.registered_youth_players:>7}  {dash.licensed_youth_coaches:>7}  "
-            f"{dash.solvent_club_share:>13.0%}"
+            f"{dash.month:>5}  {_money(dash.treasury):>8}  "
+            f"{dash.fan_trust:>5.0%}  {dash.league_financial_health:>6.0%}  "
+            f"{dash.youth_environment:>9.2f}  "
+            f"{dash.registered_youth_players:>7}  "
+            f"{dash.licensed_youth_coaches:>7}  "
+            f"{dash.solvent_club_share:>7.0%}  "
+            f"{dash.qualifier_position:>2}/6 {dash.qualifier_points:>2}  "
+            f"{dash.league_leader}"
         )
     print()
-    print(f"BOARD SCORE: {review.score:.1f}/100 — {review.verdict.upper()}")
+    print(
+        f"BOARD SCORE: {review.score:.1f}/100 — {review.verdict.upper()}"
+    )
     for line in review.explanation:
         print(f"- {line}")
-    print("\nLAST IMPLEMENTATION EVENTS")
-    for line in campaign.engine.audit_log[-8:]:
+
+    print("\nWORLD CUP QUALIFYING TABLE")
+    for position, row in enumerate(
+        campaign.football.international.sorted_table(), start=1
+    ):
+        print(
+            f"{position}. {row.team_name:<14} "
+            f"P{row.played} W{row.won} D{row.drawn} L{row.lost} "
+            f"GD{row.goal_difference:+} PTS{row.points}"
+        )
+
+    print("\nDOMESTIC LEAGUE TABLE")
+    for position, row in enumerate(
+        campaign.football.domestic_league.sorted_table(), start=1
+    ):
+        print(
+            f"{position}. {row.team_name:<22} "
+            f"P{row.played} W{row.won} D{row.drawn} L{row.lost} "
+            f"GD{row.goal_difference:+} PTS{row.points}"
+        )
+
+    print("\nLAST IMPLEMENTATION AND MATCH EVENTS")
+    for line in campaign.engine.audit_log[-12:]:
         print(f"- {line}")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run a 24-month Football Republic campaign")
+    parser = argparse.ArgumentParser(
+        description="Run a 24-month Football Republic campaign"
+    )
     parser.add_argument(
         "--strategy",
         choices=[item.value for item in Strategy],
