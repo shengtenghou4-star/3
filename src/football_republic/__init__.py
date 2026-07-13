@@ -90,6 +90,15 @@ from .long_term import (
 )
 from .market import TransferMarket, TransferPolicy, TransferRecord
 from .ordered_contracts import OrderedContractMarket
+from .patronage_justice import (
+    CareerEvent,
+    CareerPosting,
+    JusticeCase,
+    JusticeEvent,
+    PatronageTie,
+    PoliticalPerson,
+)
+from .patronage_runtime import CareerJusticeHistory
 from .policy_registration import StrictRegistrationSystem
 from .political_economy import (
     AGENDA_DECISIONS,
@@ -118,6 +127,9 @@ __all__ = [
     "AppointmentRecord",
     "BlocVote",
     "Campaign",
+    "CareerEvent",
+    "CareerJusticeHistory",
+    "CareerPosting",
     "Club",
     "ClubHistoryRecord",
     "ClubPyramid",
@@ -151,6 +163,8 @@ __all__ = [
     "InsolvencyRecord",
     "InsolvencySystem",
     "InternationalQualifiers",
+    "JusticeCase",
+    "JusticeEvent",
     "KnockoutResult",
     "LoanRecord",
     "LongTermCampaign",
@@ -162,11 +176,13 @@ __all__ = [
     "OfficialProfile",
     "OrderedContractMarket",
     "OwnerProfile",
+    "PatronageTie",
     "Player",
     "PlayerHistoryRecord",
     "PolicyWorkloadManager",
     "PoliticalEconomy",
     "PoliticalEvent",
+    "PoliticalPerson",
     "PoliticalPromise",
     "PoliticalReview",
     "PresidentProfile",
