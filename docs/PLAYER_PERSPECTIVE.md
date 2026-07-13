@@ -1,5 +1,7 @@
 # Fixed Chairman Player Perspective
 
+Implemented as the default long-term player contract in Football Republic 0.13.0.
+
 Football Republic is a football-association chairman simulator. The player controls one person: the opening national-association chairman.
 
 ## Player identity
