@@ -51,19 +51,18 @@ def _print_campaign(
     )
     print()
     print(
-        "MONTH  TREASURY  TRUST  LEAGUE  YOUTH ENV  PLAYERS  COACHES  "
-        "SOLVENT  WC POS/PTS  LEAGUE LEADER"
+        "MONTH  TREASURY  TRUST  INTEGRITY  LEAGUE  YOUTH ENV  "
+        "SOLVENT  WC POS/PTS  TRANSFERS"
     )
     for dash in campaign.dashboards:
         print(
             f"{dash.month:>5}  {_money(dash.treasury):>8}  "
-            f"{dash.fan_trust:>5.0%}  {dash.league_financial_health:>6.0%}  "
+            f"{dash.fan_trust:>5.0%}  {dash.integrity_reputation:>9.0%}  "
+            f"{dash.league_financial_health:>6.0%}  "
             f"{dash.youth_environment:>9.2f}  "
-            f"{dash.registered_youth_players:>7}  "
-            f"{dash.licensed_youth_coaches:>7}  "
             f"{dash.solvent_club_share:>7.0%}  "
             f"{dash.qualifier_position:>2}/6 {dash.qualifier_points:>2}  "
-            f"{dash.league_leader}"
+            f"{dash.transfers_completed:>9}"
         )
     print()
     print(
@@ -71,6 +70,37 @@ def _print_campaign(
     )
     for line in review.explanation:
         print(f"- {line}")
+
+    print("\nPRESIDENTIAL DECISIONS")
+    for record in campaign.decision_history:
+        print(f"M{record.month}: {record.title} -> {record.option_title}")
+        for effect in record.effects:
+            print(f"  - {effect}")
+
+    print("\nYEAR-TWO FOOTBALL FINANCE")
+    if campaign.finance_reports:
+        for report in campaign.finance_reports:
+            print(
+                f"M{report.month}: public {_money(report.public_grant)}, "
+                f"commercial {_money(report.commercial_distribution)}, "
+                f"performance {_money(report.performance_bonus)}, "
+                f"integrity {_money(report.integrity_bonus)}, "
+                f"total {_money(report.total_income)}"
+            )
+    else:
+        print("No annual funding cycle completed.")
+
+    print("\nTRANSFER MARKET")
+    if campaign.transfer_market.history:
+        for record in campaign.transfer_market.history:
+            print(
+                f"M{record.month}: {record.player_name} "
+                f"({record.position}, {record.ability:.1f}) — "
+                f"{record.seller_name} -> {record.buyer_name}, "
+                f"fee {_money(record.fee)}"
+            )
+    else:
+        print("No transfers completed.")
 
     print("\nWORLD CUP QUALIFYING TABLE")
     for position, row in enumerate(
@@ -93,7 +123,7 @@ def _print_campaign(
         )
 
     print("\nLAST IMPLEMENTATION AND MATCH EVENTS")
-    for line in campaign.engine.audit_log[-12:]:
+    for line in campaign.engine.audit_log[-16:]:
         print(f"- {line}")
 
 
@@ -110,13 +140,13 @@ def main() -> None:
     parser.add_argument(
         "--interactive",
         action="store_true",
-        help="build a custom opening budget instead of using a preset strategy",
+        help="build a custom opening budget; mid-term decisions use the balanced doctrine",
     )
     args = parser.parse_args()
 
     if args.interactive:
         plan = _interactive_plan()
-        campaign = Campaign()
+        campaign = Campaign(strategy=Strategy.BALANCED)
         campaign.enact_plan(plan)
         review = campaign.run(24)
         _print_campaign("custom", plan, campaign, review)
