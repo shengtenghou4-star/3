@@ -13,6 +13,13 @@ from .advanced_ecosystem import (
     WorkloadReport,
 )
 from .campaign import Campaign, PresidentialPlan, STRATEGIES, Strategy, run_strategy
+from .chairman_career import (
+    BriefingItem,
+    ChairmanCareer,
+    ChairmanLegacyReport,
+    OfficialAssessment,
+    StakeholderSignal,
+)
 from .coalition_elections import (
     BlocVote,
     CoalitionCommitment,
@@ -126,10 +133,13 @@ __all__ = [
     "AnnualFinanceReport",
     "AppointmentRecord",
     "BlocVote",
+    "BriefingItem",
     "Campaign",
     "CareerEvent",
     "CareerJusticeHistory",
     "CareerPosting",
+    "ChairmanCareer",
+    "ChairmanLegacyReport",
     "Club",
     "ClubHistoryRecord",
     "ClubPyramid",
@@ -173,6 +183,7 @@ __all__ = [
     "NationalFootballSystem",
     "NationalSquad",
     "NationalSquadSelector",
+    "OfficialAssessment",
     "OfficialProfile",
     "OrderedContractMarket",
     "OwnerProfile",
@@ -205,6 +216,7 @@ __all__ = [
     "StadiumProfile",
     "StadiumSystem",
     "StakeholderProfile",
+    "StakeholderSignal",
     "Standing",
     "Strategy",
     "StrictRegistrationSystem",
