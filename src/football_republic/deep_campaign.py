@@ -11,6 +11,7 @@ from .campaign import (
 )
 from .deep_scenario import build_deep_2026_scenario
 from .engine import SimulationEngine
+from .ordered_contracts import OrderedContractMarket
 
 
 class DeepCampaign(Campaign):
@@ -24,6 +25,7 @@ class DeepCampaign(Campaign):
         deep_engine = engine or SimulationEngine(build_deep_2026_scenario())
         super().__init__(engine=deep_engine, strategy=strategy)
         self.football = AdvancedClubWorld.build(self.engine.state, seed=3033)
+        self.football.contracts = OrderedContractMarket(seed=3533)
         opening = self.dashboard()
         self.dashboards = [opening]
         self.monthly_history = [opening]
