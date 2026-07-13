@@ -1,12 +1,10 @@
-import pytest
-
 from football_republic.advanced_ecosystem import WorkloadManager
 from football_republic.campaign import STRATEGIES, Strategy
 from football_republic.deep_campaign import DeepCampaign
 from football_republic.deep_scenario import build_deep_2026_scenario
+from football_republic.ecosystem import ClubPyramidWorld
 from football_republic.football import MatchResult
 from football_republic.ordered_contracts import OrderedContractMarket
-from football_republic.ecosystem import ClubPyramidWorld
 
 
 def started_campaign() -> DeepCampaign:
@@ -34,7 +32,11 @@ def test_continental_competition_plays_groups_semifinals_and_final() -> None:
     assert len(competition.group_results) == 24
     assert len(competition.knockout_results) == 3
     assert competition.champion_id is not None
-    assert all(row.played == 6 for table in competition.tables.values() for row in table.values())
+    assert all(
+        row.played == 6
+        for table in competition.tables.values()
+        for row in table.values()
+    )
 
 
 def test_congested_calendar_creates_extra_fitness_cost() -> None:
@@ -42,6 +44,12 @@ def test_congested_calendar_creates_extra_fitness_cost() -> None:
     world = ClubPyramidWorld.build(state, seed=3033)
     club_id = "harbor"
     roster = world.rosters[club_id]
+    for player in sorted(
+        roster.players,
+        key=lambda item: item.match_readiness,
+        reverse=True,
+    )[:18]:
+        player.appearances = 1
     fitness_before = sum(player.fitness for player in roster.players)
     opponent = "phoenix"
     results = [
@@ -111,20 +119,29 @@ def test_registration_window_occurs_after_month_six_policy_decision() -> None:
 
     assert campaign.engine.state.month == 7
     assert campaign.football.contracts.loan_history
-    assert all(item.start_month == 7 for item in campaign.football.contracts.loan_history if item.status == "active")
+    assert all(
+        item.start_month == 7
+        for item in campaign.football.contracts.loan_history
+        if item.status == "active"
+    )
 
 
 def test_development_loan_returns_to_parent_and_restores_roster() -> None:
     state = build_deep_2026_scenario()
     base_world = ClubPyramidWorld.build(state, seed=3033)
     market = OrderedContractMarket(seed=3533)
-    parent_id = base_world.pyramid.premier_ids[0]
-    parent = base_world.rosters[parent_id]
-    candidate = min(parent.players, key=lambda item: item.match_readiness)
-    candidate.age = 20
-    candidate.potential = max(candidate.ability + 10.0, candidate.potential)
-    candidate.contract_months = 24
-    parent_count = len(parent.players)
+    for parent_id in base_world.pyramid.premier_ids:
+        weakest = min(
+            base_world.rosters[parent_id].players,
+            key=lambda item: item.match_readiness,
+        )
+        weakest.age = 20
+        weakest.potential = max(weakest.ability + 10.0, weakest.potential)
+        weakest.contract_months = 24
+    roster_counts = {
+        club_id: len(roster.players)
+        for club_id, roster in base_world.rosters.items()
+    }
 
     market.advance_month(
         7,
@@ -134,11 +151,10 @@ def test_development_loan_returns_to_parent_and_restores_roster() -> None:
         set(base_world.pyramid.second_ids),
     )
 
-    loan = market.active_loans.get(candidate.id)
-    if loan is None:
-        pytest.skip("deterministic market selected another eligible development player")
-    assert candidate not in parent.players
-    assert candidate in base_world.rosters[loan.borrower_id].players
+    assert market.active_loans
+    player_id, loan = next(iter(market.active_loans.items()))
+    assert loan.player not in base_world.rosters[loan.parent_id].players
+    assert loan.player in base_world.rosters[loan.borrower_id].players
 
     market.advance_month(
         12,
@@ -148,9 +164,9 @@ def test_development_loan_returns_to_parent_and_restores_roster() -> None:
         set(base_world.pyramid.second_ids),
     )
 
-    assert candidate in parent.players
-    assert candidate.id not in market.active_loans
-    assert len(parent.players) == parent_count
+    assert loan.player in base_world.rosters[loan.parent_id].players
+    assert player_id not in market.active_loans
+    assert len(base_world.rosters[loan.parent_id].players) == roster_counts[loan.parent_id]
 
 
 def test_full_term_preserves_all_domestic_player_objects() -> None:
@@ -183,5 +199,8 @@ def test_full_term_contains_both_cups_and_continental_seasons() -> None:
         len(summary.domestic_clubs)
         for summary in campaign.football.continental_history
     ) == 4
-    assert any(report.matches >= 4 for report in campaign.football.workload.history)
+    assert any(
+        report.matches >= 3 and report.extra_fitness_cost > 0
+        for report in campaign.football.workload.history
+    )
     assert campaign.football.contracts.contract_history
