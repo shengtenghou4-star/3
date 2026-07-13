@@ -10,9 +10,9 @@ from .campaign import (
 )
 from .deep_scenario import build_deep_2026_scenario
 from .engine import SimulationEngine
-from .generational_economy import GenerationalWorld
 from .ordered_contracts import OrderedContractMarket
 from .policy_registration import StrictRegistrationSystem
+from .policy_world import PolicyAwareGenerationalWorld
 
 
 class DeepCampaign(Campaign):
@@ -25,7 +25,10 @@ class DeepCampaign(Campaign):
     ) -> None:
         deep_engine = engine or SimulationEngine(build_deep_2026_scenario())
         super().__init__(engine=deep_engine, strategy=strategy)
-        self.football = GenerationalWorld.build(self.engine.state, seed=3033)
+        self.football = PolicyAwareGenerationalWorld.build(
+            self.engine.state,
+            seed=3033,
+        )
         self.football.base.contracts = OrderedContractMarket(seed=3533)
         self.football.economy.registration = StrictRegistrationSystem()
         self.football.economy.registration.register(
