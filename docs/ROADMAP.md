@@ -28,27 +28,31 @@ Implemented:
 - fourteen professional clubs across two levels;
 - six-club National Premier League and eight-club National Championship;
 - complete double round-robin scheduling at both levels;
-- automatic promotion and relegation;
-- a promotion play-off;
+- automatic promotion, relegation and a promotion play-off;
 - licensing, solvency and wage-arrears tests before promotion;
+- a fourteen-club National FA Cup in both seasons;
+- an eight-club Continental Champions Cup with two groups, semifinals and a final;
 - central media-rights pools with equal, merit and audience shares;
 - club cash, debt, wages, arrears, gate receipts and prize money;
 - formal administration and six-point deductions;
 - owner rescue injections and professional-licence withdrawal;
 - transfer fees, wage changes and policy-driven transfer windows;
+- contract renewals, expiries, emergency extensions and releases;
+- free-agent signings without transfer fees;
+- development loans with wage sharing and scheduled returns;
+- schedule congestion, travel fatigue and additional injury risk;
 - conditional rescue, refusal to bail out and unconditional bailout choices;
 - persistent owners with wealth, ambition, patience, reputation and bailout memory;
-- a dedicated regulatory dashboard for the national pyramid.
+- a dedicated regulatory dashboard for leagues, cups, owners, contracts and workload.
 
 Next:
 
-- domestic cup competition;
-- continental club competition;
 - commercial sponsorship contracts;
 - formal insolvency and phoenix-club formation;
-- loans, free agents and contract negotiation;
-- stadium capacity, travel costs and calendar congestion;
-- multi-season ownership bargaining and sale of clubs.
+- stadium capacity, ticket pricing and facility investment;
+- transfer registration quotas and foreign-player limits;
+- multi-season ownership bargaining and sale of clubs;
+- richer continental qualification coefficients and travel geography.
 
 ## M3 — Player development engine (strong foundation)
 
@@ -56,18 +60,21 @@ Implemented:
 
 - individual players with age, position, ability, potential, fitness, morale, injuries, wages, contracts, nationality and homegrown status;
 - line ratings, depth, cohesion and monthly development/decline;
-- players moving between actual club rosters through the transfer market;
+- players moving between actual club rosters through transfers and loans;
+- contract negotiation, free agency and emergency squad protection;
 - senior national-team selection from the shared club-player database;
 - twenty-six-player positional quotas;
-- call-up scoring based on ability, fitness, morale, appearances, form, division level and homegrown status.
+- call-up scoring based on ability, fitness, morale, appearances, form, division level and homegrown status;
+- international release causing additional fatigue and injury risk.
 
 Next:
 
 - cohort-based academy intakes;
-- loans, contract negotiation, free agency and retirement;
+- player retirement and regeneration;
 - club, school and regional scouting pathways;
 - U17, U20 and U23 national squads;
-- club-versus-country release disputes.
+- club-versus-country release disputes;
+- player agents, promises and transfer requests.
 
 ## M4 — Political and organizational agents (club-owner memory implemented)
 
@@ -96,7 +103,8 @@ Implemented:
 - coach-retention, replacement and media-management decisions;
 - senior squad selection from domestic club rosters;
 - injuries, club appearances and player form affecting call-ups;
-- squad quality blended with association-level coaching and preparation.
+- squad quality blended with association-level coaching and preparation;
+- continental and domestic cup congestion feeding back into international readiness.
 
 Next:
 
