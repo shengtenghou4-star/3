@@ -6,72 +6,84 @@
 - Establish a typed Python domain model and deterministic tests.
 - Implement one complete delayed policy chain as the architectural proof.
 
-## M1 — Playable vertical slice (in progress)
+## M1 — Playable vertical slice ✅
 
-The 24-month scenario now has both a command-line mode and a polished local web command centre. Completed:
+The 24-month campaign now contains:
 
 - three contrasting regional associations;
 - six clubs with finances, licensing and academy characteristics;
-- individual 25-player first-team rosters;
+- individual first-team rosters;
 - two domestic double round-robin seasons;
 - a ten-round World Cup qualifying campaign;
-- coach-education and youth-match programs;
-- one cross-ministry school-football agreement;
-- one licensing reform with compliance, restructuring and loophole responses;
-- monthly visual controls, six-month snapshots, audit trail and month-24 board review;
-- three preset strategies plus a custom interactive budget.
+- opening and second-year football budgets;
+- six mandatory mid-term presidential decisions;
+- coach education, youth-match funding and school-football agreements;
+- club bailouts, media pressure and regional corruption cases;
+- transfer-policy choices and two live transfer windows;
+- monthly visual controls that stop for presidential decisions;
+- seven dashboard views, six-month snapshots, an audit trail and month-24 board review;
+- three preset governing doctrines plus a custom opening budget.
 
-Still required before M1 is closed:
-
-- recurring annual budget cycles rather than a single opening allocation;
-- new policy and personnel decisions during the term;
-- richer political and media events.
-
-## M2 — Professional league and club economy (partially implemented)
+## M2 — Professional league and club economy (active)
 
 Implemented:
 
 - club cash, debt, monthly revenue, wages, arrears and exclusion;
 - league scheduling, tables, form, attendance, gate receipts and prize money;
-- licensing, sanctions, restructuring, rule-gaming and forfeits.
+- licensing, sanctions, restructuring, rule-gaming and forfeits;
+- transfer fees, wage changes and policy-driven transfer windows;
+- conditional rescue, refusal to bail out and unconditional bailout choices.
 
 Next:
 
-- promotion and relegation;
+- a second division with promotion and relegation;
 - media-rights distribution and commercial contracts;
-- rescue packages, administration and moral hazard;
-- live transfer windows and owner bargaining.
+- administration, insolvency and phoenix-club formation;
+- loans, free agents and contract negotiation;
+- continental club competition;
+- owner bargaining as persistent agents rather than single events.
 
 ## M3 — Player development engine (foundation implemented)
 
 Implemented:
 
 - individual players with age, position, ability, potential, fitness, morale, injuries, wages, contracts, nationality and homegrown status;
-- line ratings, depth, cohesion and monthly development/decline.
+- line ratings, depth, cohesion and monthly development/decline;
+- players moving between actual club rosters through the transfer market.
 
 Next:
 
 - cohort-based academy intakes;
-- transfers, loans, contract negotiation and retirement;
-- club, school, regional and national scouting pathways.
+- loans, contract negotiation, free agency and retirement;
+- club, school, regional and national scouting pathways;
+- national-team call-ups from the shared player database.
 
-## M4 — Political and organizational agents
+## M4 — Political and organizational agents (event layer implemented)
 
-- Ministries, local governments, clubs, media, sponsors, supporters and parents.
-- Interests, trust, bargaining, resistance, loophole exploitation and coalitions.
-- Appointments, investigations, scandals and institutional capture.
+Implemented:
+
+- six cabinet files covering parents, clubs, media, transfers and corruption;
+- choices that alter political capital, trust, integrity and implementation capacity;
+- year-two public and commercial income linked to prior governance.
+
+Next:
+
+- persistent ministries, local governments, owners, media and sponsor agents;
+- relationship memory, bargaining, resistance, coalitions and leaks;
+- appointments, investigations and institutional capture.
 
 ## M5 — National teams and football identity (qualification layer implemented)
 
 Implemented:
 
 - a six-team World Cup qualifying group with all thirty fixtures;
-- dynamic strength, expectation, results and fan-trust effects.
+- dynamic strength, expectation, results and fan-trust effects;
+- coach-retention, replacement and media-management decisions.
 
 Next:
 
 - senior and age-group squads drawn from the domestic player database;
-- tactical continuity and coach appointments;
+- tactical continuity and detailed coach appointments;
 - selection politics, dual-national recruitment and overseas-player policy;
 - finals tournaments and continental championships.
 
