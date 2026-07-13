@@ -29,9 +29,13 @@ The deep mode connects:
 - a fourteen-club national knockout cup;
 - an eight-club continental champions competition;
 - central media-rights distributions;
-- administration, points deductions and licence withdrawal;
+- stadium capacity, ticket pricing, maintenance and expansion;
+- commercial sponsorship contracts and morality clauses;
+- administration, points deductions, liquidation and phoenix clubs;
 - persistent club owners with bailout memory;
 - contracts, free agency and development loans;
+- squad registration, foreign-player limits and homegrown quotas;
+- annual academy graduations and player retirement;
 - schedule congestion, travel fatigue and injury risk;
 - a twenty-six-player national squad selected from the club database.
 
@@ -69,6 +73,54 @@ continental qualification
   -> deeper squad becomes more valuable
 ```
 
+## Stadiums and ticket economics
+
+Every club now owns a distinct stadium profile with:
+
+- physical capacity;
+- facility quality;
+- hospitality revenue;
+- dynamic ticket pricing;
+- monthly maintenance costs;
+- possible expansion projects.
+
+The match engine's generic gate income is reconciled against the real stadium. Attendance cannot exceed capacity. High utilization raises ticket prices and can encourage an ambitious owner to approve an expansion. Poor maintenance damages stadium quality and pushes costs into debt.
+
+## Sponsorship market
+
+Every season, each club negotiates a commercial contract. Value depends on:
+
+- division level;
+- squad quality;
+- supporter base;
+- club integrity;
+- stadium quality.
+
+Sponsorship becomes recurring monthly revenue. League, cup and continental success can trigger bonuses. A serious integrity failure or licence withdrawal can activate a morality clause, suspend revenue and force a clawback.
+
+## Squad registration policy
+
+The president's month-six transfer-policy choice now changes the registration law itself.
+
+```text
+homegrown priority
+  -> 25-player squad
+  -> maximum 4 foreign players
+  -> minimum 10 homegrown players
+
+open market
+  -> 27-player squad
+  -> maximum 7 foreign players
+  -> minimum 6 homegrown players
+
+financial control
+  -> 24-player squad
+  -> maximum 5 foreign players
+  -> minimum 8 homegrown players
+```
+
+Unregistered players remain under contract and continue training, but cannot play league, cup or continental matches and cannot be selected for the national team. Registration audits occur in months 1, 7, 13 and 19.
+
 ## Schedule congestion
 
 Every match already reduces the fitness of the players who took part. When a club plays more than two matches in a month, the system adds congestion costs. Continental away matches add travel strain.
@@ -83,7 +135,7 @@ High-load months can create:
 
 ## Contracts, free agents and loans
 
-Players now leave clubs when contracts expire unless a renewal is agreed. Clubs decide whether to make an offer based on player importance, age, financial health and wage arrears. Players consider morale, club stability and the proposed salary.
+Players leave clubs when contracts expire unless a renewal is agreed. Clubs decide whether to make an offer based on player importance, age, financial health and wage arrears. Players consider morale, club stability and the proposed salary.
 
 Possible outcomes include:
 
@@ -94,6 +146,34 @@ Possible outcomes include:
 - development loan from a Premier League club to a second-division club.
 
 Loans move the real player object, split wages between the two clubs and return the player at the end of the registration period. The first registration cycle happens after the president's month-six transfer-policy decision, not before it.
+
+## Academy graduation and retirement
+
+The player database is no longer static. At the end of each season:
+
+- older players can retire based on age and physical decline;
+- clubs graduate new seventeen- and eighteen-year-old players;
+- academy quality and the regional development environment determine ability and potential;
+- new players receive real contracts and wages;
+- squad registration decides whether they reach the first team immediately.
+
+This creates a delayed causal chain from school football, coaching and regional infrastructure to future club and national-team quality.
+
+## Insolvency and phoenix clubs
+
+A club that remains excluded or severely insolvent for three consecutive months can no longer survive as an immortal shell.
+
+```text
+sustained insolvency
+  -> company liquidation
+  -> expensive contracts released
+  -> debt haircut
+  -> professional licence transferred
+  -> supporter-backed community successor
+  -> conditional licence and points deduction
+```
+
+The successor keeps the football community alive but does not erase the sporting cost of collapse.
 
 ## Media-rights system
 
@@ -133,6 +213,7 @@ Every international window selects twenty-six eligible Longhua players from the 
 - club appearances;
 - club form;
 - division level;
+- registration eligibility;
 - homegrown status;
 - positional quotas.
 
@@ -171,6 +252,6 @@ football-republic --interactive
 pytest -q
 ```
 
-The design rule is unchanged: important outcomes must remain traceable through money, capacity, incentives, delay, compliance, player quality, ownership behaviour, contracts, workload, governance decisions and match events. No scripted champions, protected clubs or unexplained score jumps.
+The design rule is unchanged: important outcomes must remain traceable through money, facilities, capacity, incentives, delay, compliance, player quality, ownership behaviour, contracts, registration, workload, governance decisions and match events. No scripted champions, protected clubs or unexplained score jumps.
 
 See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md), [`docs/ROADMAP.md`](docs/ROADMAP.md), and [`docs/M1_STATUS.md`](docs/M1_STATUS.md).
