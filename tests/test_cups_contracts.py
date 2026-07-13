@@ -13,6 +13,18 @@ def started_campaign() -> DeepCampaign:
     return campaign
 
 
+def advance_to_transfer_policy(campaign: DeepCampaign) -> None:
+    campaign.advance(24, interactive=True)
+    assert campaign.current_decision is not None
+    assert campaign.current_decision.id == "agenda_governance_compact"
+    campaign.resolve_decision("federal_compact")
+    campaign.advance(24, interactive=True)
+    assert campaign.current_decision is not None
+    assert campaign.current_decision.id == "youth_safety_crisis"
+    campaign.resolve_decision("transparent_reform")
+    campaign.advance(24, interactive=True)
+
+
 def test_national_cup_completes_a_full_four_round_bracket() -> None:
     campaign = started_campaign()
     campaign.run(12)
@@ -105,9 +117,7 @@ def test_expired_contract_releases_a_nonessential_player() -> None:
 
 def test_registration_window_occurs_after_month_six_policy_decision() -> None:
     campaign = started_campaign()
-    campaign.advance(24, interactive=True)
-    campaign.resolve_decision("transparent_reform")
-    campaign.advance(24, interactive=True)
+    advance_to_transfer_policy(campaign)
 
     assert campaign.engine.state.month == 6
     assert campaign.current_decision is not None
