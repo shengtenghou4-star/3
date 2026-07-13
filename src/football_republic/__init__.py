@@ -113,7 +113,6 @@ __all__ = [
     "RegistrationAudit",
     "RegistrationSystem",
     "RetirementRecord",
-    "SPONSORSHIP_PLACEHOLDER",
     "STRATEGIES",
     "SimulationEngine",
     "SponsorshipContract",
