@@ -33,6 +33,33 @@ class CoalitionElectionHistory(_CoalitionElectionCore):
                 break
             remaining -= elapsed
 
+    def resolve_decision(self, option_id: str):
+        decision = self.current_decision
+        caretaker_continuity = (
+            self.caretaker_active
+            and decision is not None
+            and not self._pending_election
+            and not self._pending_coalition
+            and not decision.id.startswith("constitutional_crisis_")
+        )
+        record = super().resolve_decision(option_id)
+        if caretaker_continuity and decision is not None:
+            self.constitutional_history.append(
+                ConstitutionalEvent(
+                    self.global_month,
+                    self.local_month,
+                    self.term_index,
+                    "caretaker continuity decision",
+                    f"看守政府以最低变更原则处理：{decision.title}",
+                    0.22,
+                    (
+                        "The caretaker could not negotiate a new political mandate.",
+                        "A balanced continuity option kept competitions and administration moving.",
+                    ),
+                )
+            )
+        return record
+
     def _caretaker_must_resolve_continuity(self) -> bool:
         decision = self.current_decision
         if not self.caretaker_active or decision is None:
@@ -54,21 +81,7 @@ class CoalitionElectionHistory(_CoalitionElectionCore):
             )
         else:
             option_id = _AUTO_CHOICES[Strategy.BALANCED][decision.id]
-        super().resolve_decision(option_id)
-        self.constitutional_history.append(
-            ConstitutionalEvent(
-                self.global_month,
-                self.local_month,
-                self.term_index,
-                "caretaker continuity decision",
-                f"看守政府以最低变更原则处理：{decision.title}",
-                0.22,
-                (
-                    "The caretaker could not negotiate a new political mandate.",
-                    "A balanced continuity option kept competitions and administration moving.",
-                ),
-            )
-        )
+        self.resolve_decision(option_id)
 
     def _install_snap_winner(self, candidate, agreement) -> None:
         super()._install_snap_winner(candidate, agreement)
