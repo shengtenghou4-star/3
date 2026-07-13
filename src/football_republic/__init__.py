@@ -111,6 +111,15 @@ from .political_economy import (
     YearArchive,
 )
 from .political_workload import PolicyWorkloadManager
+from .president_career import (
+    DisclosedConnectionBrief,
+    PresidentCareerGame,
+    PresidentLegacyReport,
+    PresidentialBriefing,
+    PublicCaseBrief,
+    PublicPersonBrief,
+    StakeholderEstimate,
+)
 from .programs import CoachEducationGrant, YouthMatchGrant
 from .scenario import build_2026_scenario
 from .scenario_history import ReplayableConstitutionalHistory
@@ -148,6 +157,7 @@ __all__ = [
     "DecisionOption",
     "DecisionRecord",
     "DeepCampaign",
+    "DisclosedConnectionBrief",
     "DivisionLeague",
     "DomesticCup",
     "DomesticLeague",
@@ -185,9 +195,14 @@ __all__ = [
     "PoliticalPerson",
     "PoliticalPromise",
     "PoliticalReview",
+    "PresidentCareerGame",
+    "PresidentLegacyReport",
     "PresidentProfile",
+    "PresidentialBriefing",
     "PresidentialPlan",
     "PromotionMovement",
+    "PublicCaseBrief",
+    "PublicPersonBrief",
     "Region",
     "RegistrationAudit",
     "RegistrationSystem",
@@ -204,6 +219,7 @@ __all__ = [
     "StadiumInvestmentRecord",
     "StadiumProfile",
     "StadiumSystem",
+    "StakeholderEstimate",
     "StakeholderProfile",
     "Standing",
     "Strategy",

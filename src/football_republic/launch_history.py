@@ -1,4 +1,4 @@
-"""Launch the continuous political-career football-history simulation."""
+"""Launch the fixed-player football-association president simulation."""
 
 from __future__ import annotations
 
@@ -11,11 +11,11 @@ def main() -> None:
         from streamlit.web import cli as streamlit_cli
     except ImportError as exc:
         raise SystemExit(
-            "The history interface is not installed. Run: "
+            "The president interface is not installed. Run: "
             "python -m pip install -e '.[ui]'"
         ) from exc
 
-    app_path = Path(__file__).with_name("career_webapp.py")
+    app_path = Path(__file__).with_name("president_office_webapp.py")
     sys.argv = [
         "streamlit",
         "run",
