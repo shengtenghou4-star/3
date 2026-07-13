@@ -44,23 +44,30 @@ The deep mode connects:
 - a twenty-six-player national squad selected from the club database;
 - annual political and sporting history plus a second-term coalition review.
 
-### Continuous twenty-year national history
+### Continuous twenty-year government history
 
 ```bash
 python -m pip install -e '.[dev,ui]'
 football-republic-history
 ```
 
-The history mode chains up to ten two-year presidencies and twenty seasons without resetting the nation. Schedules are rebuilt at term boundaries, while clubs, players, owners, debt, stadiums, sponsorships, laws and stakeholder relationships persist.
+The history mode chains up to ten two-year institutional terms and twenty seasons without resetting the nation. Schedules are rebuilt at formal term boundaries, while clubs, players, owners, debt, stadiums, sponsorships, laws and stakeholder relationships persist.
 
-The long-term mode adds:
+The long-term government mode adds:
 
-- incumbent renewal, contested conventions and coalition-driven succession;
+- five named senior association officials with competence, integrity, loyalty and network power;
+- cabinet quality affecting administration, finance, integrity, grassroots work and national-team preparation every month;
+- endogenous scandal risk from loyal, networked and low-integrity appointments;
+- independent inquiries, cabinet reshuffles and protection of political loyalists;
+- voluntary resignation and no-confidence removal before a formal term ends;
+- caretaker administrations and snap elections while competitions continue;
+- multiple governments inside one formal two-year institutional cycle;
+- incumbent renewal, contested conventions and coalition-driven scheduled succession;
 - a maximum of three consecutive presidential terms;
 - successors who inherit the actual institutional and financial state;
 - globally unique academy cohorts beyond season two;
-- global club, player, champion, stadium, sponsorship and insolvency archives;
-- safe UTF-8 JSON saves based on deterministic decision-log replay;
+- global administration, appointment, constitutional, club, player, champion, stadium, sponsorship and insolvency archives;
+- safe UTF-8 JSON saves based on deterministic chronological decision-log replay;
 - fingerprint verification that rejects corrupted or incompatible saves.
 
 The standard and two-year deep modes remain available and unchanged.
@@ -165,20 +172,47 @@ The ordinary board review remains, but the deep mode also calculates a political
 
 ## Continuous terms and succession
 
-At the end of every 24-month term, football performance and political governability are evaluated together.
+At the end of every 24-month institutional term, football performance and political governability are evaluated together.
 
 An incumbent can win a clear renewal, survive a contested convention, lose office through coalition collapse, lose the football board, or leave after three consecutive terms. The incoming president receives a transition grant based on coalition support, integrity, league health and national-team strength, then scales the opening programme to the treasury that actually exists.
 
 ```text
-term ends
+formal term ends
   -> football board review
   -> political coalition review
-  -> renewal or succession
-  -> schedules reset
+  -> renewal or scheduled succession
+  -> future schedules reset
   -> nation, players, clubs, debt and relationships persist
 ```
 
-JSON saves store choices rather than executable objects. Loading reconstructs the original scenario, replays all decisions and verifies a deterministic fingerprint before accepting the state.
+## Cabinet appointments and constitutional crises
+
+The formal competition term no longer guarantees that one president remains in office for all twenty-four months.
+
+Every administration appoints:
+
+- a secretary-general;
+- a finance and licensing director;
+- an integrity and discipline commissioner;
+- a national-team technical director;
+- a grassroots and school-football commissioner.
+
+Officials are technocrats, loyalists or coalition brokers. Competence can improve administration and sporting delivery, while high loyalty and network power can improve short-term control. When those strengths are combined with low integrity, institutional-capture and scandal exposure accumulate.
+
+Crisis assessments in months 5, 9, 13, 17 and 21 combine presidential integrity, official integrity, network power, accumulated scandal, coalition support and national integrity reputation.
+
+```text
+scandal breaks
+  -> independent inquiry, reshuffle, protection or resignation
+  -> possible no-confidence majority
+  -> caretaker government for up to three months
+  -> snap election
+  -> same leagues, players, contracts, clubs and debts continue
+```
+
+A government can therefore fall in month nine while the current league season continues through month twelve. The new president inherits the existing calendar and cannot claim a duplicate opening budget.
+
+JSON saves store every ordinary and constitutional choice rather than executable objects. Loading reconstructs the original scenario, replays the complete history and verifies a deterministic fingerprint covering the cabinet, caretaker state and football nation before accepting the save.
 
 ## Domestic league pyramid
 
@@ -308,6 +342,6 @@ The match engine combines squad quality with association-level preparation. A pr
 pytest -q
 ```
 
-The design rule is unchanged: important outcomes must remain traceable through money, facilities, political power, trust, promises, capacity, incentives, delay, compliance, player quality, ownership, contracts, registration, workload, governance decisions and match events. No scripted champions, protected clubs or unexplained score jumps.
+The design rule is unchanged: important outcomes must remain traceable through money, facilities, political power, appointments, trust, promises, capacity, incentives, delay, compliance, player quality, ownership, contracts, registration, workload, governance decisions and match events. No scripted champions, protected clubs or unexplained score jumps.
 
-See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md), [`docs/LONG_TERM.md`](docs/LONG_TERM.md), [`docs/ROADMAP.md`](docs/ROADMAP.md), and [`docs/M1_STATUS.md`](docs/M1_STATUS.md).
+See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md), [`docs/LONG_TERM.md`](docs/LONG_TERM.md), [`docs/CONSTITUTIONAL_GOVERNMENT.md`](docs/CONSTITUTIONAL_GOVERNMENT.md), [`docs/ROADMAP.md`](docs/ROADMAP.md), and [`docs/M1_STATUS.md`](docs/M1_STATUS.md).

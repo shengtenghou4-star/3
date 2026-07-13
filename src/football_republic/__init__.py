@@ -13,6 +13,13 @@ from .advanced_ecosystem import (
     WorkloadReport,
 )
 from .campaign import Campaign, PresidentialPlan, STRATEGIES, Strategy, run_strategy
+from .constitutional import (
+    AdministrationSpan,
+    AppointmentRecord,
+    ConstitutionalEvent,
+    ConstitutionalLongTermCampaign,
+    OfficialProfile,
+)
 from .deep_campaign import DeepCampaign, run_deep_strategy
 from .deep_scenario import build_deep_2026_scenario
 from .domain import Club, NationalFootballSystem, Region
@@ -87,15 +94,18 @@ from .political_economy import (
 from .political_workload import PolicyWorkloadManager
 from .programs import CoachEducationGrant, YouthMatchGrant
 from .scenario import build_2026_scenario
+from .scenario_history import ReplayableConstitutionalHistory
 
 __all__ = [
     "AGENDA_DECISIONS",
     "AcademyIntakeRecord",
     "AcademyLifecycleSystem",
     "AdministrationRecord",
+    "AdministrationSpan",
     "AdvancedClubWorld",
     "AgendaOutcome",
     "AnnualFinanceReport",
+    "AppointmentRecord",
     "Campaign",
     "Club",
     "ClubHistoryRecord",
@@ -103,6 +113,8 @@ __all__ = [
     "ClubPyramidWorld",
     "ClubRoster",
     "CoachEducationGrant",
+    "ConstitutionalEvent",
+    "ConstitutionalLongTermCampaign",
     "ContinentalChampionsCup",
     "ContinentalSummary",
     "ContractMarket",
@@ -129,6 +141,7 @@ __all__ = [
     "NationalFootballSystem",
     "NationalSquad",
     "NationalSquadSelector",
+    "OfficialProfile",
     "OrderedContractMarket",
     "OwnerProfile",
     "Player",
@@ -144,6 +157,7 @@ __all__ = [
     "Region",
     "RegistrationAudit",
     "RegistrationSystem",
+    "ReplayableConstitutionalHistory",
     "RetirementRecord",
     "STRATEGIES",
     "SeasonHistoryRecord",
