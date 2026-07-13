@@ -1,4 +1,4 @@
-"""Launch the continuous constitutional football-history simulation."""
+"""Launch the continuous coalition-election football-history simulation."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def main() -> None:
             "python -m pip install -e '.[ui]'"
         ) from exc
 
-    app_path = Path(__file__).with_name("constitutional_webapp.py")
+    app_path = Path(__file__).with_name("coalition_webapp.py")
     sys.argv = [
         "streamlit",
         "run",

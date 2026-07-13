@@ -13,6 +13,16 @@ from .advanced_ecosystem import (
     WorkloadReport,
 )
 from .campaign import Campaign, PresidentialPlan, STRATEGIES, Strategy, run_strategy
+from .coalition_elections import (
+    BlocVote,
+    CoalitionCommitment,
+    CoalitionCrisisRecord,
+    ElectionCandidate,
+    ElectionConvention,
+    ElectionRoundRecord,
+    GovernmentAgreement,
+)
+from .coalition_runtime import CoalitionElectionHistory
 from .constitutional import (
     AdministrationSpan,
     AppointmentRecord,
@@ -106,6 +116,7 @@ __all__ = [
     "AgendaOutcome",
     "AnnualFinanceReport",
     "AppointmentRecord",
+    "BlocVote",
     "Campaign",
     "Club",
     "ClubHistoryRecord",
@@ -113,6 +124,9 @@ __all__ = [
     "ClubPyramidWorld",
     "ClubRoster",
     "CoachEducationGrant",
+    "CoalitionCommitment",
+    "CoalitionCrisisRecord",
+    "CoalitionElectionHistory",
     "ConstitutionalEvent",
     "ConstitutionalLongTermCampaign",
     "ContinentalChampionsCup",
@@ -125,11 +139,15 @@ __all__ = [
     "DivisionLeague",
     "DomesticCup",
     "DomesticLeague",
+    "ElectionCandidate",
+    "ElectionConvention",
+    "ElectionRoundRecord",
     "FootballWorld",
     "GenerationalEconomy",
     "GenerationalWorld",
     "GovernanceDecision",
     "GovernedPoliticalEconomy",
+    "GovernmentAgreement",
     "InsolvencyRecord",
     "InsolvencySystem",
     "InternationalQualifiers",

@@ -80,7 +80,7 @@ Next:
 - dual-national eligibility and overseas academies;
 - coaching styles affecting development curves.
 
-## M4 — Political and organizational agents (constitutional implementation)
+## M4 — Political and organizational agents (coalition-government implementation)
 
 Implemented:
 
@@ -105,15 +105,22 @@ Implemented:
 - independent inquiries, cabinet reshuffles and protection of inner-circle officials;
 - no-confidence removal and voluntary presidential resignation;
 - caretaker administrations and snap elections without sporting resets;
-- exact administration, appointment and constitutional-event histories;
+- three-route candidate fields backed by distinct stakeholder blocs;
+- separate nomination and coalition-bargaining phases;
+- three weighted election rounds with abstention, elimination and minority governments;
+- clean mandates, limited coalition agreements and grand bargains;
+- real office, budget and measurable policy commitments created during formation;
+- post-election commitment review, overpromise costs and coalition stability;
+- coalition breakdown, renegotiation, minority rule and confidence votes;
+- exact election-round, bloc-vote, agreement and coalition-crisis histories;
 - relationship inheritance across all government transitions;
-- dedicated stakeholder, congress, cabinet and constitutional dashboards.
+- dedicated stakeholder, congress, cabinet, constitutional, election and agreement dashboards.
 
 Next:
 
 - named ministers, governors and regional association executives outside the national association;
 - full personal careers and cross-institution patronage networks;
-- multi-round coalition bargaining before appointments and legislation;
+- multi-round bargaining before ordinary legislation and appointments;
 - criminal investigations, trials and appeals;
 - owner threats, club relocation and forced-sale bargaining;
 - formal supporter campaigns, boycotts and leadership challenges;
@@ -140,7 +147,7 @@ Next:
 - dual-national recruitment and overseas-player pathways;
 - finals tournaments and continental championships.
 
-## M6 — Long-run campaign (continuous and constitutionally irregular)
+## M6 — Long-run campaign (continuous, irregular and coalition-driven)
 
 Implemented:
 
@@ -157,19 +164,20 @@ Implemented:
 - caretaker administrations of up to three months;
 - snap elections inside an unfinished sporting term;
 - multiple governments within one formal two-year institutional cycle;
-- deterministic successor selection and inherited institutional conditions;
+- weighted coalition conventions for snap elections and open scheduled succession;
+- elected governments inheriting real office, budget and policy obligations;
 - transition grants linked to political and football performance;
 - global season, club, player, stadium, sponsorship and insolvency histories;
-- global appointment, administration and constitutional-crisis histories;
+- global appointment, administration, constitutional-crisis, election and coalition histories;
 - safe UTF-8 JSON saves based on complete chronological decision-log replay;
-- deterministic fingerprints covering cabinet and caretaker state;
-- a dedicated long-term government-history dashboard with save upload/download.
+- deterministic fingerprints covering cabinet, caretaker, election and agreement state;
+- a dedicated long-term coalition-history dashboard with save upload/download.
 
 Next:
 
 - multiple national starting scenarios;
 - editable candidate pools and coalition platforms;
 - richer historical awards, records and statistical leaderboards;
-- scenario editor and mod packages;
+- full scenario editor and mod packages;
 - careers and histories beyond twenty years;
 - overseas leagues and cross-border player careers.
