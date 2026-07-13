@@ -1,4 +1,4 @@
-"""Launch the deep two-tier Streamlit simulation."""
+"""Launch the full deep Streamlit simulation."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def main() -> None:
             "python -m pip install -e '.[ui]'"
         ) from exc
 
-    app_path = Path(__file__).with_name("pyramid_webapp.py")
+    app_path = Path(__file__).with_name("advanced_webapp.py")
     sys.argv = [
         "streamlit",
         "run",
