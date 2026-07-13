@@ -1,3 +1,4 @@
+from football_republic.advanced_ecosystem import AdvancedClubWorld
 from football_republic.campaign import STRATEGIES, Strategy
 from football_republic.deep_campaign import DeepCampaign
 from football_republic.deep_scenario import build_deep_2026_scenario
@@ -49,6 +50,24 @@ def test_presidential_transfer_choice_changes_registration_law() -> None:
     assert rules.squad_limit == 27
     assert rules.foreign_limit == 7
     assert rules.homegrown_minimum == 6
+
+
+def test_post_market_registration_includes_new_loan_player() -> None:
+    campaign = started_campaign()
+    campaign.advance(24, interactive=True)
+    campaign.resolve_decision("transparent_reform")
+    campaign.advance(24, interactive=True)
+    campaign.resolve_decision("financial_control")
+
+    campaign.advance(1, interactive=True)
+
+    assert campaign.engine.state.month == 7
+    assert campaign.football.contracts.active_loans
+    loan = next(iter(campaign.football.contracts.active_loans.values()))
+    registered = campaign.football.economy.registration.registered_ids[
+        loan.borrower_id
+    ]
+    assert loan.player.id in registered
 
 
 def test_sponsorship_becomes_revenue_and_morality_clause_can_suspend_it() -> None:
@@ -145,7 +164,7 @@ def test_old_player_retires_and_academy_replaces_the_generation() -> None:
 
 def test_failed_company_is_replaced_by_a_phoenix_club() -> None:
     state = build_deep_2026_scenario()
-    world = ClubPyramidWorld.build(state, seed=3033)
+    world = AdvancedClubWorld.build(state, seed=3033)
     insolvency = InsolvencySystem()
     club = state.clubs["miners"]
     old_name = club.name
