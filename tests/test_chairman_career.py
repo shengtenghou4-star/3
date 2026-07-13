@@ -16,6 +16,22 @@ def advance_to_month(career: ChairmanCareer, target: int) -> None:
             raise AssertionError("career did not reach target month")
 
 
+def advance_until_justice(career: ChairmanCareer, limit: int = 8) -> None:
+    guard = 0
+    while career.player_active and career.global_month <= limit:
+        decision = career.player_decision
+        if decision is not None and decision.id.startswith("justice_referral_"):
+            return
+        if decision is not None:
+            career._auto_resolve_current()
+        else:
+            career.advance(1, interactive=True)
+        guard += 1
+        if guard > 400:
+            break
+    raise AssertionError("justice referral did not become reachable")
+
+
 def resigning_career() -> ChairmanCareer:
     career = ChairmanCareer(strategy=Strategy.BALANCED, max_terms=4)
     career.force_crisis(severity=0.93)
@@ -108,9 +124,8 @@ def test_public_case_docket_omits_hidden_probability_fields() -> None:
     subject.network_power = 0.98
     for tie in career._ties_for(subject.id):
         tie.strength = max(tie.strength, 0.90)
-    advance_to_month(career, 6)
-    if career.player_decision and career.player_decision.id.startswith("justice_referral_"):
-        career.resolve_decision("independent_referral")
+    advance_until_justice(career)
+    career.resolve_decision("independent_referral")
 
     docket = career.public_case_docket()
 
