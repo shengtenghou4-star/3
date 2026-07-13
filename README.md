@@ -44,7 +44,26 @@ The deep mode connects:
 - a twenty-six-player national squad selected from the club database;
 - annual political and sporting history plus a second-term coalition review.
 
-The standard mode remains available and unchanged.
+### Continuous twenty-year national history
+
+```bash
+python -m pip install -e '.[dev,ui]'
+football-republic-history
+```
+
+The history mode chains up to ten two-year presidencies and twenty seasons without resetting the nation. Schedules are rebuilt at term boundaries, while clubs, players, owners, debt, stadiums, sponsorships, laws and stakeholder relationships persist.
+
+The long-term mode adds:
+
+- incumbent renewal, contested conventions and coalition-driven succession;
+- a maximum of three consecutive presidential terms;
+- successors who inherit the actual institutional and financial state;
+- globally unique academy cohorts beyond season two;
+- global club, player, champion, stadium, sponsorship and insolvency archives;
+- safe UTF-8 JSON saves based on deterministic decision-log replay;
+- fingerprint verification that rejects corrupted or incompatible saves.
+
+The standard and two-year deep modes remain available and unchanged.
 
 ## Stakeholder political economy
 
@@ -144,6 +163,23 @@ At months 12 and 24, the game writes an annual archive containing:
 
 The ordinary board review remains, but the deep mode also calculates a political renewal result. Strong sporting numbers are not enough if the governing coalition has collapsed or the president repeatedly broke public promises.
 
+## Continuous terms and succession
+
+At the end of every 24-month term, football performance and political governability are evaluated together.
+
+An incumbent can win a clear renewal, survive a contested convention, lose office through coalition collapse, lose the football board, or leave after three consecutive terms. The incoming president receives a transition grant based on coalition support, integrity, league health and national-team strength, then scales the opening programme to the treasury that actually exists.
+
+```text
+term ends
+  -> football board review
+  -> political coalition review
+  -> renewal or succession
+  -> schedules reset
+  -> nation, players, clubs, debt and relationships persist
+```
+
+JSON saves store choices rather than executable objects. Loading reconstructs the original scenario, replays all decisions and verifies a deterministic fingerprint before accepting the state.
+
 ## Domestic league pyramid
 
 The National Premier League contains six clubs and the National Championship contains eight. Both play full double round-robin seasons.
@@ -166,7 +202,7 @@ Cup ties use the same player, fitness and match engine as league games. Drawn kn
 
 Two domestic clubs qualify for an eight-club continental competition containing two groups of four, semifinals and a final.
 
-The first-season representatives are chosen from opening club strength. The second-season representatives come from the previous Premier League table. Clubs receive appearance and progression payments, while away fixtures create extra travel fatigue.
+The first-season representatives are chosen from opening club strength. Later representatives come from prior Premier League results. Clubs receive appearance and progression payments, while away fixtures create extra travel fatigue.
 
 ```text
 continental qualification
@@ -216,7 +252,7 @@ financial control
   -> minimum 8 homegrown players
 ```
 
-Unregistered players remain under contract and continue training, but cannot play league, cup or continental matches and cannot be selected for the national team. Registration audits occur in months 1, 7, 13 and 19.
+Unregistered players remain under contract and continue training, but cannot play league, cup or continental matches and cannot be selected for the national team. Registration audits occur in months 1, 7, 13 and 19 of each term.
 
 ## Contracts, free agents and loans
 
@@ -242,7 +278,7 @@ The player database is not static. At the end of each season:
 - new players receive real contracts and wages;
 - squad registration decides whether they reach the first team.
 
-This creates a delayed causal chain from school football, coaching and regional infrastructure to future club and national-team quality.
+This creates a delayed causal chain from school football, coaching and regional infrastructure to future club and national-team quality. In history mode, academy cohort IDs use the global season number and remain unique across twenty seasons.
 
 ## Insolvency and phoenix clubs
 
@@ -258,7 +294,7 @@ sustained insolvency
   -> conditional licence and points deduction
 ```
 
-The successor keeps the football community alive but does not erase the sporting cost of collapse.
+The successor keeps the football community alive but does not erase the sporting cost of collapse. The phoenix club and supporter trust persist into later presidencies.
 
 ## National-team selection
 
@@ -274,4 +310,4 @@ pytest -q
 
 The design rule is unchanged: important outcomes must remain traceable through money, facilities, political power, trust, promises, capacity, incentives, delay, compliance, player quality, ownership, contracts, registration, workload, governance decisions and match events. No scripted champions, protected clubs or unexplained score jumps.
 
-See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md), [`docs/ROADMAP.md`](docs/ROADMAP.md), and [`docs/M1_STATUS.md`](docs/M1_STATUS.md).
+See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md), [`docs/LONG_TERM.md`](docs/LONG_TERM.md), [`docs/ROADMAP.md`](docs/ROADMAP.md), and [`docs/M1_STATUS.md`](docs/M1_STATUS.md).
