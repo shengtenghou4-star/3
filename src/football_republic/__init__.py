@@ -63,6 +63,14 @@ from .governance import (
     DecisionRecord,
     GovernanceDecision,
 )
+from .long_term import (
+    ClubHistoryRecord,
+    LongTermCampaign,
+    PlayerHistoryRecord,
+    PresidentProfile,
+    SeasonHistoryRecord,
+    TermRecord,
+)
 from .market import TransferMarket, TransferPolicy, TransferRecord
 from .ordered_contracts import OrderedContractMarket
 from .policy_registration import StrictRegistrationSystem
@@ -90,6 +98,7 @@ __all__ = [
     "AnnualFinanceReport",
     "Campaign",
     "Club",
+    "ClubHistoryRecord",
     "ClubPyramid",
     "ClubPyramidWorld",
     "ClubRoster",
@@ -114,6 +123,7 @@ __all__ = [
     "InternationalQualifiers",
     "KnockoutResult",
     "LoanRecord",
+    "LongTermCampaign",
     "MatchResult",
     "MediaDistribution",
     "NationalFootballSystem",
@@ -122,11 +132,13 @@ __all__ = [
     "OrderedContractMarket",
     "OwnerProfile",
     "Player",
+    "PlayerHistoryRecord",
     "PolicyWorkloadManager",
     "PoliticalEconomy",
     "PoliticalEvent",
     "PoliticalPromise",
     "PoliticalReview",
+    "PresidentProfile",
     "PresidentialPlan",
     "PromotionMovement",
     "Region",
@@ -134,6 +146,7 @@ __all__ = [
     "RegistrationSystem",
     "RetirementRecord",
     "STRATEGIES",
+    "SeasonHistoryRecord",
     "SimulationEngine",
     "SponsorshipContract",
     "SponsorshipEvent",
@@ -147,6 +160,7 @@ __all__ = [
     "Standing",
     "Strategy",
     "StrictRegistrationSystem",
+    "TermRecord",
     "TransferMarket",
     "TransferPolicy",
     "TransferRecord",
