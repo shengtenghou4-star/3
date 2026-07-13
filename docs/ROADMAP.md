@@ -80,7 +80,7 @@ Next:
 - dual-national eligibility and overseas academies;
 - coaching styles affecting development curves.
 
-## M4 — Political and organizational agents (advanced implementation)
+## M4 — Political and organizational agents (constitutional implementation)
 
 Implemented:
 
@@ -98,16 +98,23 @@ Implemented:
 - cooperation dividends from strong allies;
 - sponsor revolts suspending real club revenue;
 - labor bargaining changing congestion, injury and national-team release rules;
-- annual coalition and governance archives;
-- political succession based on football results, coalition strength and credibility;
-- relationship inheritance across presidential transitions;
-- three dedicated political dashboard views.
+- five named senior association offices with competence, integrity, loyalty and network power;
+- monthly cabinet effects on administration, finance, integrity, national-team preparation and grassroots execution;
+- appointment styles covering technocrats, loyalists and coalition brokers;
+- endogenous scandal and institutional-capture risk from appointments;
+- independent inquiries, cabinet reshuffles and protection of inner-circle officials;
+- no-confidence removal and voluntary presidential resignation;
+- caretaker administrations and snap elections without sporting resets;
+- exact administration, appointment and constitutional-event histories;
+- relationship inheritance across all government transitions;
+- dedicated stakeholder, congress, cabinet and constitutional dashboards.
 
 Next:
 
-- named ministers, governors and association executives who can be appointed or removed;
-- personal careers, patronage networks and institutional capture;
-- multi-round negotiation before legislation rather than one final vote;
+- named ministers, governors and regional association executives outside the national association;
+- full personal careers and cross-institution patronage networks;
+- multi-round coalition bargaining before appointments and legislation;
+- criminal investigations, trials and appeals;
 - owner threats, club relocation and forced-sale bargaining;
 - formal supporter campaigns, boycotts and leadership challenges;
 - sponsor relationship memory as named negotiating agents.
@@ -133,11 +140,11 @@ Next:
 - dual-national recruitment and overseas-player pathways;
 - finals tournaments and continental championships.
 
-## M6 — Long-run campaign (continuous twenty-year foundation implemented)
+## M6 — Long-run campaign (continuous and constitutionally irregular)
 
 Implemented:
 
-- ten consecutive two-year presidential terms;
+- ten consecutive two-year institutional terms;
 - twenty continuous domestic and continental seasons;
 - schedules rebuilt at term boundaries without resetting the nation;
 - club identity, division, finances, debt, licences and phoenix status carried forward;
@@ -146,18 +153,22 @@ Implemented:
 - stakeholder trust, support, patience, mobilization and memory inherited across transitions;
 - clear renewal, contested renewal, coalition collapse and football-board removal;
 - a three-term consecutive presidential limit;
+- mid-term resignation and no-confidence removal;
+- caretaker administrations of up to three months;
+- snap elections inside an unfinished sporting term;
+- multiple governments within one formal two-year institutional cycle;
 - deterministic successor selection and inherited institutional conditions;
 - transition grants linked to political and football performance;
 - global season, club, player, stadium, sponsorship and insolvency histories;
-- safe UTF-8 JSON saves based on decision-log replay;
-- deterministic state fingerprints and corrupted-save rejection;
-- a dedicated long-term history dashboard with save upload/download.
+- global appointment, administration and constitutional-crisis histories;
+- safe UTF-8 JSON saves based on complete chronological decision-log replay;
+- deterministic fingerprints covering cabinet and caretaker state;
+- a dedicated long-term government-history dashboard with save upload/download.
 
 Next:
 
 - multiple national starting scenarios;
-- editable presidential candidates and appointments;
-- mid-term resignation, caretaker administrations and snap elections;
+- editable candidate pools and coalition platforms;
 - richer historical awards, records and statistical leaderboards;
 - scenario editor and mod packages;
 - careers and histories beyond twenty years;
