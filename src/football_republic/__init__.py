@@ -1,6 +1,6 @@
 """Football Republic public package API."""
 
-from .campaign import Campaign, PresidentialPlan, Strategy, run_strategy
+from .campaign import Campaign, PresidentialPlan, STRATEGIES, Strategy, run_strategy
 from .domain import Club, NationalFootballSystem, Region
 from .engine import SimulationEngine
 from .football import (
@@ -39,6 +39,7 @@ __all__ = [
     "Player",
     "PresidentialPlan",
     "Region",
+    "STRATEGIES",
     "SimulationEngine",
     "Standing",
     "Strategy",
