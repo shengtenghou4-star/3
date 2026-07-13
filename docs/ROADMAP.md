@@ -8,33 +8,52 @@
 
 ## M1 — Playable vertical slice (in progress)
 
-A 24-month command-line scenario containing three regions and six clubs is now playable. Completed:
+The 24-month scenario now has both a command-line mode and a polished local web command centre. Completed:
 
 - three contrasting regional associations;
 - six clubs with finances, licensing and academy characteristics;
+- individual 25-player first-team rosters;
+- two domestic double round-robin seasons;
+- a ten-round World Cup qualifying campaign;
 - coach-education and youth-match programs;
 - one cross-ministry school-football agreement;
 - one licensing reform with compliance, restructuring and loophole responses;
-- six-month dashboards, audit trail and month-24 board review;
+- monthly visual controls, six-month snapshots, audit trail and month-24 board review;
 - three preset strategies plus a custom interactive budget.
 
 Still required before M1 is closed:
 
 - recurring annual budget cycles rather than a single opening allocation;
-- true month-by-month decision windows and dashboard interaction;
-- richer political events during the term.
+- new policy and personnel decisions during the term;
+- richer political and media events.
 
-## M2 — Professional league and club economy
+## M2 — Professional league and club economy (partially implemented)
 
-- Club balance sheets, owners, wages, transfers and insolvency.
-- League scheduling, promotion/relegation and media-rights distribution.
-- Licensing, sanctions, rescue packages and moral hazard.
+Implemented:
 
-## M3 — Player development engine
+- club cash, debt, monthly revenue, wages, arrears and exclusion;
+- league scheduling, tables, form, attendance, gate receipts and prize money;
+- licensing, sanctions, restructuring, rule-gaming and forfeits.
 
-- Cohort-based player generation rather than isolated random wonderkids.
-- Development shaped by coaching, matches, facilities, competition and retention.
-- Club, school, regional and national scouting pathways.
+Next:
+
+- promotion and relegation;
+- media-rights distribution and commercial contracts;
+- rescue packages, administration and moral hazard;
+- live transfer windows and owner bargaining.
+
+## M3 — Player development engine (foundation implemented)
+
+Implemented:
+
+- individual players with age, position, ability, potential, fitness, morale, injuries, wages, contracts, nationality and homegrown status;
+- line ratings, depth, cohesion and monthly development/decline.
+
+Next:
+
+- cohort-based academy intakes;
+- transfers, loans, contract negotiation and retirement;
+- club, school, regional and national scouting pathways.
 
 ## M4 — Political and organizational agents
 
@@ -42,14 +61,22 @@ Still required before M1 is closed:
 - Interests, trust, bargaining, resistance, loophole exploitation and coalitions.
 - Appointments, investigations, scandals and institutional capture.
 
-## M5 — National teams and football identity
+## M5 — National teams and football identity (qualification layer implemented)
 
-- Senior and age-group squads, tactical continuity and coach appointments.
-- Tournament qualification, match variance and selection politics.
-- Dual-national recruitment and overseas-player policy.
+Implemented:
+
+- a six-team World Cup qualifying group with all thirty fixtures;
+- dynamic strength, expectation, results and fan-trust effects.
+
+Next:
+
+- senior and age-group squads drawn from the domestic player database;
+- tactical continuity and coach appointments;
+- selection politics, dual-national recruitment and overseas-player policy;
+- finals tournaments and continental championships.
 
 ## M6 — Long-run campaign
 
 - Twenty-year playable campaign.
 - Multiple national starting scenarios.
-- Save files, scenario editor, audit log and explainable outcome reports.
+- Save files, scenario editor and explainable outcome reports.
