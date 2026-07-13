@@ -15,7 +15,7 @@ def main() -> None:
             "python -m pip install -e '.[ui]'"
         ) from exc
 
-    app_path = Path(__file__).with_name("advanced_webapp.py")
+    app_path = Path(__file__).with_name("generational_webapp.py")
     sys.argv = [
         "streamlit",
         "run",
