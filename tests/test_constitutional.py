@@ -1,5 +1,6 @@
 from football_republic.campaign import Strategy
 from football_republic.constitutional import ConstitutionalLongTermCampaign
+from football_republic.scenario_history import ReplayableConstitutionalHistory
 
 
 def test_initial_cabinet_has_five_named_offices() -> None:
@@ -105,14 +106,14 @@ def test_scheduled_rollover_preserves_or_replaces_cabinet_consistently() -> None
 
 
 def test_constitutional_save_replay_survives_midterm_transition() -> None:
-    history = ConstitutionalLongTermCampaign(max_terms=3)
+    history = ReplayableConstitutionalHistory(max_terms=3)
     history.advance(4, interactive=False)
     history.force_crisis(severity=0.91)
     history.resolve_decision("submit_resignation")
     history.advance(5, interactive=False)
     payload = history.to_json()
 
-    restored = ConstitutionalLongTermCampaign.from_json(payload)
+    restored = ReplayableConstitutionalHistory.from_json(payload)
 
     assert restored.global_month == history.global_month
     assert restored.fingerprint() == history.fingerprint()
@@ -120,6 +121,7 @@ def test_constitutional_save_replay_survives_midterm_transition() -> None:
     assert [item.event_type for item in restored.constitutional_history] == [
         item.event_type for item in history.constitutional_history
     ]
+    assert restored.to_dict()["injected_crises"] == history.to_dict()["injected_crises"]
 
 
 def test_ten_year_history_allows_irregular_administrations() -> None:
