@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "football-republic"
-version = "0.2.0"
+version = "0.3.0"
 description = "A national football governance simulator"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -14,9 +14,15 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+ui = [
+  "streamlit>=1.40",
+  "pandas>=2.2",
+  "plotly>=5.24",
+]
 
 [project.scripts]
 football-republic = "football_republic.cli:main"
+football-republic-web = "football_republic.launch_web:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
