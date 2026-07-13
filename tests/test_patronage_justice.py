@@ -161,7 +161,7 @@ def test_resignation_writes_outgoing_and_caretaker_careers() -> None:
 
 
 def test_json_replay_preserves_people_networks_and_justice_cases() -> None:
-    history, _ = high_risk_history()
+    history = CareerJusticeHistory(strategy=Strategy.BALANCED, max_terms=4)
     advance_until_justice(history)
     history.resolve_decision("internal_review")
     history.advance(5, interactive=False)
