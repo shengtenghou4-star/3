@@ -25,6 +25,8 @@ class PolicyAwareGenerationalWorld(GenerationalWorld):
 
     def advance_month(self, month: int) -> list[MatchResult]:
         events: list[str] = []
+        if not hasattr(self.pyramid, "champion_history"):
+            self.pyramid.champion_history = {}
         if month in (1, 13):
             self.economy.sponsors.renew_season(
                 month,

@@ -68,7 +68,8 @@ Implemented:
 - twenty-six-player positional quotas;
 - call-up scoring based on ability, fitness, morale, appearances, form, division, registration and homegrown status;
 - international release causing fatigue and injury risk;
-- workload rules altered by labor agreements.
+- workload rules altered by labor agreements;
+- globally unique academy cohorts across twenty seasons.
 
 Next:
 
@@ -98,7 +99,8 @@ Implemented:
 - sponsor revolts suspending real club revenue;
 - labor bargaining changing congestion, injury and national-team release rules;
 - annual coalition and governance archives;
-- a political second-term review in addition to the football board review;
+- political succession based on football results, coalition strength and credibility;
+- relationship inheritance across presidential transitions;
 - three dedicated political dashboard views.
 
 Next:
@@ -108,7 +110,7 @@ Next:
 - multi-round negotiation before legislation rather than one final vote;
 - owner threats, club relocation and forced-sale bargaining;
 - formal supporter campaigns, boycotts and leadership challenges;
-- sponsor relationship memory across multiple contract cycles.
+- sponsor relationship memory as named negotiating agents.
 
 ## M5 — National teams and football identity (database selection implemented)
 
@@ -120,7 +122,8 @@ Implemented:
 - senior squad selection from domestic club rosters;
 - injuries, appearances, form and registration affecting call-ups;
 - squad quality blended with association-level coaching and preparation;
-- continental, cup and political calendar decisions feeding into readiness.
+- continental, cup and political calendar decisions feeding into readiness;
+- repeated qualification cycles across long-term presidential history.
 
 Next:
 
@@ -130,22 +133,32 @@ Next:
 - dual-national recruitment and overseas-player pathways;
 - finals tournaments and continental championships.
 
-## M6 — Long-run campaign (institutional-memory foundation implemented)
+## M6 — Long-run campaign (continuous twenty-year foundation implemented)
 
 Implemented:
 
-- annual political and sporting archives;
-- league, cup and continental outcomes retained by season;
-- stakeholder relationship memory across the full term;
-- promise histories and political event timelines;
-- strongest ally, opposition leader and coalition-support records;
-- second-term eligibility based on sporting results, coalition strength and credibility.
+- ten consecutive two-year presidential terms;
+- twenty continuous domestic and continental seasons;
+- schedules rebuilt at term boundaries without resetting the nation;
+- club identity, division, finances, debt, licences and phoenix status carried forward;
+- player age, development, contracts, free agency and career records carried forward;
+- owner, stadium, sponsorship, registration and labor-policy continuity;
+- stakeholder trust, support, patience, mobilization and memory inherited across transitions;
+- clear renewal, contested renewal, coalition collapse and football-board removal;
+- a three-term consecutive presidential limit;
+- deterministic successor selection and inherited institutional conditions;
+- transition grants linked to political and football performance;
+- global season, club, player, stadium, sponsorship and insolvency histories;
+- safe UTF-8 JSON saves based on decision-log replay;
+- deterministic state fingerprints and corrupted-save rejection;
+- a dedicated long-term history dashboard with save upload/download.
 
 Next:
 
-- a genuinely continuous twenty-year campaign rather than repeated two-year resets;
-- multi-term presidents, succession contests and institutional continuity;
-- save files and deterministic reloads;
 - multiple national starting scenarios;
-- historical player, club, ownership and financial records;
-- scenario editor and explainable long-horizon reports.
+- editable presidential candidates and appointments;
+- mid-term resignation, caretaker administrations and snap elections;
+- richer historical awards, records and statistical leaderboards;
+- scenario editor and mod packages;
+- careers and histories beyond twenty years;
+- overseas leagues and cross-border player careers.
