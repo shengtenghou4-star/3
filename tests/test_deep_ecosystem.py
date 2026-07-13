@@ -18,6 +18,16 @@ def started_campaign() -> DeepCampaign:
     return campaign
 
 
+def advance_to_bailout(campaign: DeepCampaign) -> None:
+    campaign.advance(24, interactive=True)
+    campaign.resolve_decision("federal_compact")
+    campaign.advance(24, interactive=True)
+    campaign.resolve_decision("transparent_reform")
+    campaign.advance(24, interactive=True)
+    campaign.resolve_decision("financial_control")
+    campaign.advance(24, interactive=True)
+
+
 def test_deep_scenario_has_two_distinct_professional_levels() -> None:
     state = build_deep_2026_scenario()
 
@@ -98,11 +108,7 @@ def test_administration_creates_a_real_points_deduction_and_owner_response() -> 
 
 def test_bailout_choice_is_remembered_by_the_club_owner() -> None:
     campaign = started_campaign()
-    campaign.advance(24, interactive=True)
-    campaign.resolve_decision("transparent_reform")
-    campaign.advance(24, interactive=True)
-    campaign.resolve_decision("financial_control")
-    campaign.advance(24, interactive=True)
+    advance_to_bailout(campaign)
 
     assert campaign.current_decision is not None
     assert campaign.current_decision.id == "club_bailout"
@@ -138,5 +144,6 @@ def test_full_deep_term_runs_two_seasons_and_ten_international_rounds() -> None:
     assert len(campaign.football.international.results) == 30
     assert len(campaign.football.squad_history) == 11
     assert len(campaign.football.pyramid.media_history) == 28
-    assert len(campaign.decision_history) == 6
+    assert len(campaign.decision_history) == 10
+    assert len(campaign.politics.agenda_history) == 4
     assert 1 <= review.qualifier_position <= 6
