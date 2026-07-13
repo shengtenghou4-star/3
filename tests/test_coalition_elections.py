@@ -1,5 +1,5 @@
 from football_republic.campaign import Strategy
-from football_republic.coalition_elections import CoalitionElectionHistory
+from football_republic.coalition_runtime import CoalitionElectionHistory
 
 
 def open_snap_election(
