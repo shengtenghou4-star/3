@@ -41,6 +41,7 @@ class CareerJusticeHistory(_CareerJusticeCore):
                 reason,
                 "caretaker accession",
             )
+            person.status = "president"
 
     def _install_snap_winner(self, candidate, agreement) -> None:
         caretaker_name = self.current_president.name.replace("（看守）", "")
