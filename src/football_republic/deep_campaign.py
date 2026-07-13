@@ -12,6 +12,7 @@ from .deep_scenario import build_deep_2026_scenario
 from .engine import SimulationEngine
 from .generational_economy import GenerationalWorld
 from .ordered_contracts import OrderedContractMarket
+from .policy_registration import StrictRegistrationSystem
 
 
 class DeepCampaign(Campaign):
@@ -26,6 +27,12 @@ class DeepCampaign(Campaign):
         super().__init__(engine=deep_engine, strategy=strategy)
         self.football = GenerationalWorld.build(self.engine.state, seed=3033)
         self.football.base.contracts = OrderedContractMarket(seed=3533)
+        self.football.economy.registration = StrictRegistrationSystem()
+        self.football.economy.registration.register(
+            0,
+            self.engine.state.clubs,
+            self.football.rosters,
+        )
         opening = self.dashboard()
         self.dashboards = [opening]
         self.monthly_history = [opening]
