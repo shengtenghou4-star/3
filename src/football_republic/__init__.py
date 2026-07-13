@@ -12,16 +12,27 @@ from .football import (
     Player,
     Standing,
 )
+from .governance import (
+    AnnualFinanceReport,
+    DecisionOption,
+    DecisionRecord,
+    GovernanceDecision,
+)
+from .market import TransferMarket, TransferPolicy, TransferRecord
 from .programs import CoachEducationGrant, YouthMatchGrant
 from .scenario import build_2026_scenario
 
 __all__ = [
+    "AnnualFinanceReport",
     "Campaign",
     "Club",
     "ClubRoster",
     "CoachEducationGrant",
+    "DecisionOption",
+    "DecisionRecord",
     "DomesticLeague",
     "FootballWorld",
+    "GovernanceDecision",
     "InternationalQualifiers",
     "MatchResult",
     "NationalFootballSystem",
@@ -31,6 +42,9 @@ __all__ = [
     "SimulationEngine",
     "Standing",
     "Strategy",
+    "TransferMarket",
+    "TransferPolicy",
+    "TransferRecord",
     "YouthMatchGrant",
     "build_2026_scenario",
     "run_strategy",
