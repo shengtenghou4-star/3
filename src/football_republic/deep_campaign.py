@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from .advanced_ecosystem import AdvancedClubWorld
 from .campaign import (
     BoardReview,
     Campaign,
@@ -12,10 +11,12 @@ from .campaign import (
 from .deep_scenario import build_deep_2026_scenario
 from .engine import SimulationEngine
 from .ordered_contracts import OrderedContractMarket
+from .policy_registration import StrictRegistrationSystem
+from .policy_world import PolicyAwareGenerationalWorld
 
 
 class DeepCampaign(Campaign):
-    """Campaign with the full pyramid, cups, contracts and owner memory."""
+    """Campaign with the full pyramid, cups, contracts and generational economy."""
 
     def __init__(
         self,
@@ -24,8 +25,17 @@ class DeepCampaign(Campaign):
     ) -> None:
         deep_engine = engine or SimulationEngine(build_deep_2026_scenario())
         super().__init__(engine=deep_engine, strategy=strategy)
-        self.football = AdvancedClubWorld.build(self.engine.state, seed=3033)
-        self.football.contracts = OrderedContractMarket(seed=3533)
+        self.football = PolicyAwareGenerationalWorld.build(
+            self.engine.state,
+            seed=3033,
+        )
+        self.football.base.contracts = OrderedContractMarket(seed=3533)
+        self.football.economy.registration = StrictRegistrationSystem()
+        self.football.economy.registration.register(
+            0,
+            self.engine.state.clubs,
+            self.football.rosters,
+        )
         opening = self.dashboard()
         self.dashboards = [opening]
         self.monthly_history = [opening]
@@ -33,12 +43,24 @@ class DeepCampaign(Campaign):
     def resolve_decision(self, option_id: str):
         decision = self.current_decision
         bailout_target = None
+        transfer_policy_decision = bool(
+            decision and decision.id == "transfer_policy"
+        )
         if decision and decision.id == "club_bailout":
             bailout_target = min(
                 self.engine.state.clubs.values(),
                 key=lambda club: club.financial_health,
             ).id
         record = super().resolve_decision(option_id)
+        if transfer_policy_decision:
+            self.football.configure_registration_policy(option_id)
+            registration = self.football.economy.registration
+            self.engine.audit_log.append(
+                f"M{self.engine.state.month}: registration policy — "
+                f"{registration.policy_name}, squad {registration.squad_limit}, "
+                f"foreign {registration.foreign_limit}, "
+                f"homegrown {registration.homegrown_minimum}"
+            )
         if bailout_target is not None:
             self.football.pyramid.register_bailout_response(
                 bailout_target,

@@ -38,6 +38,24 @@ from .football import (
     Player,
     Standing,
 )
+from .generational_economy import (
+    AcademyIntakeRecord,
+    AcademyLifecycleSystem,
+    GenerationalEconomy,
+    GenerationalWorld,
+    InsolvencyRecord,
+    InsolvencySystem,
+    RegistrationAudit,
+    RegistrationSystem,
+    RetirementRecord,
+    SponsorshipContract,
+    SponsorshipEvent,
+    SponsorshipSystem,
+    StadiumFinanceRecord,
+    StadiumInvestmentRecord,
+    StadiumProfile,
+    StadiumSystem,
+)
 from .governance import (
     AnnualFinanceReport,
     DecisionOption,
@@ -46,10 +64,13 @@ from .governance import (
 )
 from .market import TransferMarket, TransferPolicy, TransferRecord
 from .ordered_contracts import OrderedContractMarket
+from .policy_registration import StrictRegistrationSystem
 from .programs import CoachEducationGrant, YouthMatchGrant
 from .scenario import build_2026_scenario
 
 __all__ = [
+    "AcademyIntakeRecord",
+    "AcademyLifecycleSystem",
     "AdministrationRecord",
     "AdvancedClubWorld",
     "AnnualFinanceReport",
@@ -70,7 +91,11 @@ __all__ = [
     "DomesticCup",
     "DomesticLeague",
     "FootballWorld",
+    "GenerationalEconomy",
+    "GenerationalWorld",
     "GovernanceDecision",
+    "InsolvencyRecord",
+    "InsolvencySystem",
     "InternationalQualifiers",
     "KnockoutResult",
     "LoanRecord",
@@ -85,11 +110,22 @@ __all__ = [
     "PresidentialPlan",
     "PromotionMovement",
     "Region",
+    "RegistrationAudit",
+    "RegistrationSystem",
+    "RetirementRecord",
     "STRATEGIES",
     "SimulationEngine",
+    "SponsorshipContract",
+    "SponsorshipEvent",
+    "SponsorshipSystem",
     "SquadMember",
+    "StadiumFinanceRecord",
+    "StadiumInvestmentRecord",
+    "StadiumProfile",
+    "StadiumSystem",
     "Standing",
     "Strategy",
+    "StrictRegistrationSystem",
     "TransferMarket",
     "TransferPolicy",
     "TransferRecord",

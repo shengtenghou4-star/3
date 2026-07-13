@@ -169,7 +169,7 @@ def test_development_loan_returns_to_parent_and_restores_roster() -> None:
     assert len(base_world.rosters[loan.parent_id].players) == roster_counts[loan.parent_id]
 
 
-def test_full_term_preserves_all_domestic_player_objects() -> None:
+def test_full_term_player_changes_are_explainable() -> None:
     campaign = started_campaign()
     initial_ids = {
         player.id
@@ -184,7 +184,17 @@ def test_full_term_preserves_all_domestic_player_objects() -> None:
         for roster in campaign.football.rosters.values()
         for player in roster.players
     } | {player.id for player in campaign.football.contracts.free_agents}
-    assert final_ids == initial_ids
+    retired_ids = {
+        record.player_id
+        for record in campaign.football.economy.lifecycle.retirement_history
+    }
+    academy_ids = {
+        record.player_id
+        for record in campaign.football.economy.lifecycle.intake_history
+    }
+
+    assert final_ids | retired_ids == initial_ids | academy_ids
+    assert final_ids.isdisjoint(retired_ids)
     assert campaign.active_loans == 0
 
 
