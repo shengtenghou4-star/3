@@ -9,7 +9,7 @@ from .generational_economy import GenerationalEconomy, GenerationalWorld
 
 
 class PolicyAwareGenerationalWorld(GenerationalWorld):
-    """Run registration after transfers in months 7 and 19."""
+    """Run registration after transfers and retain auditable season history."""
 
     @classmethod
     def build(
@@ -18,6 +18,7 @@ class PolicyAwareGenerationalWorld(GenerationalWorld):
         seed: int = 2026,
     ) -> "PolicyAwareGenerationalWorld":
         base = AdvancedClubWorld.build(state, seed=seed)
+        base.pyramid.champion_history = {}
         economy = GenerationalEconomy.build(state.clubs)
         economy.registration.register(0, state.clubs, base.rosters)
         return cls(base=base, economy=economy)
@@ -41,6 +42,12 @@ class PolicyAwareGenerationalWorld(GenerationalWorld):
             events.append(
                 f"squads registered under {self.economy.registration.policy_name}"
             )
+
+        if month in (12, 24):
+            season = 1 if month == 12 else 2
+            table = self.pyramid.premier.sorted_table()
+            if table and any(row.played for row in table):
+                self.pyramid.champion_history[season] = table[0].team_id
 
         reserves = self.economy.registration.suspend_unregistered(self.rosters)
         reserve_parent = {

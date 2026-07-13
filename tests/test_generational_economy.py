@@ -19,6 +19,18 @@ def started_campaign() -> DeepCampaign:
     return campaign
 
 
+def advance_to_transfer_policy(campaign: DeepCampaign) -> None:
+    campaign.advance(24, interactive=True)
+    assert campaign.current_decision is not None
+    assert campaign.current_decision.id == "agenda_governance_compact"
+    campaign.resolve_decision("federal_compact")
+    campaign.advance(24, interactive=True)
+    assert campaign.current_decision is not None
+    assert campaign.current_decision.id == "youth_safety_crisis"
+    campaign.resolve_decision("transparent_reform")
+    campaign.advance(24, interactive=True)
+
+
 def test_strict_registration_enforces_foreign_and_squad_limits() -> None:
     state = build_deep_2026_scenario()
     world = ClubPyramidWorld.build(state, seed=3033)
@@ -37,9 +49,7 @@ def test_strict_registration_enforces_foreign_and_squad_limits() -> None:
 
 def test_presidential_transfer_choice_changes_registration_law() -> None:
     campaign = started_campaign()
-    campaign.advance(24, interactive=True)
-    campaign.resolve_decision("transparent_reform")
-    campaign.advance(24, interactive=True)
+    advance_to_transfer_policy(campaign)
 
     assert campaign.current_decision is not None
     assert campaign.current_decision.id == "transfer_policy"
@@ -54,9 +64,7 @@ def test_presidential_transfer_choice_changes_registration_law() -> None:
 
 def test_post_market_registration_includes_new_loan_player() -> None:
     campaign = started_campaign()
-    campaign.advance(24, interactive=True)
-    campaign.resolve_decision("transparent_reform")
-    campaign.advance(24, interactive=True)
+    advance_to_transfer_policy(campaign)
     campaign.resolve_decision("financial_control")
 
     campaign.advance(1, interactive=True)
