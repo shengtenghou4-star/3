@@ -94,6 +94,7 @@ from .political_economy import (
 from .political_workload import PolicyWorkloadManager
 from .programs import CoachEducationGrant, YouthMatchGrant
 from .scenario import build_2026_scenario
+from .scenario_history import ReplayableConstitutionalHistory
 
 __all__ = [
     "AGENDA_DECISIONS",
@@ -156,6 +157,7 @@ __all__ = [
     "Region",
     "RegistrationAudit",
     "RegistrationSystem",
+    "ReplayableConstitutionalHistory",
     "RetirementRecord",
     "STRATEGIES",
     "SeasonHistoryRecord",
