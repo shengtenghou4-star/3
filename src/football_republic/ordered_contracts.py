@@ -55,7 +55,7 @@ class OrderedContractMarket(ContractMarket):
             }
             for player in roster.players:
                 if (
-                    player.age <= 22
+                    player.age <= 24
                     and player.id not in top_ids
                     and player.id not in self.active_loans
                     and player.contract_months > return_month - month
@@ -76,15 +76,25 @@ class OrderedContractMarket(ContractMarket):
                     {"GK": 1, "DEF": 4, "MID": 3, "ATT": 3}[position],
                 ),
             )
-            candidates = [
+            eligible = [
                 item
                 for item in available
-                if item[0].position == weakest_position
-                and len(rosters[item[1]].players) > 20
+                if len(rosters[item[1]].players) > 20
             ]
-            if not candidates:
-                continue
-            player, parent_id = max(candidates, key=lambda item: item[0].potential)
+            if not eligible:
+                break
+            positional = [
+                item for item in eligible if item[0].position == weakest_position
+            ]
+            candidates = positional or eligible
+            player, parent_id = max(
+                candidates,
+                key=lambda item: (
+                    item[0].potential,
+                    -item[0].age,
+                    item[0].ability,
+                ),
+            )
             parent = rosters[parent_id]
             parent.players.remove(player)
             borrower.players.append(player)
