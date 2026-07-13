@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
+from .advanced_ecosystem import AdvancedClubWorld
 from .campaign import (
     BoardReview,
     Campaign,
-    PresidentialPlan,
     STRATEGIES,
     Strategy,
 )
 from .deep_scenario import build_deep_2026_scenario
-from .ecosystem import ClubPyramidWorld
 from .engine import SimulationEngine
+from .ordered_contracts import OrderedContractMarket
 
 
 class DeepCampaign(Campaign):
-    """Campaign with two divisions, owner memory and database-driven national squads."""
+    """Campaign with the full pyramid, cups, contracts and owner memory."""
 
     def __init__(
         self,
@@ -24,7 +24,8 @@ class DeepCampaign(Campaign):
     ) -> None:
         deep_engine = engine or SimulationEngine(build_deep_2026_scenario())
         super().__init__(engine=deep_engine, strategy=strategy)
-        self.football = ClubPyramidWorld.build(self.engine.state, seed=3033)
+        self.football = AdvancedClubWorld.build(self.engine.state, seed=3033)
+        self.football.contracts = OrderedContractMarket(seed=3533)
         opening = self.dashboard()
         self.dashboards = [opening]
         self.monthly_history = [opening]
@@ -53,7 +54,9 @@ class DeepCampaign(Campaign):
 
     @property
     def total_domestic_matches(self) -> int:
-        return len(self.football.pyramid.all_results)
+        return len(self.football.pyramid.all_results) + len(
+            self.football.domestic_cup.results
+        )
 
     @property
     def clubs_in_administration(self) -> int:
@@ -68,6 +71,14 @@ class DeepCampaign(Campaign):
             club.license_status == "excluded"
             for club in self.engine.state.clubs.values()
         )
+
+    @property
+    def active_loans(self) -> int:
+        return len(self.football.contracts.active_loans)
+
+    @property
+    def free_agents(self) -> int:
+        return len(self.football.contracts.free_agents)
 
 
 def run_deep_strategy(
