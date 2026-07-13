@@ -94,12 +94,12 @@ def test_public_case_brief_hides_evidence_probability() -> None:
     subject = game.world.people["central-fa-chair"]
     subject.integrity = 0.05
     subject.network_power = 0.98
+    subject.exposure = 0.95
+    game.world.global_month = 6
     game.world._maybe_open_case()
-    if game.world.current_decision is None:
-        game.world.global_month = 6
-        game.world._maybe_open_case()
-    if game.world.current_decision is not None and game.world.current_decision.id.startswith("justice_referral_"):
-        game.resolve_decision("independent_referral")
+    assert game.world.current_decision is not None
+    assert game.world.current_decision.id.startswith("justice_referral_")
+    game.resolve_decision("independent_referral")
 
     briefs = game.public_cases()
     assert briefs
@@ -147,7 +147,7 @@ def test_scheduled_defeat_ends_same_player_career() -> None:
         actor.support = 0.12
         actor.trust = 0.12
 
-    game.world.finish_current_term()
+    game.world.run_years(2)
     game._refresh_career_state()
 
     assert game.career_status == "ended"
