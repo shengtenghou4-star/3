@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .advanced_ecosystem import AdvancedClubWorld
+from .advanced_ecosystem import AdvancedClubWorld, ContractRecord
 from .domain import NationalFootballSystem
 from .football import MatchResult
 from .generational_economy import GenerationalEconomy, GenerationalWorld
@@ -43,6 +43,14 @@ class PolicyAwareGenerationalWorld(GenerationalWorld):
             )
 
         reserves = self.economy.registration.suspend_unregistered(self.rosters)
+        reserve_parent = {
+            player.id: club_id
+            for club_id, players in reserves.items()
+            for player in players
+        }
+        free_before = {
+            player.id for player in self.contracts.free_agents
+        }
         results = self.base.advance_month(month)
         self.economy.registration.restore_and_advance_reserves(
             month,
@@ -51,6 +59,31 @@ class PolicyAwareGenerationalWorld(GenerationalWorld):
             self.state.clubs,
             self.contracts.free_agents,
         )
+        recorded = {
+            (record.month, record.player_id)
+            for record in self.contracts.contract_history
+        }
+        for player in self.contracts.free_agents:
+            if player.id in free_before:
+                continue
+            parent_id = reserve_parent.get(player.id)
+            if parent_id is None or (month, player.id) in recorded:
+                continue
+            club = self.state.clubs[parent_id]
+            self.contracts.contract_history.append(
+                ContractRecord(
+                    month=month,
+                    player_id=player.id,
+                    player_name=player.name,
+                    club_id=parent_id,
+                    club_name=club.name,
+                    action="released",
+                    old_wage=player.monthly_wage,
+                    new_wage=0.0,
+                    months=0,
+                    note="unregistered reserve contract expired",
+                )
+            )
 
         if month in (7, 19):
             self.economy.registration.register(
