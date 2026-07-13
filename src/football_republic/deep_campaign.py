@@ -11,11 +11,12 @@ from .campaign import (
 )
 from .deep_scenario import build_deep_2026_scenario
 from .engine import SimulationEngine
+from .governed_politics import GovernedPoliticalEconomy
 from .governance import DecisionRecord
 from .ordered_contracts import OrderedContractMarket
 from .policy_registration import StrictRegistrationSystem
 from .policy_world import PolicyAwareGenerationalWorld
-from .political_economy import PoliticalEconomy, PoliticalReview
+from .political_economy import PoliticalReview
 from .political_workload import PolicyWorkloadManager
 
 
@@ -41,7 +42,7 @@ class DeepCampaign(Campaign):
             self.engine.state.clubs,
             self.football.rosters,
         )
-        self.politics = PoliticalEconomy()
+        self.politics = GovernedPoliticalEconomy()
         opening = self.dashboard()
         self.dashboards = [opening]
         self.monthly_history = [opening]
