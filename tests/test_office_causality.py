@@ -139,11 +139,11 @@ def test_media_quote_is_cited_when_formal_policy_contradicts_it() -> None:
         answer_style="rules_first",
         topic="俱乐部准入",
     )
+
+    resolve_until(game, "club_bailout")
     trust_before = game.current_campaign.politics.stakeholders[
         "supporters_federation"
     ].trust
-
-    resolve_until(game, "club_bailout")
     game.resolve_decision("blank_cheque")
 
     assert statement.status == "contradicted"
