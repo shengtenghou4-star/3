@@ -71,6 +71,10 @@ def _clamp(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
 
 
+def _bounded_delta(current: float, requested: float, low: float, high: float) -> float:
+    return _clamp(current + requested, low, high) - current
+
+
 def _next_local_month(local_month: int) -> int:
     return 1 if local_month >= 24 else local_month + 1
 
@@ -214,10 +218,21 @@ class NationalTeamCommandRuntime:
         if directive is None or directive.applied:
             return directive
         state = game.current_campaign.engine.state
-        state.national_team_strength = _clamp(
-            float(state.national_team_strength) + directive.strength_delta,
+        strength_delta = _bounded_delta(
+            float(state.national_team_strength),
+            directive.strength_delta,
             20.0,
             95.0,
+        )
+        game.world.apply_external_action(
+            "national_team_match_directive_applied",
+            {
+                "state_deltas": {"national_team_strength": strength_delta},
+                "audit_note": (
+                    f"national-team directive {directive.id} entered execution — "
+                    f"{directive.option_title}"
+                ),
+            },
         )
         directive.applied = True
         return directive
@@ -254,15 +269,23 @@ class NationalTeamCommandRuntime:
         directive = self.directive_for_global_month(game.global_month)
 
         if directive is not None and directive.recovery_credit > 0:
-            selected_ids = {member.player_id for member in football.current_squad.members}
-            for roster in football.rosters.values():
-                for player in roster.players:
-                    if player.id in selected_ids:
-                        player.fitness = _clamp(
-                            float(player.fitness) + directive.recovery_credit,
-                            20.0,
-                            100.0,
-                        )
+            state = game.current_campaign.engine.state
+            continuity_delta = _bounded_delta(
+                float(state.national_team_strength),
+                0.05 * directive.recovery_credit,
+                20.0,
+                95.0,
+            )
+            game.world.apply_external_action(
+                "national_team_window_recovery",
+                {
+                    "state_deltas": {"national_team_strength": continuity_delta},
+                    "audit_note": (
+                        f"player-welfare and release coordination completed after "
+                        f"international round {round_number}"
+                    ),
+                },
+            )
 
         review = MatchReview(
             id=f"review-{match_id}",
@@ -297,13 +320,15 @@ class NationalTeamCommandRuntime:
         effects: list[str] = []
         won = review.result_label == "胜"
         lost = review.result_label == "负"
+        state_deltas: dict[str, float] = {}
 
         if option_id == "retain_and_back":
             self.coach_status = "获主席公开支持"
             trust_delta = 0.008 if won else -0.004 if lost else 0.002
-            state.fan_trust = _clamp(float(state.fan_trust) + trust_delta, 0.0, 1.0)
-            state.national_team_strength = _clamp(
-                float(state.national_team_strength) + 0.20,
+            state_deltas["fan_trust"] = trust_delta
+            state_deltas["national_team_strength"] = _bounded_delta(
+                float(state.national_team_strength),
+                0.20,
                 20.0,
                 95.0,
             )
@@ -311,8 +336,9 @@ class NationalTeamCommandRuntime:
             effects.append("教练组延续性得到保护")
         elif option_id == "retain_with_review":
             self.coach_status = "专项复盘中"
-            state.national_team_strength = _clamp(
-                float(state.national_team_strength) - 0.10,
+            state_deltas["national_team_strength"] = _bounded_delta(
+                float(state.national_team_strength),
+                -0.10,
                 20.0,
                 95.0,
             )
@@ -320,13 +346,10 @@ class NationalTeamCommandRuntime:
             effects.append("下一窗口前必须提交专项复盘")
         elif option_id == "final_warning":
             self.coach_status = "最后考察期"
-            state.fan_trust = _clamp(
-                float(state.fan_trust) + (0.005 if lost else -0.003),
-                0.0,
-                1.0,
-            )
-            state.national_team_strength = _clamp(
-                float(state.national_team_strength) - 0.25,
+            state_deltas["fan_trust"] = 0.005 if lost else -0.003
+            state_deltas["national_team_strength"] = _bounded_delta(
+                float(state.national_team_strength),
+                -0.25,
                 20.0,
                 95.0,
             )
@@ -336,17 +359,14 @@ class NationalTeamCommandRuntime:
             outgoing = self.coach_name
             incoming = self._next_coach_name()
             cost = min(float(state.treasury), 1_200_000.0)
-            state.treasury = max(0.0, float(state.treasury) - cost)
-            state.national_team_strength = _clamp(
-                float(state.national_team_strength) - 0.80,
+            state_deltas["treasury"] = -cost
+            state_deltas["national_team_strength"] = _bounded_delta(
+                float(state.national_team_strength),
+                -0.80,
                 20.0,
                 95.0,
             )
-            state.fan_trust = _clamp(
-                float(state.fan_trust) + (0.012 if lost else -0.010),
-                0.0,
-                1.0,
-            )
+            state_deltas["fan_trust"] = 0.012 if lost else -0.010
             self.coach_name = incoming
             self.coach_status = "新任过渡期"
             self.coaching_changes.append(
@@ -366,6 +386,15 @@ class NationalTeamCommandRuntime:
                 ]
             )
 
+        game.world.apply_external_action(
+            "national_team_match_review_resolved",
+            {
+                "state_deltas": state_deltas,
+                "audit_note": (
+                    f"match review {review.id} resolved — {option['label']}"
+                ),
+            },
+        )
         review.status = "resolved"
         review.resolution_id = option_id
         review.resolution_title = str(option["label"])
