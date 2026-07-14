@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import hashlib
 import json
 from typing import Any
@@ -12,6 +13,18 @@ from .president_career import PresidentCareerGame
 
 
 CAUSAL_PRESIDENT_SAVE_VERSION = 7
+
+
+@dataclass(frozen=True, slots=True)
+class PublicOfficeReport:
+    office: str
+    official_name: str
+    topic: str
+    headline: str
+    summary: str
+    confidence: str
+    urgency: str
+    information_basis: str
 
 
 class CausalPresidentCareerGame(PresidentCareerGame):
@@ -105,8 +118,20 @@ class CausalPresidentCareerGame(PresidentCareerGame):
             topic=topic,
         )
 
-    def visible_office_reports(self):
-        return self.office.visible_reports(self.global_month)
+    def visible_office_reports(self) -> tuple[PublicOfficeReport, ...]:
+        return tuple(
+            PublicOfficeReport(
+                item.office,
+                item.official_name,
+                item.topic,
+                item.headline,
+                item.summary,
+                item.confidence,
+                item.urgency,
+                item.information_basis,
+            )
+            for item in self.office.visible_reports(self.global_month)
+        )
 
     def to_dict(self) -> dict[str, Any]:
         payload = super().to_dict()
