@@ -30,7 +30,8 @@
         <h1 id="siteTitle">足球共和国 · 开发进度站</h1>
         <p class="hero-lede" id="tagline">不是看堆了多少数值，而是看足协主席这份工作变得多真实。</p>
         <div class="hero-actions">
-          <a class="primary-link" href="#latest">查看最新进步</a>
+          <a class="primary-link" href="game/">进入网页版演示</a>
+          <a class="secondary-link" href="#latest">查看最新进步</a>
           <a class="secondary-link" id="repoLink" href="https://github.com/shengtenghou4-star/3">打开项目仓库</a>
         </div>
       </div>
@@ -94,9 +95,10 @@
           <div class="play-kicker">当前可玩入口</div>
           <h3>长期足协主席生涯</h3>
           <p id="playDescription">启动当前长期主席生涯模式</p>
+          <a class="primary-link" href="game/">直接打开网页版演示</a>
           <pre><code id="playCommand">python -m pip install -e '.[dev,ui]' && football-republic-history</code></pre>
-          <button id="copyCommand" type="button">复制启动命令</button>
-          <div class="play-note">网页版进度站会自动更新；模拟器本体仍从仓库启动。</div>
+          <button id="copyCommand" type="button">复制完整引擎启动命令</button>
+          <div class="play-note">网页版可以直接试玩比赛日流程；完整数十年模拟引擎仍从仓库启动。</div>
         </aside>
       </div>
     </section>
@@ -107,6 +109,7 @@
         <p>看完成记录、正在讨论的问题和每次合并的真实代码。</p>
       </div>
       <nav class="link-grid" aria-label="项目入口">
+        <a href="game/"><span>直接试玩</span><b>进入网页版演示 →</b></a>
         <a id="pullsLink" href="#"><span>已合并迭代</span><b>查看 Pull Requests →</b></a>
         <a id="issuesLink" href="#"><span>路线图与任务</span><b>查看 Issues →</b></a>
         <a id="repositoryLink" href="#"><span>完整项目</span><b>打开 Repository →</b></a>
