@@ -1,4 +1,4 @@
-"""Fixed-player career with named implementation and live press conferences."""
+"""Fixed-player career with named implementation, live press and adaptive time."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import hashlib
 import json
 from typing import Any
 
+from .adaptive_time import AdaptiveCalendar, TimeAdvanceResult, TimeRecommendation
 from .campaign import Strategy
 from .causal_president_career import (
     CAUSAL_PRESIDENT_SAVE_VERSION,
@@ -14,7 +15,8 @@ from .causal_president_career import (
 from .executive_runtime import ExecutiveGovernmentRuntime
 
 
-EXECUTIVE_PRESIDENT_SAVE_VERSION = 8
+EXECUTIVE_PRESIDENT_SAVE_VERSION = 9
+LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSION = 8
 
 
 class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
@@ -28,8 +30,14 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
     ) -> None:
         super().__init__(strategy=strategy, max_terms=max_terms)
         self.executive = ExecutiveGovernmentRuntime()
+        self.calendar = AdaptiveCalendar.from_world_month(self.global_month)
 
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
+        """Advance authoritative monthly settlements.
+
+        Player-facing controls should normally call :meth:`advance_time`.  This method is
+        retained for deterministic replay, observer mode and compatibility with tests.
+        """
         if months < 0:
             raise ValueError("months cannot be negative")
         for _ in range(months):
@@ -37,8 +45,18 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             super().advance(1, interactive=interactive)
             if self.global_month > before:
                 self.executive.advance_month(self)
+                if hasattr(self, "calendar"):
+                    self.calendar.sync_to_world(self.global_month)
             if interactive and self.current_decision is not None:
                 break
+
+    def advance_time(self, mode: str = "adaptive") -> TimeAdvanceResult:
+        if not self.can_act:
+            raise RuntimeError("the player's presidential career has ended")
+        return self.calendar.advance(self, mode=mode)
+
+    def time_recommendation(self) -> TimeRecommendation:
+        return self.calendar.recommendation(self)
 
     def observe(self, months: int = 1) -> None:
         if months < 0:
@@ -48,6 +66,8 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             super().observe(1)
             if self.global_month > before:
                 self.executive.advance_month(self)
+                if hasattr(self, "calendar"):
+                    self.calendar.sync_to_world(self.global_month)
             if self.history_finished:
                 break
 
@@ -116,24 +136,37 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         payload["format_version"] = EXECUTIVE_PRESIDENT_SAVE_VERSION
         payload["causal_fingerprint"] = CausalPresidentCareerGame.fingerprint(self)
         payload["executive"] = self.executive.to_dict()
+        payload["calendar"] = self.calendar.to_dict()
         payload["fingerprint"] = self.fingerprint()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ExecutivePresidentCareerGame":
-        if data.get("format_version") != EXECUTIVE_PRESIDENT_SAVE_VERSION:
+        version = int(data.get("format_version", 0))
+        if version not in {
+            EXECUTIVE_PRESIDENT_SAVE_VERSION,
+            LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSION,
+        }:
             raise ValueError("unsupported executive-president save format")
         causal_payload = dict(data)
         causal_payload["format_version"] = CAUSAL_PRESIDENT_SAVE_VERSION
         causal_payload["fingerprint"] = data.get("causal_fingerprint")
         causal_payload.pop("causal_fingerprint", None)
         causal_payload.pop("executive", None)
+        causal_payload.pop("calendar", None)
         base = CausalPresidentCareerGame.from_dict(causal_payload)
         game = cls.__new__(cls)
         game.__dict__.update(base.__dict__)
         game.executive = ExecutiveGovernmentRuntime.from_dict(data["executive"])
+        game.calendar = (
+            AdaptiveCalendar.from_dict(data["calendar"])
+            if version == EXECUTIVE_PRESIDENT_SAVE_VERSION and data.get("calendar")
+            else AdaptiveCalendar.from_world_month(game.global_month)
+        )
+        game.calendar.sync_to_world(game.global_month)
         expected = data.get("fingerprint")
-        if expected and game.fingerprint() != expected:
+        actual = game.fingerprint() if version == EXECUTIVE_PRESIDENT_SAVE_VERSION else game._legacy_fingerprint()
+        if expected and actual != expected:
             raise ValueError("executive-president replay fingerprint mismatch")
         return game
 
@@ -144,10 +177,20 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             raise ValueError("save root must be a JSON object")
         return cls.from_dict(payload)
 
+    def _legacy_fingerprint(self) -> str:
+        payload = {
+            "causal": CausalPresidentCareerGame.fingerprint(self),
+            "executive": self.executive.fingerprint(),
+        }
+        return hashlib.sha256(
+            json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+
     def fingerprint(self) -> str:
         payload = {
             "causal": CausalPresidentCareerGame.fingerprint(self),
             "executive": self.executive.fingerprint(),
+            "calendar": self.calendar.to_dict(),
         }
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
