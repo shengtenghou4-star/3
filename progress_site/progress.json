@@ -8,8 +8,8 @@
     "title": "重要时刻慢下来，平稳时期快过去",
     "summary": "主席生涯拥有真实日期和事件驱动时间流：亲签、发布会和无人负责的决定会冻结时间，比赛窗口、案件和复核节点会自动减速，平稳行政期则按周推进。",
     "pr": 31,
-    "merge_commit": "pending merge",
-    "validation": "Adaptive-time regression suite added; GitHub Actions runner unavailable before steps"
+    "merge_commit": "057562e3f6a5ba040a2354081bf67e14322ebae4",
+    "validation": "177 tests passed in 9.82s"
   },
   "latest_highlights": [
     {
