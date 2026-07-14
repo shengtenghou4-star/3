@@ -16,7 +16,7 @@ LAUNCH = ROOT / "src" / "football_republic" / "launch_history.py"
 
 
 def _clear_unrelated_presidential_business(game: ExecutivePresidentCareerGame) -> None:
-    """Resolve other month-two business directly so tests isolate national-team power."""
+    """Resolve ordinary governance files so a test can isolate matchday authority."""
     for _ in range(12):
         decision = game.world.current_decision
         if decision is None:
@@ -44,6 +44,7 @@ def _complete_preparation(game: ExecutivePresidentCareerGame):
         game.resolve_club_release("compensate")
     game.set_match_mandate("private_target")
     assert window.stage == "awaiting_match"
+    _clear_unrelated_presidential_business(game)
     return window
 
 
@@ -79,7 +80,12 @@ def test_match_window_freezes_time_until_each_presidential_stage_is_resolved() -
 
     game.set_match_mandate("back_coach")
     assert window.stage == "awaiting_match"
-    assert game.time_recommendation().days > 0
+    recommendation = game.time_recommendation()
+    matchday_signals = [
+        item for item in recommendation.signals if item.code.startswith("matchday:")
+    ]
+    assert matchday_signals
+    assert all(not item.blocking for item in matchday_signals)
 
 
 def test_release_arbitration_changes_real_club_relationships() -> None:
