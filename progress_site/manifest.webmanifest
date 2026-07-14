@@ -1,0 +1,19 @@
+{
+  "name": "足球共和国 · 开发进度站",
+  "short_name": "足球共和国",
+  "description": "查看 Football Republic 足协主席模拟器的最新进展、版本轨迹和下一阶段。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09131f",
+  "theme_color": "#09131f",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
