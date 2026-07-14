@@ -1,4 +1,4 @@
-"""Executive presidential office with named delivery and live press follow-ups."""
+"""Cinematic executive presidential office with named delivery and live press follow-ups."""
 
 from __future__ import annotations
 
@@ -12,16 +12,31 @@ from football_republic.causal_office_webapp import (
     ANSWER_LABELS,
     STRATEGY_LABELS,
     _archive_tab,
-    _css,
-    _desk_tab,
+    _department_reports,
     _dossier_tab,
     _followup_causal_tab,
-    _header,
     _legacy_tab,
-    _meetings_tab,
+    _leak_and_quote_alerts,
+    _media_panel,
 )
 from football_republic.executive_followup import ExecutiveFollowupRuntime
 from football_republic.executive_president_career import ExecutivePresidentCareerGame
+from football_republic.office_visuals import (
+    inject_cinematic_theme,
+    render_cinematic_header,
+    render_desk_scene,
+    render_mandate_lifecycle,
+    render_meeting_room,
+    render_official_portrait,
+    render_press_exchange,
+    render_press_stage,
+    render_report_document,
+)
+from football_republic.president_office_webapp import (
+    _agenda_column,
+    _css as _base_css,
+    _inbox_column,
+)
 from football_republic.presidential_office import build_office_packet
 
 
@@ -61,11 +76,20 @@ def _office_state(packet_id: str) -> dict:
 
 def _sidebar(game: ExecutivePresidentCareerGame) -> None:
     with st.sidebar:
-        st.markdown("## 主席办公室")
+        st.markdown(
+            f"""
+            <div style="padding:10px 2px 16px">
+              <div style="font-size:.68rem;letter-spacing:.14em;color:#d9b96d;font-weight:800">PRESIDENTIAL OFFICE</div>
+              <div style="font-size:1.45rem;font-weight:800;color:#f1f5f7;margin-top:4px">主席办公室</div>
+              <div style="color:#91a4b3;font-size:.78rem;margin-top:5px">{game.player_name} · 第{game.term_index}届任期</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         if game.can_act:
             st.success(f"现任主席 · {game.player_name}")
             st.caption(
-                f"国家足球治理第{game.global_year}年 · 制度任期第{game.term_index}届 · 本届M{game.local_month}"
+                f"国家足球治理第{game.global_year}年 · 本届M{game.local_month}"
             )
             if game.current_decision is not None:
                 st.warning("呈签件尚未批示，时间已经冻结。")
@@ -78,9 +102,9 @@ def _sidebar(game: ExecutivePresidentCareerGame) -> None:
                 for item in game.executive.mandates
             )
             if unassigned:
-                st.error(f"有{unassigned}项主席决定尚无具名责任人。")
+                st.error(f"{unassigned}项主席决定尚无具名责任人。")
             if delayed:
-                st.warning(f"有{delayed}项实施任务正在延误或缩水。")
+                st.warning(f"{delayed}项实施任务正在延误或缩水。")
             left, right = st.columns(2)
             if left.button(
                 "结束今日",
@@ -148,6 +172,19 @@ def _sidebar(game: ExecutivePresidentCareerGame) -> None:
             _rerun()
 
 
+def _visual_desk_tab(game: ExecutivePresidentCareerGame, packet) -> None:
+    render_desk_scene(game, packet)
+    left, middle, right = st.columns([1.0, 1.28, 1.12], gap="large")
+    with left:
+        _agenda_column(packet)
+    with middle:
+        _inbox_column(game, packet)
+        _department_reports(game)
+    with right:
+        _media_panel(game, packet)
+    _leak_and_quote_alerts(game)
+
+
 def _mandate_card(mandate) -> None:
     status = STATUS_LABELS.get(mandate.status, mandate.status)
     owner = (
@@ -159,7 +196,7 @@ def _mandate_card(mandate) -> None:
     st.markdown(
         f"""
         <div class="paper">
-          <div class="registry">实施授权 · {mandate.id}</div>
+          <div class="registry">主席督办令 · {mandate.id}</div>
           <h3>{mandate.option_title}</h3>
           <div class="muted">来源：{mandate.subject}</div>
           <hr>
@@ -167,16 +204,24 @@ def _mandate_card(mandate) -> None:
           <p><b>具名负责人：</b>{owner}</p>
           <p><b>复核期限：</b>{deadline}</p>
           <p><b>督查室最新判断：</b>{mandate.public_update}</p>
+          <span class="red-stamp">主席督办</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
+    render_mandate_lifecycle(mandate, status)
+    if mandate.assigned_official_name and mandate.assigned_office:
+        render_official_portrait(
+            mandate.assigned_office,
+            mandate.assigned_official_name,
+            mandate.public_update,
+        )
 
 
 def _implementation_tab(game: ExecutivePresidentCareerGame) -> None:
     st.markdown("### 主席决定实施簿")
     st.caption(
-        "正式文件不会自动成功。主席必须指定一名具体官员承担最终责任；专业归口、授权方式、个人能力、忠诚、廉洁、关系网和同时承担的任务都会影响结果。"
+        "正式文件不会自动成功。主席必须指定一名具体官员承担最终责任；画面只展示公开责任链，不显示隐藏执行分数。"
     )
     if not game.executive.mandates:
         st.info("尚无已签署决定进入实施阶段。完成第一份呈签后，这里会出现待授权任务。")
@@ -201,7 +246,7 @@ def _implementation_tab(game: ExecutivePresidentCareerGame) -> None:
             if mandate.recommended_offices[0] in offices
             else 0
         )
-        left, right = st.columns(2)
+        left, right = st.columns([.9, 1.1])
         with left:
             office = st.selectbox(
                 "牵头办公室",
@@ -209,6 +254,12 @@ def _implementation_tab(game: ExecutivePresidentCareerGame) -> None:
                 index=default_index,
                 format_func=lambda value: f"{value} · {game.world.cabinet[value].name}",
                 key=f"office-{mandate.id}",
+            )
+            selected_official = game.world.cabinet[office]
+            render_official_portrait(
+                office,
+                selected_official.name,
+                "主席正在考虑将本项决定交由其承担最终执行责任。",
             )
             st.caption("秘书处建议归口：" + "、".join(mandate.recommended_offices))
         with right:
@@ -218,6 +269,12 @@ def _implementation_tab(game: ExecutivePresidentCareerGame) -> None:
                 format_func=lambda value: ExecutiveFollowupRuntime.INSTRUCTION_STYLES[value]["label"],
                 key=f"style-{mandate.id}",
             )
+            style_copy = {
+                "tight": "边界最清楚，最不容易被悄悄改写，但面对复杂政治环境时弹性较低。",
+                "outcome": "由主席规定结果，部门决定路径；速度可能更快，也更容易重定义成功。",
+                "coalition": "允许负责人边执行边谈判；外部阻力较低，但原方案更可能在协商中缩水。",
+            }[style]
+            st.info(style_copy)
         if st.button(
             "签署具名实施授权",
             type="primary",
@@ -239,7 +296,7 @@ def _implementation_tab(game: ExecutivePresidentCareerGame) -> None:
 def _competing_reports_tab(game: ExecutivePresidentCareerGame) -> None:
     st.markdown("### 同一事项的竞争报告")
     st.caption(
-        "这里故意不给出一个系统认证的‘正确答案’。各部门基于不同责任、材料和利益给出互相冲突但可能都部分成立的判断。"
+        "三份文件来自不同责任体系。颜色代表部门身份，不代表哪份报告更正确。"
     )
     if not game.executive.mandates:
         st.info("尚无实施事项可供部门会签。")
@@ -254,29 +311,17 @@ def _competing_reports_tab(game: ExecutivePresidentCareerGame) -> None:
     if not reports:
         st.info("目前没有新的部门意见进入主席办公室。")
         return
-    columns = st.columns(len(reports))
+    columns = st.columns(len(reports), gap="large")
     for column, report in zip(columns, reports):
         with column:
-            st.markdown(
-                f"""
-                <div class="staff-note">
-                  <div class="kicker">{report.urgency} · {report.office}</div>
-                  <h4>{report.official_name}</h4>
-                  <b>{report.headline}</b>
-                  <p>{report.recommendation}</p>
-                  <div class="small-note">材料依据：{report.evidence}<br><br>
-                  可能盲点：{report.blind_spot}<br>判断把握：{report.confidence}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            render_report_document(report)
     st.warning("主席需要自己判断：分歧来自专业视角、部门自保、材料缺口，还是牵头人真的在缩减执行。")
 
 
 def _press_room_tab(game: ExecutivePresidentCareerGame) -> None:
     st.markdown("### 主席发布会")
     st.caption(
-        "记者会根据你的上一句话继续追问。强调规则后会追问规则造成的代价；承诺帮助行业后会追问钱从哪里来；连续不评论也会成为新闻。"
+        "记者会根据你的上一句话继续追问。这里的舞台、座席和问答都对应真实发布会状态。"
     )
     if game.can_act:
         active = game.executive.active_mandates()
@@ -294,14 +339,11 @@ def _press_room_tab(game: ExecutivePresidentCareerGame) -> None:
         list(reversed(game.executive.press_sessions)),
         format_func=lambda item: f"G{item.global_month} · {item.status} · {item.topic}",
     )
-    st.markdown(f"**媒体：** {session.outlet}  \n**主题：** {session.topic}")
+    render_press_stage(session)
     for exchange in session.exchanges:
-        st.markdown(f"#### 第{exchange.round_number}轮")
-        st.write(f"**记者：** {exchange.question}")
-        st.success(f"**主席：** “{exchange.quote}”")
-        st.caption(exchange.consequence)
+        render_press_exchange(exchange)
         if exchange.reporter_followup:
-            st.write(f"**记者继续追问：** {exchange.reporter_followup}")
+            st.caption(f"记者下一轮追问：{exchange.reporter_followup}")
 
     if session.status == "open" and game.can_act:
         st.error(f"**当前追问：** {session.current_question}")
@@ -323,6 +365,81 @@ def _press_room_tab(game: ExecutivePresidentCareerGame) -> None:
             _rerun()
     elif session.status == "closed":
         st.info("本场发布会已经结束，全部原话进入公开档案。")
+
+
+def _visual_meetings_tab(game: ExecutivePresidentCareerGame, packet) -> None:
+    st.markdown("### 第三会客室")
+    st.caption(
+        "会见决定谁能直接进入主席的信息圈。连续只见同一集团，也会让其他人怀疑权力通道是否公平。"
+    )
+    meeting = st.selectbox(
+        "选择一份会见申请",
+        packet.meeting_requests,
+        format_func=lambda item: f"{item.priority} · {item.visitor} · {item.subject}",
+    )
+    render_meeting_room(game, meeting)
+
+    ask, offer = st.columns(2, gap="large")
+    with ask:
+        st.markdown("#### 对方真正希望得到")
+        st.warning(meeting.concrete_ask)
+        st.markdown("#### 对方不愿主动说")
+        st.error(meeting.what_they_avoid)
+    with offer:
+        st.markdown("#### 对方愿意交换或承诺")
+        st.success(meeting.what_they_offer)
+        st.markdown("#### 主席应该当面追问")
+        for question in meeting.chairman_questions:
+            st.write(f"• {question}")
+
+    existing = next(
+        (item for item in game.office.meetings if item.id == meeting.id),
+        None,
+    )
+    if existing is not None:
+        st.info(existing.access_message)
+        st.markdown(f"**办公室承诺：** {existing.commitment}")
+        st.caption(
+            f"长期状态：{existing.status}"
+            + (f" · 跟进期限G{existing.due_month}" if existing.due_month else "")
+        )
+        for effect in existing.effects:
+            st.write(f"• {effect}")
+    else:
+        columns = st.columns(4)
+        choices = (
+            ("president", "主席亲自会见"),
+            ("secretary", "秘书长先谈"),
+            ("written", "先交书面材料"),
+            ("decline", "拒绝会见"),
+        )
+        for column, (choice, label) in zip(columns, choices):
+            if column.button(label, use_container_width=True, key=f"meeting-{meeting.id}-{choice}"):
+                sensitivity = (
+                    "urgent"
+                    if meeting.priority == "紧急"
+                    else "sensitive"
+                    if meeting.priority == "敏感"
+                    else "normal"
+                )
+                game.record_meeting(
+                    meeting_id=meeting.id,
+                    visitor=meeting.visitor,
+                    institution=meeting.institution,
+                    subject=meeting.subject,
+                    choice=choice,
+                    sensitivity=sensitivity,
+                )
+                _rerun()
+
+    st.divider()
+    st.markdown("### 会见和接触记录")
+    if game.office.meetings:
+        frame = pd.DataFrame([asdict(item) for item in reversed(game.office.meetings)])
+        frame["effects"] = frame["effects"].apply(lambda value: "；".join(value))
+        st.dataframe(frame, hide_index=True, use_container_width=True, height=360)
+    else:
+        st.info("尚无主席办公室会见决定。")
 
 
 def _executive_history_tab(game: ExecutivePresidentCareerGame) -> None:
@@ -359,12 +476,13 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    _css()
+    _base_css()
+    inject_cinematic_theme()
     game = _session()
     packet = build_office_packet(game)
     office_state = _office_state(packet.packet_id)
     _sidebar(game)
-    _header(game, packet)
+    render_cinematic_header(game, packet)
 
     tabs = st.tabs(
         [
@@ -380,7 +498,7 @@ def main() -> None:
         ]
     )
     with tabs[0]:
-        _desk_tab(game, packet)
+        _visual_desk_tab(game, packet)
     with tabs[1]:
         _dossier_tab(game, packet, office_state)
     with tabs[2]:
@@ -390,7 +508,7 @@ def main() -> None:
     with tabs[4]:
         _press_room_tab(game)
     with tabs[5]:
-        _meetings_tab(game, packet)
+        _visual_meetings_tab(game, packet)
     with tabs[6]:
         _executive_history_tab(game)
     with tabs[7]:
