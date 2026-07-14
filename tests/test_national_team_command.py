@@ -11,6 +11,7 @@ RUNTIME = ROOT / "src" / "football_republic" / "national_team_command.py"
 REPLAY = ROOT / "src" / "football_republic" / "matchday_replay.py"
 TIME_INTEGRATION = ROOT / "src" / "football_republic" / "matchday_time_integration.py"
 WEB = ROOT / "src" / "football_republic" / "matchday_web.py"
+STADIUM_WEB = ROOT / "src" / "football_republic" / "stadium_web.py"
 APP = ROOT / "src" / "football_republic" / "matchday_office_webapp.py"
 LAUNCH = ROOT / "src" / "football_republic" / "launch_history.py"
 
@@ -46,6 +47,14 @@ def _complete_preparation(game: ExecutivePresidentCareerGame):
     assert window.stage == "awaiting_match"
     _clear_unrelated_presidential_business(game)
     return window
+
+
+def _reach_formal_review(game: ExecutivePresidentCareerGame, window) -> None:
+    assert window.stage == "post_whistle"
+    game.resolve_box_reaction("stay_visible")
+    assert window.stage == "mixed_zone"
+    game.resolve_mixed_zone("own_result")
+    assert window.stage == "review"
 
 
 def test_coach_selects_a_balanced_squad_without_presidential_lineup_control() -> None:
@@ -131,7 +140,7 @@ def test_performance_camp_has_more_readiness_and_risk_than_recovery() -> None:
     assert performance_window.treasury_cost > recovery_window.treasury_cost
 
 
-def test_match_readiness_is_temporary_and_result_enters_review() -> None:
+def test_match_readiness_is_temporary_and_result_enters_stadium_sequence() -> None:
     game = ExecutivePresidentCareerGame()
     window = _complete_preparation(game)
 
@@ -148,7 +157,7 @@ def test_match_readiness_is_temporary_and_result_enters_review() -> None:
         if item["action_type"] == "matchday_strength_restore"
     ]
     assert window.result is not None
-    assert window.stage == "review"
+    assert window.stage == "post_whistle"
     assert window.temporary_modifier_applied == 0.0
     assert prepare_actions and restore_actions
     prepared = prepare_actions[-1]["payload"]["state_deltas"]["national_team_strength"]
@@ -156,7 +165,7 @@ def test_match_readiness_is_temporary_and_result_enters_review() -> None:
     assert prepared != 0.0
     assert prepared + restored == 0.0
     assert game.time_recommendation().days == 0
-    assert any("赛后问责" in item.headline for item in game.time_recommendation().signals)
+    assert any("终场镜头" in item.headline for item in game.time_recommendation().signals)
 
     reloaded = ExecutivePresidentCareerGame.from_json(game.to_json())
     assert reloaded.current_campaign.engine.state.national_team_strength == (
@@ -171,6 +180,7 @@ def test_post_match_review_can_replace_the_coach_but_not_rewrite_the_result() ->
     game.advance(1, interactive=True)
     old_coach = game.matchday.coach.name
     result_before = dict(window.result or {})
+    _reach_formal_review(game, window)
 
     game.resolve_match_review("dismiss_coach")
 
@@ -210,15 +220,18 @@ def test_version_nine_save_upgrades_with_a_fresh_matchday_runtime() -> None:
 
 
 def test_matchday_sources_compile_and_default_launcher_uses_command_center() -> None:
-    for path in (RUNTIME, REPLAY, TIME_INTEGRATION, WEB, APP):
+    for path in (RUNTIME, REPLAY, TIME_INTEGRATION, WEB, STADIUM_WEB, APP):
         source = path.read_text(encoding="utf-8")
         compile(source, str(path), "exec")
 
     app_source = APP.read_text(encoding="utf-8")
     web_source = WEB.read_text(encoding="utf-8")
+    stadium_source = STADIUM_WEB.read_text(encoding="utf-8")
     launch_source = LAUNCH.read_text(encoding="utf-8")
     assert '"国家队指挥中心"' in app_source
-    assert "render_matchday_center(game)" in app_source
+    assert "render_stadium_matchday_center(game)" in app_source
     assert "主教练独立决定征召名单、阵型、首发和换人" in web_source
+    assert "主席负责保障、礼宾、俱乐部协调和公开责任" in stadium_source
     assert "matchday_office_webapp.py" in launch_source
     assert "st.metric(" not in web_source
+    assert "st.metric(" not in stadium_source
