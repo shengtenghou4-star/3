@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#09131f">
+  <meta name="description" content="Football Republic 足协主席模拟器开发进度站">
+  <title>足球共和国 · 开发进度站</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="返回顶部">
+      <span class="brand-mark">FR</span>
+      <span><b>足球共和国</b><small>开发进度站</small></span>
+    </a>
+    <div class="top-actions">
+      <button class="icon-button" id="refreshButton" type="button" aria-label="刷新进度">↻</button>
+      <button class="install-button" id="installButton" type="button" hidden>固定到主屏幕</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span><span id="releaseLabel">正在读取主分支状态</span></div>
+        <h1 id="siteTitle">足球共和国 · 开发进度站</h1>
+        <p class="hero-lede" id="tagline">不是看堆了多少数值，而是看足协主席这份工作变得多真实。</p>
+        <div class="hero-actions">
+          <a class="primary-link" href="#latest">查看最新进步</a>
+          <a class="secondary-link" id="repoLink" href="https://github.com/shengtenghou4-star/3">打开项目仓库</a>
+        </div>
+      </div>
+      <aside class="release-card" aria-label="当前版本">
+        <div class="release-kicker">当前主线版本</div>
+        <div class="release-version" id="version">0.14.0</div>
+        <h2 id="releaseTitle">办公室行为进入长期因果</h2>
+        <p id="releaseSummary">会见、媒体原话、信息过滤和泄密已经进入长期政治记忆。</p>
+        <div class="release-meta">
+          <div><span>最新提交</span><code id="commit">27b0a2f</code></div>
+          <div><span>完整回归</span><strong id="testSummary">126 passed in 8.29s</strong></div>
+          <div><span>网页更新</span><time id="updatedAt">—</time></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="status-ribbon" aria-label="构建状态">
+      <div class="section-shell status-grid">
+        <div class="status-item"><span class="status-icon" id="buildIcon">●</span><div><small>主分支构建</small><b id="buildStatus">读取中</b></div></div>
+        <div class="status-item"><span>版本</span><b id="ribbonVersion">0.14.0</b></div>
+        <div class="status-item"><span>最新合并</span><b id="mergeReference">PR #20</b></div>
+        <div class="status-item"><span>自动刷新</span><b>每次主分支更新</b></div>
+      </div>
+    </section>
+
+    <section class="content-section section-shell" id="latest">
+      <div class="section-heading">
+        <div><span class="section-index">01</span><h2>这次到底进步在哪</h2></div>
+        <p>不罗列文件数量，只讲玩家实际能感受到的变化。</p>
+      </div>
+      <div class="highlight-grid" id="highlightGrid"></div>
+    </section>
+
+    <section class="content-section dark-panel">
+      <div class="section-shell">
+        <div class="section-heading light">
+          <div><span class="section-index">02</span><h2>版本轨迹</h2></div>
+          <p>每一轮都应该让“当主席”更具体，而不是让首页更拥挤。</p>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <section class="content-section section-shell">
+      <div class="section-heading">
+        <div><span class="section-index">03</span><h2>系统现在走到哪了</h2></div>
+        <p>不用虚假的完成百分比，只标明已完成、持续深化和下一步。</p>
+      </div>
+      <div class="system-list" id="systemList"></div>
+    </section>
+
+    <section class="content-section planning-panel">
+      <div class="section-shell planning-grid">
+        <div>
+          <div class="section-heading compact light">
+            <div><span class="section-index">04</span><h2>下一步准备深化</h2></div>
+          </div>
+          <div class="next-list" id="nextList"></div>
+        </div>
+        <aside class="play-card">
+          <div class="play-kicker">当前可玩入口</div>
+          <h3>长期足协主席生涯</h3>
+          <p id="playDescription">启动当前长期主席生涯模式</p>
+          <pre><code id="playCommand">python -m pip install -e '.[dev,ui]' && football-republic-history</code></pre>
+          <button id="copyCommand" type="button">复制启动命令</button>
+          <div class="play-note">网页版进度站会自动更新；模拟器本体仍从仓库启动。</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="content-section section-shell">
+      <div class="section-heading">
+        <div><span class="section-index">05</span><h2>常用入口</h2></div>
+        <p>看完成记录、正在讨论的问题和每次合并的真实代码。</p>
+      </div>
+      <nav class="link-grid" aria-label="项目入口">
+        <a id="pullsLink" href="#"><span>已合并迭代</span><b>查看 Pull Requests →</b></a>
+        <a id="issuesLink" href="#"><span>路线图与任务</span><b>查看 Issues →</b></a>
+        <a id="repositoryLink" href="#"><span>完整项目</span><b>打开 Repository →</b></a>
+      </nav>
+    </section>
+  </main>
+
+  <footer>
+    <div class="section-shell footer-inner">
+      <div><b>Football Republic</b><span>一个固定人物、有限信息、真实权力边界的国家足协主席模拟器。</span></div>
+      <button id="homeScreenHelp" type="button">如何固定到手机桌面</button>
+    </div>
+  </footer>
+
+  <dialog id="installDialog">
+    <button class="dialog-close" id="closeDialog" aria-label="关闭">×</button>
+    <h2>把进度站固定到手机桌面</h2>
+    <p>Android Chrome：打开浏览器菜单，选择“添加到主屏幕”或“安装应用”。</p>
+    <p>iPhone Safari：点分享按钮，再选“添加到主屏幕”。</p>
+    <p class="dialog-note">以后点图标就能直接看最新主分支、测试结果和本轮进展。</p>
+  </dialog>
+
+  <noscript>这个页面需要 JavaScript 才能读取最新进度。</noscript>
+  <script src="app.js" defer></script>
+</body>
+</html>
