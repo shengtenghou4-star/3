@@ -1,4 +1,4 @@
-"""Fixed-player career with executive government, adaptive time and matchday command."""
+"""Fixed-player career with executive government, adaptive time and stadium matchday."""
 
 from __future__ import annotations
 
@@ -15,25 +15,24 @@ from .causal_president_career import (
     CausalPresidentCareerGame,
 )
 from .executive_runtime import ExecutiveGovernmentRuntime
-from .matchday_replay import (
-    ReplayableNationalTeamCommandRuntime,
-    install_owner_replay,
-)
+from .matchday_replay import install_owner_replay
 from .matchday_time_integration import install_into as _install_matchday_time
 from .patronage_runtime import CareerJusticeHistory
+from .stadium_runtime import StadiumNationalTeamCommandRuntime
 
 
 _install_time_significance(_adaptive_time_module)
 _install_matchday_time(_adaptive_time_module)
 install_owner_replay(CareerJusticeHistory)
 
-EXECUTIVE_PRESIDENT_SAVE_VERSION = 10
+EXECUTIVE_PRESIDENT_SAVE_VERSION = 11
+LEGACY_MATCHDAY_SAVE_VERSION = 10
 LEGACY_TIME_SAVE_VERSION = 9
 LEGACY_EXECUTIVE_SAVE_VERSION = 8
 
 
 class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
-    """Default game: one chairman governs, assigns, supervises and answers publicly."""
+    """Default game: one chairman governs, attends, supervises and answers publicly."""
 
     def __init__(
         self,
@@ -44,7 +43,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         super().__init__(strategy=strategy, max_terms=max_terms)
         self.executive = ExecutiveGovernmentRuntime()
         self.calendar = AdaptiveCalendar.from_world_month(self.global_month)
-        self.matchday = ReplayableNationalTeamCommandRuntime()
+        self.matchday = StadiumNationalTeamCommandRuntime()
 
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
         """Advance authoritative monthly settlements with replayable match preparation."""
@@ -73,7 +72,11 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
                 self.executive.advance_month(self)
                 if hasattr(self, "matchday"):
                     state = self.current_campaign.engine.state
-                    self.matchday.settle_month(self, target_local_month, state.national_team_strength)
+                    self.matchday.settle_month(
+                        self,
+                        target_local_month,
+                        state.national_team_strength,
+                    )
                     if modifier:
                         # settle_month removes the temporary value in memory; restore it
                         # momentarily and remove it through a replayable external action.
@@ -151,6 +154,15 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
     def set_match_mandate(self, choice: str):
         return self.matchday.set_match_mandate(self, choice)
 
+    def resolve_stadium_arrival(self, choice: str):
+        return self.matchday.resolve_stadium_arrival(self, choice)
+
+    def resolve_box_reaction(self, choice: str):
+        return self.matchday.resolve_box_reaction(self, choice)
+
+    def resolve_mixed_zone(self, choice: str):
+        return self.matchday.resolve_mixed_zone(self, choice)
+
     def resolve_match_review(self, choice: str):
         return self.matchday.resolve_review(self, choice)
 
@@ -213,6 +225,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         version = int(data.get("format_version", 0))
         if version not in {
             EXECUTIVE_PRESIDENT_SAVE_VERSION,
+            LEGACY_MATCHDAY_SAVE_VERSION,
             LEGACY_TIME_SAVE_VERSION,
             LEGACY_EXECUTIVE_SAVE_VERSION,
         }:
@@ -232,14 +245,16 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             else AdaptiveCalendar.from_world_month(game.global_month)
         )
         game.matchday = (
-            ReplayableNationalTeamCommandRuntime.from_dict(data["matchday"])
-            if version == EXECUTIVE_PRESIDENT_SAVE_VERSION and data.get("matchday")
-            else ReplayableNationalTeamCommandRuntime()
+            StadiumNationalTeamCommandRuntime.from_dict(data["matchday"])
+            if version >= LEGACY_MATCHDAY_SAVE_VERSION and data.get("matchday")
+            else StadiumNationalTeamCommandRuntime()
         )
         game.calendar.sync_to_world(game.global_month)
         expected = data.get("fingerprint")
         if version == EXECUTIVE_PRESIDENT_SAVE_VERSION:
             actual = game.fingerprint()
+        elif version == LEGACY_MATCHDAY_SAVE_VERSION:
+            actual = game._v10_fingerprint()
         elif version == LEGACY_TIME_SAVE_VERSION:
             actual = game._v9_fingerprint()
         else:
@@ -273,6 +288,17 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             "causal": CausalPresidentCareerGame.fingerprint(self),
             "executive": self.executive.fingerprint(),
             "calendar": self.calendar.to_dict(),
+        }
+        return hashlib.sha256(
+            json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+
+    def _v10_fingerprint(self) -> str:
+        payload = {
+            "causal": CausalPresidentCareerGame.fingerprint(self),
+            "executive": self.executive.fingerprint(),
+            "calendar": self.calendar.to_dict(),
+            "matchday": self.matchday.legacy_fingerprint(),
         }
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")

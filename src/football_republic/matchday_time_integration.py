@@ -36,13 +36,44 @@ _STAGE_SIGNAL = {
         False,
         "国家队竞赛中心",
     ),
+    "stadium_arrival": (
+        5,
+        "主席代表团已经抵达体育场",
+        "包厢座次、来宾构成、安保和公开露面方式必须在开赛前确定。",
+        True,
+        "主席礼宾与安保组",
+    ),
+    "post_whistle": (
+        5,
+        "终场镜头正在等待主席反应",
+        "正式赛果已经产生，主席必须决定留在包厢、进入通道或提前离场。",
+        True,
+        "主席随行新闻组",
+    ),
+    "mixed_zone": (
+        5,
+        "混合采访区等待主席口径",
+        "媒体已经掌握比分和现场画面，主席必须先完成公开回应再进入人事问责。",
+        True,
+        "足协新闻发言人",
+    ),
     "review": (
         5,
         "国家队赛后问责尚未完成",
-        "比赛结果已经产生，主席必须决定公开承担、技术复盘或更换主教练。",
+        "现场流程已经结束，主席必须决定公开承担、技术复盘或更换主教练。",
         True,
         "主席办公室",
     ),
+}
+
+_REQUIRED_STAGES = {
+    "briefing",
+    "release",
+    "pre_match",
+    "stadium_arrival",
+    "post_whistle",
+    "mixed_zone",
+    "review",
 }
 
 
@@ -86,10 +117,12 @@ def install_into(adaptive_time_module) -> None:
         if window is not None:
             match_date = date.fromisoformat(window.match_date)
             if window.stage == "awaiting_match" and match_date > current_date:
+                arrival_date = match_date - timedelta(days=1)
+                checkpoint = arrival_date if arrival_date > current_date else match_date
                 candidates.append(
-                    (match_date, f"国家队{window.venue}对阵{window.opponent_name}")
+                    (checkpoint, f"国家队{window.venue}对阵{window.opponent_name}的比赛现场")
                 )
-            elif window.required_action:
+            elif window.stage in _REQUIRED_STAGES:
                 candidates.append((current_date, f"国家队比赛窗口：{window.stage}"))
         else:
             candidate = runtime._next_fixture(game)
