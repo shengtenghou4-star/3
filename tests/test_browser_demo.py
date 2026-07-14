@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LANDING = ROOT / "progress_site" / "index.html"
 GAME = ROOT / "progress_site" / "game" / "index.html"
+PAGES_WORKFLOW = ROOT / ".github" / "workflows" / "browser-pages.yml"
 
 
 def test_browser_demo_is_deployed_with_the_progress_site() -> None:
@@ -47,3 +48,16 @@ def test_browser_demo_is_dependency_free_and_mobile_responsive() -> None:
     assert "<script src=" not in game
     assert "@media(max-width:900px)" in game
     assert 'name="viewport"' in game
+
+
+def test_browser_pages_workflow_builds_and_deploys_the_game() -> None:
+    workflow = PAGES_WORKFLOW.read_text(encoding="utf-8")
+
+    assert "branches: [main]" in workflow
+    assert "pages: write" in workflow
+    assert "id-token: write" in workflow
+    assert "actions/configure-pages@v5" in workflow
+    assert "enablement: true" in workflow
+    assert "actions/upload-pages-artifact@v3" in workflow
+    assert "actions/deploy-pages@v4" in workflow
+    assert "test -f _progress_site/game/index.html" in workflow
