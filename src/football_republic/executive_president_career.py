@@ -15,12 +15,17 @@ from .causal_president_career import (
     CausalPresidentCareerGame,
 )
 from .executive_runtime import ExecutiveGovernmentRuntime
+from .matchday_replay import (
+    ReplayableNationalTeamCommandRuntime,
+    install_owner_replay,
+)
 from .matchday_time_integration import install_into as _install_matchday_time
-from .national_team_command import NationalTeamCommandRuntime
+from .patronage_runtime import CareerJusticeHistory
 
 
 _install_time_significance(_adaptive_time_module)
 _install_matchday_time(_adaptive_time_module)
+install_owner_replay(CareerJusticeHistory)
 
 EXECUTIVE_PRESIDENT_SAVE_VERSION = 10
 LEGACY_TIME_SAVE_VERSION = 9
@@ -39,43 +44,59 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         super().__init__(strategy=strategy, max_terms=max_terms)
         self.executive = ExecutiveGovernmentRuntime()
         self.calendar = AdaptiveCalendar.from_world_month(self.global_month)
-        self.matchday = NationalTeamCommandRuntime()
+        self.matchday = ReplayableNationalTeamCommandRuntime()
 
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
-        """Advance authoritative monthly settlements.
-
-        The national-team command layer can add a temporary one-match readiness modifier.
-        It is removed after the result so logistics cannot permanently inflate national
-        strength. Player-facing controls should normally call :meth:`advance_time`.
-        """
+        """Advance authoritative monthly settlements with replayable match preparation."""
         if months < 0:
             raise ValueError("months cannot be negative")
         for _ in range(months):
             before_global = self.global_month
             target_local_month = self.local_month + 1
-            state = self.current_campaign.engine.state
-            base_strength = float(state.national_team_strength)
             modifier = 0.0
-            if hasattr(self, "matchday"):
+            if hasattr(self, "matchday") and self.current_decision is None:
                 self.matchday.sync(self)
                 modifier = self.matchday.prepare_month(self, target_local_month)
-                state.national_team_strength = max(
-                    20.0,
-                    min(95.0, base_strength + modifier),
-                )
+                if modifier:
+                    self.world.apply_external_action(
+                        "matchday_strength_prepare",
+                        {
+                            "state_deltas": {"national_team_strength": modifier},
+                            "audit_note": (
+                                f"national-team match preparation applied for M{target_local_month}; "
+                                f"temporary modifier {modifier:+.2f}"
+                            ),
+                        },
+                    )
             super().advance(1, interactive=interactive)
             if self.global_month > before_global:
                 self.executive.advance_month(self)
                 if hasattr(self, "matchday"):
-                    self.matchday.settle_month(
-                        self,
-                        target_local_month,
-                        base_strength,
-                    )
+                    state = self.current_campaign.engine.state
+                    self.matchday.settle_month(self, target_local_month, state.national_team_strength)
+                    if modifier:
+                        # settle_month removes the temporary value in memory; restore it
+                        # momentarily and remove it through a replayable external action.
+                        state.national_team_strength += modifier
+                        self.world.apply_external_action(
+                            "matchday_strength_restore",
+                            {
+                                "state_deltas": {"national_team_strength": -modifier},
+                                "audit_note": (
+                                    f"national-team temporary preparation removed after M{target_local_month}"
+                                ),
+                            },
+                        )
                 if hasattr(self, "calendar"):
                     self.calendar.sync_to_world(self.global_month)
             elif modifier:
-                state.national_team_strength = base_strength
+                self.world.apply_external_action(
+                    "matchday_strength_cancelled",
+                    {
+                        "state_deltas": {"national_team_strength": -modifier},
+                        "audit_note": "national-team preparation cancelled because settlement did not advance",
+                    },
+                )
                 active = self.matchday.active_window
                 if active is not None:
                     active.temporary_modifier_applied = 0.0
@@ -211,9 +232,9 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             else AdaptiveCalendar.from_world_month(game.global_month)
         )
         game.matchday = (
-            NationalTeamCommandRuntime.from_dict(data["matchday"])
+            ReplayableNationalTeamCommandRuntime.from_dict(data["matchday"])
             if version == EXECUTIVE_PRESIDENT_SAVE_VERSION and data.get("matchday")
-            else NationalTeamCommandRuntime()
+            else ReplayableNationalTeamCommandRuntime()
         )
         game.calendar.sync_to_world(game.global_month)
         expected = data.get("fingerprint")
@@ -242,6 +263,10 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
         ).hexdigest()
+
+    def _legacy_fingerprint(self) -> str:
+        """Compatibility alias retained for version-8 save tests and callers."""
+        return self._v8_fingerprint()
 
     def _v9_fingerprint(self) -> str:
         payload = {
