@@ -57,13 +57,14 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             raise RuntimeError("there is no presidential decision pending")
         option = next(item for item in decision.options if item.id == option_id)
         record = super().resolve_decision(option_id)
-        self.executive.open_mandate(
-            self,
-            decision_id=decision.id,
-            option_id=option_id,
-            option_title=option.title,
-            subject=f"{decision.title}：{decision.narrative}",
-        )
+        if self.can_act and option_id != "submit_resignation":
+            self.executive.open_mandate(
+                self,
+                decision_id=decision.id,
+                option_id=option_id,
+                option_title=option.title,
+                subject=f"{decision.title}：{decision.narrative}",
+            )
         return record
 
     def assign_implementation(
