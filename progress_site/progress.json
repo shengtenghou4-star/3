@@ -9,7 +9,7 @@
     "summary": "无需安装Python，打开网页即可扮演固定的国家足协主席，完成体育场抵达、主席包厢、正式比赛、终场镜头、混合采访和主教练问责。浏览器会在本机自动保存本场选择。",
     "pr": 37,
     "merge_commit": "pending merge",
-    "validation": "CI verification in progress"
+    "validation": "196 tests passed in 10.48s"
   },
   "latest_highlights": [
     {
