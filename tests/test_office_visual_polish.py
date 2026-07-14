@@ -41,19 +41,29 @@ def test_visuals_are_driven_by_real_game_state() -> None:
 
 def test_visuals_do_not_depend_on_external_images_or_cdns() -> None:
     source = _source(VISUALS)
+    without_svg_namespace = source.replace("http://www.w3.org/2000/svg", "")
 
-    assert "http://" not in source
-    assert "https://" not in source
+    assert "http://" not in without_svg_namespace
+    assert "https://" not in without_svg_namespace
     assert "url(\"data:image/svg+xml" in source
     assert "<img" not in source
+
+
+def test_press_audience_and_transcript_use_separate_css_classes() -> None:
+    source = _source(VISUALS)
+
+    assert "reporter-seat" in source
+    assert "reporters = '<span class=\"reporter-seat\"></span>'" in source
+    assert ".exchange.reporter" in source
+    assert '.reporter {width:' not in source
 
 
 def test_mobile_and_reduced_motion_are_supported() -> None:
     source = _source(VISUALS)
 
-    assert "@media (max-width: 1000px)" in source
-    assert "@media (max-width: 660px)" in source
-    assert "@media (prefers-reduced-motion: reduce)" in source
+    assert "@media (max-width:1000px)" in source
+    assert "@media (max-width:660px)" in source
+    assert "@media (prefers-reduced-motion:reduce)" in source
 
 
 def test_executive_app_uses_cinematic_components_for_each_major_room() -> None:
