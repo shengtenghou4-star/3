@@ -15,39 +15,36 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
+      - name: Prepare diagnostics directory
+        run: mkdir -p diagnostics
       - name: Compile source
         id: compile
         continue-on-error: true
-        run: python -m compileall -q src > compile.log 2>&1
+        run: python -m compileall -q src > diagnostics/compile.log 2>&1
       - name: Install
         id: install
-        if: steps.compile.outcome == 'success'
+        if: ${{ steps.compile.outcome == 'success' }}
         continue-on-error: true
-        run: python -m pip install -q -e '.[dev]' > install.log 2>&1
+        run: python -m pip install -q -e '.[dev]' > diagnostics/install.log 2>&1
       - name: Test
         id: pytest
-        if: steps.compile.outcome == 'success' && steps.install.outcome == 'success'
+        if: ${{ steps.compile.outcome == 'success' && steps.install.outcome == 'success' }}
         continue-on-error: true
-        run: pytest -q --tb=short > pytest.log 2>&1
+        run: pytest -q --tb=short > diagnostics/pytest.log 2>&1
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-diagnostics
-          path: |
-            compile.log
-            install.log
-            pytest.log
-          if-no-files-found: ignore
+          path: diagnostics
           retention-days: 3
       - name: Report failure
-        if: steps.compile.outcome == 'failure' || steps.install.outcome == 'failure' || steps.pytest.outcome == 'failure'
+        if: ${{ steps.compile.outcome == 'failure' || steps.install.outcome == 'failure' || steps.pytest.outcome == 'failure' }}
         run: |
           echo "=== compile ==="
-          test -f compile.log && cat compile.log || true
+          test -f diagnostics/compile.log && cat diagnostics/compile.log || true
           echo "=== install ==="
-          test -f install.log && tail -80 install.log || true
+          test -f diagnostics/install.log && tail -80 diagnostics/install.log || true
           echo "=== pytest ==="
-          test -f pytest.log && tail -100 pytest.log || true
+          test -f diagnostics/pytest.log && tail -100 diagnostics/pytest.log || true
           exit 1
