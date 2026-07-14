@@ -8,7 +8,7 @@ import json
 from typing import Any
 
 from .campaign import Strategy
-from .office_causality import OfficeCausality
+from .office_runtime import CausalOfficeRuntime
 from .president_career import PresidentCareerGame
 
 
@@ -37,7 +37,7 @@ class CausalPresidentCareerGame(PresidentCareerGame):
         max_terms: int = 10,
     ) -> None:
         super().__init__(strategy=strategy, max_terms=max_terms)
-        self.office = OfficeCausality()
+        self.office = CausalOfficeRuntime()
         self.office.bootstrap(self)
 
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
@@ -153,7 +153,7 @@ class CausalPresidentCareerGame(PresidentCareerGame):
         base = PresidentCareerGame.from_dict(base_payload)
         game = cls.__new__(cls)
         game.__dict__.update(base.__dict__)
-        game.office = OfficeCausality.from_dict(data["office"])
+        game.office = CausalOfficeRuntime.from_dict(data["office"])
         expected = data.get("fingerprint")
         if expected and game.fingerprint() != expected:
             raise ValueError("causal-president replay fingerprint mismatch")
