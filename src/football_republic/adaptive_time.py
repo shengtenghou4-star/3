@@ -1,8 +1,8 @@
 """Adaptive, event-driven time flow for the presidential career.
 
-The football world remains authoritative at monthly settlement boundaries.  This module
-adds a player-facing calendar that can move by days or weeks, slows before consequential
-public events and re-evaluates the world after every monthly settlement.
+The football, finance and political simulation remains authoritative at monthly
+settlement boundaries.  This module adds a player-facing calendar that moves in days or
+weeks, slows before consequential public events and re-evaluates after every settlement.
 """
 
 from __future__ import annotations
@@ -58,9 +58,11 @@ class AdaptiveCalendar:
 
     @classmethod
     def from_world_month(cls, global_month: int) -> "AdaptiveCalendar":
-        target = month_start(global_month)
-        current = CALENDAR_EPOCH if global_month == 0 else target
-        return cls(current_date=current)
+        return cls(CALENDAR_EPOCH if global_month == 0 else month_start(global_month))
+
+    @property
+    def date_label(self) -> str:
+        return self.current_date.strftime("%Y年%m月%d日")
 
     @property
     def weekday_label(self) -> str:
@@ -69,15 +71,11 @@ class AdaptiveCalendar:
         ]
 
     @property
-    def date_label(self) -> str:
-        return self.current_date.strftime("%Y年%m月%d日")
-
-    @property
     def next_month_boundary(self) -> date:
         return _next_month_start(self.current_date)
 
     def sync_to_world(self, global_month: int) -> None:
-        """Never allow the visible calendar to lag behind an authoritative month."""
+        """Keep the visible calendar from lagging behind authoritative settlement time."""
         target = month_start(global_month)
         if self.current_date < target:
             self.current_date = target
@@ -90,48 +88,38 @@ class AdaptiveCalendar:
         signals = self.attention(game)
         level = _highest_level(signals)
         checkpoint = next_public_checkpoint(game, self.current_date)
+
         if any(item.blocking for item in signals):
-            days = 0
-            pace = "暂停"
-            label = "先处理当前事项"
+            days, pace, button = 0, "暂停", "先处理当前事项"
             rationale = next(item.detail for item in signals if item.blocking)
         elif level >= 4:
-            days = 1
-            pace = "危机日"
-            label = "推进到明天"
+            days, pace, button = 1, "危机日", "推进到明天"
             rationale = "当前事项可能在极短时间内改变主席责任或制度后果。"
         elif level == 3:
-            days = 3
-            pace = "高压节奏"
-            label = "推进3天"
+            days, pace, button = 3, "高压节奏", "推进3天"
             rationale = "关键窗口临近，办公室需要频繁复核而不是整月跳过。"
         elif level == 2:
-            days = 7
-            pace = "关注节奏"
-            label = "推进1周"
+            days, pace, button = 7, "关注节奏", "推进1周"
             rationale = "存在需要跟踪的公开风险，但尚未要求主席逐日坐镇。"
         elif level == 1:
-            days = 21
-            pace = "常规行政"
-            label = "推进3周"
+            days, pace, button = 21, "常规行政", "推进3周"
             rationale = "当前以部门执行和常规协调为主，可以较快推进。"
         else:
-            days = 45
-            pace = "平稳期"
-            label = "按节奏推进"
-            rationale = "没有重大事项占据主席注意力，系统会跨周推进并在新风险出现时停下。"
+            days, pace, button = 45, "平稳期", "按节奏推进"
+            rationale = "没有重大事项占据主席注意力；系统会跨周推进并在新风险出现时停下。"
 
         if checkpoint is not None and days > 0:
             checkpoint_date, checkpoint_label = checkpoint
             distance = (checkpoint_date - self.current_date).days
             if 0 < distance < days:
                 days = distance
-                label = _days_button_label(days)
+                button = _days_button_label(days)
                 rationale = f"先推进到“{checkpoint_label}”的准备节点。"
+
         return TimeRecommendation(
             pace=pace,
             days=max(0, days),
-            button_label=label,
+            button_label=button,
             rationale=rationale,
             attention_label=_attention_label(level),
             next_checkpoint=(
@@ -143,13 +131,11 @@ class AdaptiveCalendar:
         )
 
     def advance(self, game, mode: str = "adaptive") -> TimeAdvanceResult:
-        """Advance visible time while preserving monthly settlement authority.
+        """Move visible time without allowing consequential events to be skipped.
 
-        Modes:
-        - deliberate: one calendar day;
-        - week: up to seven days, still capped by attention;
-        - adaptive: use the current recommendation;
-        - fast: seek the next meaningful public checkpoint, at most 120 days.
+        ``deliberate`` moves one day, ``week`` moves at most seven days, ``adaptive``
+        follows the recommended pace, and ``fast`` searches for the next meaningful
+        checkpoint for at most 120 days.  Every crossed month is settled independently.
         """
         if mode not in {"deliberate", "week", "adaptive", "fast"}:
             raise ValueError(f"unsupported time mode {mode!r}")
@@ -157,17 +143,18 @@ class AdaptiveCalendar:
         start = self.current_date
         initial_signals = self.attention(game)
         initial_level = _highest_level(initial_signals)
+
         if any(item.blocking for item in initial_signals):
             result = TimeAdvanceResult(
-                mode=mode,
-                pace="暂停",
-                start_date=start.isoformat(),
-                end_date=start.isoformat(),
-                days_elapsed=0,
-                world_months_elapsed=0,
-                stopped_reason=next(item.headline for item in initial_signals if item.blocking),
-                changes=(),
-                signals_after=initial_signals,
+                mode,
+                "暂停",
+                start.isoformat(),
+                start.isoformat(),
+                0,
+                0,
+                next(item.headline for item in initial_signals if item.blocking),
+                (),
+                initial_signals,
             )
             self._record(result)
             return result
@@ -179,15 +166,14 @@ class AdaptiveCalendar:
             "adaptive": recommendation.days,
             "fast": 120,
         }[mode]
-        attention_cap = {0: 120, 1: 21, 2: 7, 3: 3, 4: 1, 5: 0}[initial_level]
-        budget = min(requested, attention_cap) if mode != "adaptive" else requested
-
+        cap = {0: 120, 1: 21, 2: 7, 3: 3, 4: 1, 5: 0}[initial_level]
+        budget = requested if mode == "adaptive" else min(requested, cap)
         planned_stop: tuple[date, str] | None = None
+
         if mode in {"week", "adaptive", "fast"}:
             checkpoint = next_public_checkpoint(game, self.current_date)
             if checkpoint is not None:
-                checkpoint_date, checkpoint_label = checkpoint
-                distance = (checkpoint_date - self.current_date).days
+                distance = (checkpoint[0] - self.current_date).days
                 if 0 < distance <= budget:
                     budget = distance
                     planned_stop = checkpoint
@@ -196,14 +182,13 @@ class AdaptiveCalendar:
         months_elapsed = 0
         changes: list[str] = []
         stopped_reason = "按选定节奏完成推进"
-        initial_important_codes = {
-            item.code for item in initial_signals if item.level >= 2
-        }
+        initial_codes = {item.code for item in initial_signals if item.level >= 2}
 
         while remaining > 0 and game.can_act:
             boundary = _next_month_start(self.current_date)
             days_to_boundary = (boundary - self.current_date).days
             step = min(remaining, days_to_boundary)
+            previous_date = self.current_date
             self.current_date += timedelta(days=step)
             remaining -= step
 
@@ -214,18 +199,17 @@ class AdaptiveCalendar:
             before = _public_snapshot(game)
             game.advance(1, interactive=True)
             if game.global_month == before_month:
-                self.current_date -= timedelta(days=step)
+                self.current_date = previous_date
                 stopped_reason = "时间在未处理的主席事项前停止"
                 break
 
             months_elapsed += game.global_month - before_month
             self.sync_to_world(game.global_month)
             after = _public_snapshot(game)
-            month_changes = _summarize_changes(before, after, game.global_month)
-            changes.extend(month_changes)
+            changes.extend(_summarize_changes(before, after, game.global_month))
             new_signals = self.attention(game)
             new_level = _highest_level(new_signals)
-            new_important_codes = {item.code for item in new_signals if item.level >= 2}
+            new_codes = {item.code for item in new_signals if item.level >= 2}
 
             if game.current_decision is not None:
                 stopped_reason = "新的主席亲签事项已经进入办公室"
@@ -236,9 +220,7 @@ class AdaptiveCalendar:
             if _settlement_requires_review(before, after):
                 stopped_reason = "比赛、案件或执行状态在本次月结中发生重要变化"
                 break
-            if mode == "fast" and (
-                new_level >= 2 or new_important_codes - initial_important_codes
-            ):
+            if mode == "fast" and (new_level >= 2 or new_codes - initial_codes):
                 stopped_reason = "发现新的关注事项，快进自动停止"
                 break
             if mode == "adaptive" and (new_level >= 3 or new_level > initial_level):
@@ -248,8 +230,7 @@ class AdaptiveCalendar:
             if remaining > 0 and mode in {"adaptive", "fast"}:
                 checkpoint = next_public_checkpoint(game, self.current_date)
                 if checkpoint is not None:
-                    checkpoint_date, checkpoint_label = checkpoint
-                    distance = (checkpoint_date - self.current_date).days
+                    distance = (checkpoint[0] - self.current_date).days
                     if 0 < distance < remaining:
                         remaining = distance
                         planned_stop = checkpoint
@@ -289,10 +270,8 @@ class AdaptiveCalendar:
     def from_dict(cls, data: dict[str, Any]) -> "AdaptiveCalendar":
         if int(data.get("version", 0)) != ADAPTIVE_TIME_VERSION:
             raise ValueError("unsupported adaptive calendar format")
-        calendar = cls(current_date=date.fromisoformat(str(data["current_date"])))
-        calendar.history = [
-            _result_from_dict(item) for item in data.get("history", [])
-        ]
+        calendar = cls(date.fromisoformat(str(data["current_date"])))
+        calendar.history = [_result_from_dict(item) for item in data.get("history", [])]
         last = data.get("last_result")
         calendar.last_result = _result_from_dict(last) if last else None
         return calendar
@@ -325,8 +304,7 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
 
     executive = getattr(game, "executive", None)
     if executive is not None:
-        open_press = [item for item in executive.press_sessions if item.status == "open"]
-        if open_press:
+        if any(item.status == "open" for item in executive.press_sessions):
             signals.append(
                 AttentionSignal(
                     "open-press-conference",
@@ -338,6 +316,7 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
                 )
             )
         for mandate in executive.mandates:
+            terminal = mandate.status in {"completed", "partial", "failed", "withdrawn"}
             if mandate.status in {"awaiting_assignment", "unassigned"}:
                 signals.append(
                     AttentionSignal(
@@ -360,9 +339,9 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
                         "秘书处督查组",
                     )
                 )
-            if mandate.due_month is not None:
+            if mandate.due_month is not None and not terminal:
                 due_delta = mandate.due_month - game.global_month
-                if due_delta <= 0 and mandate.status not in {"completed", "partial", "failed", "withdrawn"}:
+                if due_delta <= 0:
                     signals.append(
                         AttentionSignal(
                             f"overdue:{mandate.id}",
@@ -391,7 +370,8 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
     politics = campaign.politics
 
     distressed = [
-        club for club in state.clubs.values()
+        club
+        for club in state.clubs.values()
         if club.license_status in {"administration", "excluded"}
         or club.wage_arrears_months >= 2
     ]
@@ -414,7 +394,7 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
                 "coalition-danger",
                 4,
                 "执政联盟进入危险区",
-                "秘书长认为重要投票、泄密或辞职都可能改变主席地位。",
+                "重要投票、泄密或辞职都可能改变主席地位。",
                 False,
                 "秘书长",
             )
@@ -431,9 +411,9 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
             )
         )
 
-    active_cases = list(getattr(world, "active_cases", ()))
     urgent_cases = [
-        case for case in active_cases
+        case
+        for case in getattr(world, "active_cases", ())
         if case.next_global_month <= game.global_month + 1
         or case.stage in {"charging", "trial", "appeal"}
     ]
@@ -442,7 +422,7 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
         signals.append(
             AttentionSignal(
                 f"justice:{case.id}",
-                3 if case.stage not in {"trial", "appeal"} else 4,
+                4 if case.stage in {"trial", "appeal"} else 3,
                 "正式案件进入关键程序节点",
                 f"{case.subject_name} · {case.stage}",
                 False,
@@ -451,29 +431,32 @@ def assess_attention(game, current_date: date) -> tuple[AttentionSignal, ...]:
         )
 
     international = campaign.football.international
-    position = int(international.user_position)
-    if position >= 4:
-        signals.append(
-            AttentionSignal(
-                "national-team-danger",
-                3,
-                "国家队已跌出附加赛区域",
-                f"当前预选赛排名第{position}位。",
-                False,
-                "国家队技术总监",
+    # Before the first match, an all-zero table is ordered alphabetically.  It is not a
+    # real sporting signal and must never slow the calendar.
+    if international.results:
+        position = int(international.user_position)
+        if position >= 4:
+            signals.append(
+                AttentionSignal(
+                    "national-team-danger",
+                    3,
+                    "国家队已跌出附加赛区域",
+                    f"当前预选赛排名第{position}位。",
+                    False,
+                    "国家队技术总监",
+                )
             )
-        )
-    elif position == 3:
-        signals.append(
-            AttentionSignal(
-                "national-team-playoff",
-                2,
-                "国家队处于附加赛位置",
-                "技术部门建议保持比赛窗口前的高频复核。",
-                False,
-                "国家队技术总监",
+        elif position == 3:
+            signals.append(
+                AttentionSignal(
+                    "national-team-playoff",
+                    2,
+                    "国家队处于附加赛位置",
+                    "技术部门建议保持比赛窗口前的高频复核。",
+                    False,
+                    "国家队技术总监",
+                )
             )
-        )
 
     if _days_to_next_month(current_date) <= 10:
         signals.extend(_next_month_schedule_signals(game))
@@ -497,7 +480,12 @@ def next_public_checkpoint(game, current_date: date) -> tuple[date, str] | None:
     executive = getattr(game, "executive", None)
     if executive is not None:
         for mandate in executive.mandates:
-            if mandate.due_month is None or mandate.status in {"completed", "partial", "failed", "withdrawn"}:
+            if mandate.due_month is None or mandate.status in {
+                "completed",
+                "partial",
+                "failed",
+                "withdrawn",
+            }:
                 continue
             checkpoint = month_start(mandate.due_month) - timedelta(days=7)
             if checkpoint > current_date:
@@ -514,23 +502,17 @@ def next_public_checkpoint(game, current_date: date) -> tuple[date, str] | None:
         if checkpoint > current_date:
             candidates.append((checkpoint, schedule[0].headline))
 
-    if not candidates:
-        return None
-    return min(candidates, key=lambda item: item[0])
+    return min(candidates, key=lambda item: item[0]) if candidates else None
 
 
 def month_start(global_month: int) -> date:
     if global_month < 0:
         raise ValueError("global month cannot be negative")
-    year = 2026 + global_month // 12
-    month = global_month % 12 + 1
-    return date(year, month, 1)
+    return date(2026 + global_month // 12, global_month % 12 + 1, 1)
 
 
 def _next_month_start(value: date) -> date:
-    if value.month == 12:
-        return date(value.year + 1, 1, 1)
-    return date(value.year, value.month + 1, 1)
+    return date(value.year + 1, 1, 1) if value.month == 12 else date(value.year, value.month + 1, 1)
 
 
 def _days_to_next_month(value: date) -> int:
@@ -559,23 +541,24 @@ def _next_month_schedule_signals(game) -> tuple[AttentionSignal, ...]:
     cup = football.domestic_cup
     for season, stages in cup.MONTHS.items():
         stage = next((name for name, month in stages.items() if month == next_month), None)
-        if stage is not None:
-            label = {
-                "round_of_16": "足协杯首轮",
-                "quarterfinal": "足协杯八强战",
-                "semifinal": "足协杯半决赛",
-                "final": "足协杯决赛",
-            }[stage]
-            signals.append(
-                AttentionSignal(
-                    f"domestic-cup:{season}:{stage}",
-                    3 if stage in {"semifinal", "final"} else 2,
-                    f"{label}临近",
-                    "赛程、安保、转播和俱乐部负荷需要提前确认。",
-                    False,
-                    "赛事运行中心",
-                )
+        if stage is None:
+            continue
+        label = {
+            "round_of_16": "足协杯首轮",
+            "quarterfinal": "足协杯八强战",
+            "semifinal": "足协杯半决赛",
+            "final": "足协杯决赛",
+        }[stage]
+        signals.append(
+            AttentionSignal(
+                f"domestic-cup:{season}:{stage}",
+                3 if stage in {"semifinal", "final"} else 2,
+                f"{label}临近",
+                "赛程、安保、转播和俱乐部负荷需要提前确认。",
+                False,
+                "赛事运行中心",
             )
+        )
 
     continental = football.continental
     if next_month in continental.GROUP_MONTHS[continental.season]:
@@ -651,20 +634,17 @@ def _next_month_schedule_signals(game) -> tuple[AttentionSignal, ...]:
 def _public_snapshot(game) -> dict[str, Any]:
     campaign = game.current_campaign
     state = campaign.engine.state
-    clubs = state.clubs.values()
     executive = getattr(game, "executive", None)
     mandates = executive.mandates if executive is not None else []
     return {
         "treasury": round(float(state.treasury), 2),
         "fan_trust": round(float(state.fan_trust), 6),
-        "integrity": round(float(state.integrity_reputation), 6),
-        "league_health": round(float(state.league_financial_health), 6),
         "national_position": int(campaign.football.international.user_position),
         "coalition": round(float(campaign.politics.coalition_support), 6),
         "distressed": sum(
             club.license_status in {"administration", "excluded"}
             or club.wage_arrears_months >= 2
-            for club in clubs
+            for club in state.clubs.values()
         ),
         "active_cases": len(getattr(game.world, "active_cases", ())),
         "case_stages": tuple(
@@ -676,13 +656,10 @@ def _public_snapshot(game) -> dict[str, Any]:
 
 
 def _result_count(football) -> int:
-    total = 0
+    total = len(getattr(getattr(football, "international", None), "results", ()))
     pyramid = getattr(football, "pyramid", None)
     if pyramid is not None:
         total += len(getattr(pyramid, "all_results", ()))
-    international = getattr(football, "international", None)
-    if international is not None:
-        total += len(getattr(international, "results", ()))
     cup = getattr(football, "domestic_cup", None)
     if cup is not None:
         total += len(getattr(cup, "results", ()))
@@ -698,9 +675,7 @@ def _summarize_changes(before: dict[str, Any], after: dict[str, Any], global_mon
     if after["results_total"] > before["results_total"]:
         changes.append(f"本次结算完成{after['results_total'] - before['results_total']}场正式比赛。")
     if after["national_position"] != before["national_position"]:
-        changes.append(
-            f"国家队排名由第{before['national_position']}位变为第{after['national_position']}位。"
-        )
+        changes.append(f"国家队排名由第{before['national_position']}位变为第{after['national_position']}位。")
     if after["distressed"] != before["distressed"]:
         direction = "增至" if after["distressed"] > before["distressed"] else "降至"
         changes.append(f"正式财务或准入风险俱乐部{direction}{after['distressed']}家。")
@@ -711,14 +686,11 @@ def _summarize_changes(before: dict[str, Any], after: dict[str, Any], global_mon
     if after["mandate_states"] != before["mandate_states"]:
         changes.append("至少一项主席督办决定进入新的实施状态。")
     if abs(after["fan_trust"] - before["fan_trust"]) >= 0.01:
-        direction = "上升" if after["fan_trust"] > before["fan_trust"] else "下降"
-        changes.append(f"球迷信任在本月明显{direction}。")
+        changes.append("球迷信任在本月明显上升。" if after["fan_trust"] > before["fan_trust"] else "球迷信任在本月明显下降。")
     if abs(after["coalition"] - before["coalition"]) >= 0.02:
-        direction = "改善" if after["coalition"] > before["coalition"] else "恶化"
-        changes.append(f"执政联盟稳定度出现{direction}。")
+        changes.append("执政联盟稳定度改善。" if after["coalition"] > before["coalition"] else "执政联盟稳定度恶化。")
     if abs(after["treasury"] - before["treasury"]) >= 1_000_000:
-        direction = "增加" if after["treasury"] > before["treasury"] else "减少"
-        changes.append(f"足协可支配国库较月初{direction}超过¥1M。")
+        changes.append("足协可支配国库较月初增加超过¥1M。" if after["treasury"] > before["treasury"] else "足协可支配国库较月初减少超过¥1M。")
     return changes
 
 
