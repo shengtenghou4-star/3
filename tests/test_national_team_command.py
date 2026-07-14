@@ -15,13 +15,23 @@ APP = ROOT / "src" / "football_republic" / "matchday_office_webapp.py"
 LAUNCH = ROOT / "src" / "football_republic" / "launch_history.py"
 
 
+def _clear_unrelated_presidential_business(game: ExecutivePresidentCareerGame) -> None:
+    """Resolve other month-two business directly so tests isolate national-team power."""
+    for _ in range(12):
+        decision = game.world.current_decision
+        if decision is None:
+            return
+        game.world.resolve_decision(decision.options[0].id)
+    raise AssertionError("unrelated governance business did not clear")
+
+
 def _open_first_window(game: ExecutivePresidentCareerGame):
-    # Advance ordinary governance automatically so the test isolates the national-team
-    # window rather than leaving an unrelated presidential dossier on the desk.
     game.advance(2, interactive=False)
+    _clear_unrelated_presidential_business(game)
     game.calendar.current_date = date(2026, 3, 25)
     recommendation = game.time_recommendation()
     window = game.matchday.active_window
+    assert game.current_decision is None
     assert window is not None
     assert recommendation.days == 0
     return window
