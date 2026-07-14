@@ -61,7 +61,10 @@ def test_dossier_contains_disagreement_and_implementation_accountability() -> No
     assert all(item.reasoning for item in dossier.staff_positions)
     assert all(item.concern for item in dossier.staff_positions)
     assert all(item.implementation_owner for item in dossier.option_briefs)
-    assert all("三十" in item.first_thirty_days or "30" in item.first_thirty_days for item in dossier.option_briefs)
+    assert all(
+        "三十" in item.first_thirty_days or "30" in item.first_thirty_days
+        for item in dossier.option_briefs
+    )
     assert all(item.failure_mode for item in dossier.option_briefs)
 
 
@@ -73,7 +76,7 @@ def test_financial_distress_creates_people_pressure_not_only_a_number() -> None:
 
     packet = build_office_packet(game)
 
-    assert club.name in packet.situation_line
+    assert "俱乐部触发财务或准入预警" in packet.situation_line
     assert any(club.name in item.subject for item in packet.correspondence)
     assert any(club.name in item.subject for item in packet.meeting_requests)
     assert any(club.name in item.headline for item in packet.press_clippings)
@@ -97,10 +100,16 @@ def test_public_case_creates_procedural_meeting_without_hidden_evidence() -> Non
             game._refresh_career_state()
         else:
             game.advance(1, interactive=True)
-    while game.current_decision is not None and not game.current_decision.id.startswith("justice_referral_"):
+    while (
+        game.current_decision is not None
+        and not game.current_decision.id.startswith("justice_referral_")
+    ):
         game.world._auto_resolve_current()
         game._refresh_career_state()
-    if game.current_decision is not None and game.current_decision.id.startswith("justice_referral_"):
+    if (
+        game.current_decision is not None
+        and game.current_decision.id.startswith("justice_referral_")
+    ):
         game.resolve_decision("independent_referral")
 
     packet = build_office_packet(game)
@@ -148,4 +157,7 @@ def test_every_press_clipping_contains_a_question_the_president_may_face() -> No
     assert packet.press_clippings
     assert all(item.outlet for item in packet.press_clippings)
     assert all(item.angle for item in packet.press_clippings)
-    assert all(item.question_for_president.endswith("？") for item in packet.press_clippings)
+    assert all(
+        item.question_for_president.endswith("？")
+        for item in packet.press_clippings
+    )
