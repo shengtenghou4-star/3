@@ -149,7 +149,7 @@ def test_media_quote_is_cited_when_formal_policy_contradicts_it() -> None:
     assert statement.status == "contradicted"
     assert statement.cited_month == game.global_month
     assert game.office.quote_history
-    assert "空白支票" in game.office.quote_history[-1].triggering_decision
+    assert "无条件保住豪门" in game.office.quote_history[-1].triggering_decision
     assert (
         game.current_campaign.politics.stakeholders["supporters_federation"].trust
         < trust_before
