@@ -15,12 +15,15 @@ from .causal_president_career import (
     CausalPresidentCareerGame,
 )
 from .executive_runtime import ExecutiveGovernmentRuntime
+from .national_team_command import NationalTeamCommandRuntime
+from .national_team_time import install_into as _install_national_team_time
 
 
 _install_time_significance(_adaptive_time_module)
+_install_national_team_time(_adaptive_time_module)
 
-EXECUTIVE_PRESIDENT_SAVE_VERSION = 9
-LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSION = 8
+EXECUTIVE_PRESIDENT_SAVE_VERSION = 10
+LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSIONS = {8, 9}
 
 
 class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
@@ -34,6 +37,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
     ) -> None:
         super().__init__(strategy=strategy, max_terms=max_terms)
         self.executive = ExecutiveGovernmentRuntime()
+        self.national_team_command = NationalTeamCommandRuntime()
         self.calendar = AdaptiveCalendar.from_world_month(self.global_month)
 
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
@@ -45,10 +49,13 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         if months < 0:
             raise ValueError("months cannot be negative")
         for _ in range(months):
+            if self.current_decision is None:
+                self.national_team_command.prepare_month(self)
             before = self.global_month
             super().advance(1, interactive=interactive)
             if self.global_month > before:
                 self.executive.advance_month(self)
+                self.national_team_command.settle_month(self)
                 if hasattr(self, "calendar"):
                     self.calendar.sync_to_world(self.global_month)
             if interactive and self.current_decision is not None:
@@ -107,6 +114,20 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             instruction_style=instruction_style,
         )
 
+    def choose_match_directive(self, *, option_id: str):
+        if not self.can_act:
+            raise RuntimeError("successor-government match directives are not player-controlled")
+        return self.national_team_command.choose_directive(self, option_id)
+
+    def resolve_match_review(self, *, review_id: str, option_id: str):
+        if not self.can_act:
+            raise RuntimeError("successor-government coach decisions are not player-controlled")
+        return self.national_team_command.resolve_review(
+            self,
+            review_id=review_id,
+            option_id=option_id,
+        )
+
     def start_press_conference(
         self,
         *,
@@ -140,6 +161,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         payload["format_version"] = EXECUTIVE_PRESIDENT_SAVE_VERSION
         payload["causal_fingerprint"] = CausalPresidentCareerGame.fingerprint(self)
         payload["executive"] = self.executive.to_dict()
+        payload["national_team_command"] = self.national_team_command.to_dict()
         payload["calendar"] = self.calendar.to_dict()
         payload["fingerprint"] = self.fingerprint()
         return payload
@@ -149,7 +171,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         version = int(data.get("format_version", 0))
         if version not in {
             EXECUTIVE_PRESIDENT_SAVE_VERSION,
-            LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSION,
+            *LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSIONS,
         }:
             raise ValueError("unsupported executive-president save format")
         causal_payload = dict(data)
@@ -157,14 +179,21 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         causal_payload["fingerprint"] = data.get("causal_fingerprint")
         causal_payload.pop("causal_fingerprint", None)
         causal_payload.pop("executive", None)
+        causal_payload.pop("national_team_command", None)
         causal_payload.pop("calendar", None)
         base = CausalPresidentCareerGame.from_dict(causal_payload)
         game = cls.__new__(cls)
         game.__dict__.update(base.__dict__)
         game.executive = ExecutiveGovernmentRuntime.from_dict(data["executive"])
+        game.national_team_command = (
+            NationalTeamCommandRuntime.from_dict(data["national_team_command"])
+            if version == EXECUTIVE_PRESIDENT_SAVE_VERSION
+            and data.get("national_team_command")
+            else NationalTeamCommandRuntime()
+        )
         game.calendar = (
             AdaptiveCalendar.from_dict(data["calendar"])
-            if version == EXECUTIVE_PRESIDENT_SAVE_VERSION and data.get("calendar")
+            if version >= 9 and data.get("calendar")
             else AdaptiveCalendar.from_world_month(game.global_month)
         )
         game.calendar.sync_to_world(game.global_month)
@@ -172,6 +201,8 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         actual = (
             game.fingerprint()
             if version == EXECUTIVE_PRESIDENT_SAVE_VERSION
+            else game._version9_fingerprint()
+            if version == 9
             else game._legacy_fingerprint()
         )
         if expected and actual != expected:
@@ -194,10 +225,21 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
             json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
         ).hexdigest()
 
+    def _version9_fingerprint(self) -> str:
+        payload = {
+            "causal": CausalPresidentCareerGame.fingerprint(self),
+            "executive": self.executive.fingerprint(),
+            "calendar": self.calendar.to_dict(),
+        }
+        return hashlib.sha256(
+            json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+
     def fingerprint(self) -> str:
         payload = {
             "causal": CausalPresidentCareerGame.fingerprint(self),
             "executive": self.executive.fingerprint(),
+            "national_team_command": self.national_team_command.fingerprint(),
             "calendar": self.calendar.to_dict(),
         }
         return hashlib.sha256(
