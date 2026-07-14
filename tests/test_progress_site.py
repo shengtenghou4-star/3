@@ -10,9 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "progress_site"
 
 
-def test_progress_content_matches_package_version() -> None:
+def _package_version() -> str:
     with (ROOT / "pyproject.toml").open("rb") as handle:
-        version = tomllib.load(handle)["project"]["version"]
+        return str(tomllib.load(handle)["project"]["version"])
+
+
+def test_progress_content_matches_package_version() -> None:
+    version = _package_version()
     progress = json.loads((SITE / "progress.json").read_text(encoding="utf-8"))
 
     assert progress["current_release"]["version"] == version
@@ -72,7 +76,7 @@ def test_build_script_generates_repository_status(tmp_path, monkeypatch) -> None
     output = module.build()
     status = json.loads((output / "status.json").read_text(encoding="utf-8"))
 
-    assert status["version"] == "0.14.0"
+    assert status["version"] == _package_version()
     assert status["branch"] == "main"
     assert status["commit"]["short"] == "27b0a2f"
     assert status["tests"]["outcome"] == "success"

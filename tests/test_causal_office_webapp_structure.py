@@ -10,9 +10,12 @@ def test_causal_office_webapp_is_valid_python() -> None:
     compile(source, "causal_office_webapp.py", "exec")
 
 
-def test_default_history_launcher_uses_causal_office() -> None:
-    source = _source("src/football_republic/launch_history.py")
-    assert 'with_name("causal_office_webapp.py")' in source
+def test_causal_office_remains_the_persistent_base_for_executive_mode() -> None:
+    source = _source("src/football_republic/executive_office_webapp.py")
+    assert "from football_republic.causal_office_webapp import" in source
+    assert "_desk_tab" in source
+    assert "_meetings_tab" in source
+    assert "_followup_causal_tab" in source
 
 
 def test_meetings_and_media_answers_call_persistent_game_methods() -> None:
