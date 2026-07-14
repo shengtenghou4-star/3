@@ -7,9 +7,9 @@
     "date": "2026-07-14",
     "title": "主席办公室开始有真正的空间与气氛",
     "summary": "办公室、桌面、会客室、实施责任链、部门文件和发布会被重构为状态驱动的视觉场景；所有画面仍对应真实文件、人物和政治压力。",
-    "pr": 0,
-    "merge_commit": "pending",
-    "validation": "CI pending"
+    "pr": 29,
+    "merge_commit": "pending merge",
+    "validation": "Static structure review complete; GitHub Actions runner unavailable before steps"
   },
   "latest_highlights": [
     {
@@ -65,7 +65,7 @@
     {
       "code": "M11",
       "title": "主席办公室视觉精进",
-      "status": "开发中",
+      "status": "完成",
       "date": "2026-07-14",
       "description": "把所有真实工作流转化为具有空间、人物、文件和现场感的视觉场景。"
     }
