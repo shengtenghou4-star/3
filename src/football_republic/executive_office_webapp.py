@@ -1,4 +1,4 @@
-"""Cinematic executive presidential office with named delivery and live press follow-ups."""
+"""Cinematic executive presidential office with adaptive time and named delivery."""
 
 from __future__ import annotations
 
@@ -7,6 +7,12 @@ from dataclasses import asdict
 import pandas as pd
 import streamlit as st
 
+from football_republic.adaptive_time_web import (
+    inject_timeflow_css,
+    render_sidebar_clock,
+    render_time_console,
+    timed_office_packet,
+)
 from football_republic.campaign import Strategy
 from football_republic.causal_office_webapp import (
     ANSWER_LABELS,
@@ -88,11 +94,9 @@ def _sidebar(game: ExecutivePresidentCareerGame) -> None:
         )
         if game.can_act:
             st.success(f"现任主席 · {game.player_name}")
-            st.caption(
-                f"国家足球治理第{game.global_year}年 · 本届M{game.local_month}"
-            )
-            if game.current_decision is not None:
-                st.warning("呈签件尚未批示，时间已经冻结。")
+            st.caption(f"国家足球治理第{game.global_year}年 · 制度月M{game.local_month}")
+            render_sidebar_clock(game)
+
             unassigned = sum(
                 item.status in {"awaiting_assignment", "unassigned"}
                 for item in game.executive.mandates
@@ -105,22 +109,7 @@ def _sidebar(game: ExecutivePresidentCareerGame) -> None:
                 st.error(f"{unassigned}项主席决定尚无具名责任人。")
             if delayed:
                 st.warning(f"{delayed}项实施任务正在延误或缩水。")
-            left, right = st.columns(2)
-            if left.button(
-                "结束今日",
-                use_container_width=True,
-                disabled=game.current_decision is not None,
-            ):
-                game.advance(1, interactive=True)
-                _rerun()
-            if right.button(
-                "推进至文件",
-                use_container_width=True,
-                disabled=game.current_decision is not None,
-            ):
-                game.advance(24, interactive=True)
-                _rerun()
-            st.info("签字只是开始。你还要指定谁负责、如何授权，并为执行结果公开答辩。")
+            st.info("时间速度由真实事件决定：重大事项自动减速，平稳时期自动跨周推进。")
         else:
             st.error("你的主席生涯已经结束")
             st.markdown(
@@ -140,7 +129,7 @@ def _sidebar(game: ExecutivePresidentCareerGame) -> None:
         st.download_button(
             "下载主席生涯存档",
             data=game.to_json(),
-            file_name=f"football-republic-president-m{game.global_month}.json",
+            file_name=f"football-republic-president-{game.calendar.current_date.isoformat()}.json",
             mime="application/json",
             use_container_width=True,
         )
@@ -154,7 +143,7 @@ def _sidebar(game: ExecutivePresidentCareerGame) -> None:
                 st.error(f"存档无法载入：{exc}")
             else:
                 st.session_state.executive_president_career = restored
-                st.success("主席身份、办公室行动、实施责任和公开答复验证通过。")
+                st.success("主席身份、真实日历、办公室行动和实施责任验证通过。")
                 _rerun()
 
         st.divider()
@@ -295,9 +284,7 @@ def _implementation_tab(game: ExecutivePresidentCareerGame) -> None:
 
 def _competing_reports_tab(game: ExecutivePresidentCareerGame) -> None:
     st.markdown("### 同一事项的竞争报告")
-    st.caption(
-        "三份文件来自不同责任体系。颜色代表部门身份，不代表哪份报告更正确。"
-    )
+    st.caption("三份文件来自不同责任体系。颜色代表部门身份，不代表哪份报告更正确。")
     if not game.executive.mandates:
         st.info("尚无实施事项可供部门会签。")
         return
@@ -320,9 +307,7 @@ def _competing_reports_tab(game: ExecutivePresidentCareerGame) -> None:
 
 def _press_room_tab(game: ExecutivePresidentCareerGame) -> None:
     st.markdown("### 主席发布会")
-    st.caption(
-        "记者会根据你的上一句话继续追问。这里的舞台、座席和问答都对应真实发布会状态。"
-    )
+    st.caption("记者会根据你的上一句话继续追问。发布会未结束时，时间系统会冻结。")
     if game.can_act:
         active = game.executive.active_mandates()
         default_topic = active[-1].option_title if active else "国家足球治理"
@@ -369,9 +354,7 @@ def _press_room_tab(game: ExecutivePresidentCareerGame) -> None:
 
 def _visual_meetings_tab(game: ExecutivePresidentCareerGame, packet) -> None:
     st.markdown("### 第三会客室")
-    st.caption(
-        "会见决定谁能直接进入主席的信息圈。连续只见同一集团，也会让其他人怀疑权力通道是否公平。"
-    )
+    st.caption("会见决定谁能直接进入主席的信息圈。连续只见同一集团，也会让其他人怀疑权力通道是否公平。")
     meeting = st.selectbox(
         "选择一份会见申请",
         packet.meeting_requests,
@@ -392,10 +375,7 @@ def _visual_meetings_tab(game: ExecutivePresidentCareerGame, packet) -> None:
         for question in meeting.chairman_questions:
             st.write(f"• {question}")
 
-    existing = next(
-        (item for item in game.office.meetings if item.id == meeting.id),
-        None,
-    )
+    existing = next((item for item in game.office.meetings if item.id == meeting.id), None)
     if existing is not None:
         st.info(existing.access_message)
         st.markdown(f"**办公室承诺：** {existing.commitment}")
@@ -478,11 +458,13 @@ def main() -> None:
     )
     _base_css()
     inject_cinematic_theme()
+    inject_timeflow_css()
     game = _session()
-    packet = build_office_packet(game)
+    packet = timed_office_packet(game, build_office_packet(game))
     office_state = _office_state(packet.packet_id)
     _sidebar(game)
     render_cinematic_header(game, packet)
+    render_time_console(game)
 
     tabs = st.tabs(
         [
