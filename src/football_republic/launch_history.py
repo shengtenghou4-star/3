@@ -1,4 +1,4 @@
-"""Launch the fixed-player executive football-association president simulation."""
+"""Launch the fixed-player football-association president simulation."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def main() -> None:
             "python -m pip install -e '.[ui]'"
         ) from exc
 
-    app_path = Path(__file__).with_name("executive_office_webapp.py")
+    app_path = Path(__file__).with_name("matchday_office_webapp.py")
     sys.argv = [
         "streamlit",
         "run",
