@@ -3,25 +3,29 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "src" / "football_republic" / "executive_office_webapp.py"
+MATCHDAY_APP = ROOT / "src" / "football_republic" / "matchday_office_webapp.py"
 LAUNCH = ROOT / "src" / "football_republic" / "launch_history.py"
 
 
-def test_executive_office_webapp_is_valid_python() -> None:
-    source = APP.read_text(encoding="utf-8")
-    compile(source, str(APP), "exec")
+def test_executive_office_webapps_are_valid_python() -> None:
+    for path in (APP, MATCHDAY_APP):
+        source = path.read_text(encoding="utf-8")
+        compile(source, str(path), "exec")
 
 
-def test_history_command_launches_executive_office() -> None:
+def test_history_command_launches_matchday_office() -> None:
     source = LAUNCH.read_text(encoding="utf-8")
-    assert 'with_name("executive_office_webapp.py")' in source
+    assert 'with_name("matchday_office_webapp.py")' in source
 
 
 def test_player_interface_centers_named_delivery_and_followup_questions() -> None:
     source = APP.read_text(encoding="utf-8")
+    matchday = MATCHDAY_APP.read_text(encoding="utf-8")
 
-    assert '"具名实施"' in source
-    assert '"竞争报告"' in source
-    assert '"主席发布会"' in source
+    assert '"具名实施"' in matchday
+    assert '"竞争报告"' in matchday
+    assert '"主席发布会"' in matchday
+    assert '"国家队指挥中心"' in matchday
     assert "签署具名实施授权" in source
     assert "时间速度由真实事件决定" in source
     assert "回答并接受下一轮追问" in source
