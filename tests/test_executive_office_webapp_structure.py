@@ -22,7 +22,8 @@ def test_player_interface_centers_named_delivery_and_followup_questions() -> Non
     assert '"具名实施"' in source
     assert '"竞争报告"' in source
     assert '"主席发布会"' in source
-    assert "签字只是开始" in source
+    assert "签署具名实施授权" in source
+    assert "时间速度由真实事件决定" in source
     assert "回答并接受下一轮追问" in source
 
 
