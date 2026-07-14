@@ -5,10 +5,6 @@ on:
     branches: [main]
   pull_request:
 
-permissions:
-  contents: read
-  pull-requests: write
-
 jobs:
   pytest:
     runs-on: ubuntu-latest
@@ -19,77 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Run compile, install and test diagnostics
-        id: diagnostics
-        shell: bash
-        run: |
-          mkdir -p diagnostics
-          set +e
-          python -m compileall -q src > diagnostics/compile.log 2>&1
-          COMPILE_CODE=$?
-          if [ "$COMPILE_CODE" -eq 0 ]; then
-            python -m pip install -q -e '.[dev]' > diagnostics/install.log 2>&1
-            INSTALL_CODE=$?
-          else
-            INSTALL_CODE=99
-            echo "install skipped because compile failed" > diagnostics/install.log
-          fi
-          if [ "$COMPILE_CODE" -eq 0 ] && [ "$INSTALL_CODE" -eq 0 ]; then
-            pytest -q --tb=short > diagnostics/pytest.log 2>&1
-            TEST_CODE=$?
-          else
-            TEST_CODE=99
-            echo "pytest skipped because compile or install failed" > diagnostics/pytest.log
-          fi
-          printf 'compile=%s\ninstall=%s\npytest=%s\n' "$COMPILE_CODE" "$INSTALL_CODE" "$TEST_CODE" > diagnostics/status.env
-          cat diagnostics/status.env
-          exit 0
-      - name: Comment failure diagnostics
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        shell: bash
-        run: |
-          source diagnostics/status.env
-          if [ "$compile" -eq 0 ] && [ "$install" -eq 0 ] && [ "$pytest" -eq 0 ]; then
-            exit 0
-          fi
-          BODY=$(cat <<EOF
-          <!-- test-diagnostics -->
-          ## CI diagnostics
-
-          - compile: \`${compile}\`
-          - install: \`${install}\`
-          - pytest: \`${pytest}\`
-
-          \`compile.log\`
-          \`\`\`
-          $(tail -60 diagnostics/compile.log)
-          \`\`\`
-
-          \`install.log\`
-          \`\`\`
-          $(tail -60 diagnostics/install.log)
-          \`\`\`
-
-          \`pytest.log\`
-          \`\`\`
-          $(tail -100 diagnostics/pytest.log)
-          \`\`\`
-          EOF
-          )
-          COMMENT_ID=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-            --jq '.[] | select(.body | contains("<!-- test-diagnostics -->")) | .id' | head -n 1)
-          if [ -n "$COMMENT_ID" ]; then
-            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" -f body="$BODY" >/dev/null
-          else
-            gh pr comment "$PR_NUMBER" --body "$BODY" >/dev/null
-          fi
-      - name: Fail when diagnostics failed
-        shell: bash
-        run: |
-          source diagnostics/status.env
-          if [ "$compile" -ne 0 ] || [ "$install" -ne 0 ] || [ "$pytest" -ne 0 ]; then
-            exit 1
-          fi
+      - name: Install
+        run: python -m pip install -q -e '.[dev]'
+      - name: Test
+        run: pytest -q --tb=short
