@@ -56,6 +56,41 @@ jobs:
         with:
           path: _progress_site
 
+      - name: Report browser build
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          BUILD_STATUS: ${{ job.status }}
+        with:
+          script: |
+            const marker = '<!-- browser-pages-status -->';
+            const ok = process.env.BUILD_STATUS === 'success';
+            const body = ok
+              ? `${marker}\n## 🟡 网页构建完成，正在部署\n\n静态页面和比赛日演示已通过构建检查。提交：\`${context.sha.slice(0, 7)}\``
+              : `${marker}\n## ❌ 网页构建失败\n\n请查看 browser-pages 工作流的 build 任务。提交：\`${context.sha.slice(0, 7)}\``;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 38,
+              per_page: 100,
+            });
+            const existing = comments.find(comment => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: 38,
+                body,
+              });
+            }
+
   deploy:
     environment:
       name: github-pages
