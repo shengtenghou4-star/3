@@ -8,8 +8,8 @@
     "title": "主席终于真正坐进了国家队比赛现场",
     "summary": "重要国家队比赛会在开赛前一天把主席带到体育场：安排包厢与来宾，承受镜头和现场压力，观看由正式赛果生成的比赛时间线，并在终场、球员通道和混合采访区完成公开责任后再回办公室处理教练去留。",
     "pr": 35,
-    "merge_commit": "pending merge",
-    "validation": "CI verification in progress"
+    "merge_commit": "d1c0f7ef5dcc23a1eedf6d2ca5f10e7e6612d6dd",
+    "validation": "192 tests passed in 10.58s"
   },
   "latest_highlights": [
     {
