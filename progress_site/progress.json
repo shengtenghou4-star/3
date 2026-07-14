@@ -7,9 +7,9 @@
     "date": "2026-07-14",
     "title": "主席签字之后，开始真正执行",
     "summary": "每项重大决定都要指定具名官员、选择授权方式、面对多部门竞争报告，并在连续追问式发布会上为执行结果承担责任。",
-    "pr": 0,
-    "merge_commit": "pending",
-    "validation": "CI pending"
+    "pr": 27,
+    "merge_commit": "pending merge",
+    "validation": "150 passed in 10.09s"
   },
   "latest_highlights": [
     {
@@ -58,7 +58,7 @@
     {
       "code": "M10",
       "title": "具名执行政府",
-      "status": "开发中",
+      "status": "完成",
       "date": "2026-07-14",
       "description": "主席指定责任人、判断竞争报告，并在连续追问中为执行结果答辩。"
     }
