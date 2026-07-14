@@ -56,8 +56,9 @@ def test_browser_pages_workflow_builds_and_deploys_the_game() -> None:
     assert "branches: [main]" in workflow
     assert "pages: write" in workflow
     assert "id-token: write" in workflow
+    assert "POST /repos/{owner}/{repo}/pages" in workflow
+    assert "build_type: 'workflow'" in workflow
     assert "actions/configure-pages@v5" in workflow
-    assert "enablement: true" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "actions/deploy-pages@v4" in workflow
     assert "test -f _progress_site/game/index.html" in workflow
