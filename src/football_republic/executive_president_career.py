@@ -11,7 +11,7 @@ from .causal_president_career import (
     CAUSAL_PRESIDENT_SAVE_VERSION,
     CausalPresidentCareerGame,
 )
-from .executive_followup import ExecutiveFollowupRuntime
+from .executive_runtime import ExecutiveGovernmentRuntime
 
 
 EXECUTIVE_PRESIDENT_SAVE_VERSION = 8
@@ -27,7 +27,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         max_terms: int = 10,
     ) -> None:
         super().__init__(strategy=strategy, max_terms=max_terms)
-        self.executive = ExecutiveFollowupRuntime()
+        self.executive = ExecutiveGovernmentRuntime()
 
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
         if months < 0:
@@ -130,7 +130,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         base = CausalPresidentCareerGame.from_dict(causal_payload)
         game = cls.__new__(cls)
         game.__dict__.update(base.__dict__)
-        game.executive = ExecutiveFollowupRuntime.from_dict(data["executive"])
+        game.executive = ExecutiveGovernmentRuntime.from_dict(data["executive"])
         expected = data.get("fingerprint")
         if expected and game.fingerprint() != expected:
             raise ValueError("executive-president replay fingerprint mismatch")
