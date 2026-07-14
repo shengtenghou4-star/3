@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: browser-pages
@@ -65,3 +66,41 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Report browser deployment
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
+        with:
+          script: |
+            const marker = '<!-- browser-pages-status -->';
+            const ok = process.env.DEPLOY_OUTCOME === 'success';
+            const root = process.env.PAGE_URL || 'https://shengtenghou4-star.github.io/3/';
+            const gameUrl = `${root.replace(/\/$/, '')}/game/`;
+            const body = ok
+              ? `${marker}\n## ✅ 网页已上线\n\n[打开足协主席模拟器网页版](${gameUrl})\n\n部署提交：\`${context.sha.slice(0, 7)}\``
+              : `${marker}\n## ❌ 网页部署失败\n\n请查看 browser-pages 工作流。部署提交：\`${context.sha.slice(0, 7)}\``;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 38,
+              per_page: 100,
+            });
+            const existing = comments.find(comment => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: 38,
+                body,
+              });
+            }
