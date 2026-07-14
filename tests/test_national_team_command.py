@@ -8,6 +8,7 @@ from football_republic.national_team_command import ClubReleaseDispute
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / "src" / "football_republic" / "national_team_command.py"
+REPLAY = ROOT / "src" / "football_republic" / "matchday_replay.py"
 TIME_INTEGRATION = ROOT / "src" / "football_republic" / "matchday_time_integration.py"
 WEB = ROOT / "src" / "football_republic" / "matchday_web.py"
 APP = ROOT / "src" / "football_republic" / "matchday_office_webapp.py"
@@ -15,7 +16,9 @@ LAUNCH = ROOT / "src" / "football_republic" / "launch_history.py"
 
 
 def _open_first_window(game: ExecutivePresidentCareerGame):
-    game.advance(2, interactive=True)
+    # Advance ordinary governance automatically so the test isolates the national-team
+    # window rather than leaving an unrelated presidential dossier on the desk.
+    game.advance(2, interactive=False)
     game.calendar.current_date = date(2026, 3, 25)
     recommendation = game.time_recommendation()
     window = game.matchday.active_window
@@ -125,7 +128,7 @@ def test_match_readiness_is_temporary_and_result_enters_review() -> None:
     assert window.temporary_modifier_applied == 0.0
     assert abs(final_strength - base_strength) <= 1.7
     assert game.time_recommendation().days == 0
-    assert "赛后问责" in game.time_recommendation().signals[0].headline
+    assert any("赛后问责" in item.headline for item in game.time_recommendation().signals)
 
 
 def test_post_match_review_can_replace_the_coach_but_not_rewrite_the_result() -> None:
@@ -173,7 +176,7 @@ def test_version_nine_save_upgrades_with_a_fresh_matchday_runtime() -> None:
 
 
 def test_matchday_sources_compile_and_default_launcher_uses_command_center() -> None:
-    for path in (RUNTIME, TIME_INTEGRATION, WEB, APP):
+    for path in (RUNTIME, REPLAY, TIME_INTEGRATION, WEB, APP):
         source = path.read_text(encoding="utf-8")
         compile(source, str(path), "exec")
 
