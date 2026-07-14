@@ -298,10 +298,16 @@ def test_executive_save_reload_preserves_assignment_reports_and_press_sequence()
 
 
 def test_successor_cannot_use_the_players_implementation_or_press_authority() -> None:
-    game = ExecutivePresidentCareerGame(strategy=Strategy.BALANCED, max_terms=1)
+    game = ExecutivePresidentCareerGame(strategy=Strategy.BALANCED, max_terms=2)
     mandate = _sign_first_option(game)
-    game.can_act = False
+    mandate_count = len(game.executive.mandates)
+    game.world.force_crisis(severity=0.94)
+    assert game.current_decision is not None
+    game.resolve_decision("submit_resignation")
 
+    assert not game.can_act
+    assert game.career_status == "ended"
+    assert len(game.executive.mandates) == mandate_count
     with pytest.raises(RuntimeError):
         game.assign_implementation(
             mandate_id=mandate.id,
