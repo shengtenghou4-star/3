@@ -1,5 +1,6 @@
 from collections import Counter
 from datetime import date
+import math
 from pathlib import Path
 
 from football_republic.executive_president_career import ExecutivePresidentCareerGame
@@ -134,15 +135,23 @@ def test_performance_camp_has_more_readiness_and_risk_than_recovery() -> None:
 def test_match_readiness_is_temporary_and_result_enters_review() -> None:
     game = ExecutivePresidentCareerGame()
     window = _complete_preparation(game)
-    base_strength = game.current_campaign.engine.state.national_team_strength
+    expected_modifier = game.matchday.prepare_month(game, game.local_month + 1)
 
     game.advance(1, interactive=True)
 
+    international = game.current_campaign.football.international
     final_strength = game.current_campaign.engine.state.national_team_strength
+    simulated_strength = international.teams[international.user_code].strength
     assert window.result is not None
     assert window.stage == "review"
     assert window.temporary_modifier_applied == 0.0
-    assert abs(final_strength - base_strength) <= 1.7
+    assert expected_modifier != 0.0
+    assert math.isclose(
+        final_strength,
+        simulated_strength - expected_modifier,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    )
     assert game.time_recommendation().days == 0
     assert any("赛后问责" in item.headline for item in game.time_recommendation().signals)
 
