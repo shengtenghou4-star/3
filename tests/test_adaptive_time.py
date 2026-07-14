@@ -152,7 +152,8 @@ def test_web_controls_remove_rigid_twenty_four_month_jump() -> None:
     compile(office_web, str(OFFICE_WEB_SOURCE), "exec")
     assert "快进至关注点" in time_web
     assert "细看1天" in time_web
-    assert "time_recommendation" in office_web
+    assert "render_sidebar_clock(game)" in office_web
+    assert "render_time_console(game)" in office_web
     assert "game.advance(24" not in office_web
     assert "结束今日" not in office_web
     assert "推进至文件" not in office_web
