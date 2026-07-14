@@ -44,12 +44,6 @@ jobs:
           printf 'compile=%s\ninstall=%s\npytest=%s\n' "$COMPILE_CODE" "$INSTALL_CODE" "$TEST_CODE" > diagnostics/status.env
           cat diagnostics/status.env
           exit 0
-      - name: Upload diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-diagnostics
-          path: diagnostics
-          retention-days: 3
       - name: Comment failure diagnostics
         if: ${{ github.event_name == 'pull_request' }}
         env:
