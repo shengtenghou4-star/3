@@ -19,24 +19,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - id: checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - uses: actions/setup-python@v5
+      - id: python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
 
-      - name: Install project
+      - id: install
+        name: Install project
         run: python -m pip install -q -e '.[dev]'
 
-      - name: Run complete regression suite
+      - id: tests
+        name: Run complete regression suite
         shell: bash
         run: |
           pytest -q --tb=short | tee /tmp/browser-pages-pytest.log
 
-      - name: Build browser site
+      - id: build_site
+        name: Build browser site
         shell: bash
         env:
           TEST_OUTCOME: success
@@ -46,12 +51,14 @@ jobs:
           python scripts/build_progress_site.py
           test -f _progress_site/game/index.html
 
-      - name: Configure GitHub Pages
+      - id: configure
+        name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Upload browser site
+      - id: upload
+        name: Upload browser site
         uses: actions/upload-pages-artifact@v3
         with:
           path: _progress_site
@@ -61,13 +68,29 @@ jobs:
         uses: actions/github-script@v7
         env:
           BUILD_STATUS: ${{ job.status }}
+          CHECKOUT_STATUS: ${{ steps.checkout.outcome }}
+          PYTHON_STATUS: ${{ steps.python.outcome }}
+          INSTALL_STATUS: ${{ steps.install.outcome }}
+          TEST_STATUS: ${{ steps.tests.outcome }}
+          SITE_STATUS: ${{ steps.build_site.outcome }}
+          CONFIGURE_STATUS: ${{ steps.configure.outcome }}
+          UPLOAD_STATUS: ${{ steps.upload.outcome }}
         with:
           script: |
             const marker = '<!-- browser-pages-status -->';
             const ok = process.env.BUILD_STATUS === 'success';
+            const details = [
+              ['checkout', process.env.CHECKOUT_STATUS],
+              ['python', process.env.PYTHON_STATUS],
+              ['install', process.env.INSTALL_STATUS],
+              ['tests', process.env.TEST_STATUS],
+              ['site', process.env.SITE_STATUS],
+              ['configure-pages', process.env.CONFIGURE_STATUS],
+              ['upload', process.env.UPLOAD_STATUS],
+            ].map(([name, status]) => `- ${name}: \`${status || 'not-run'}\``).join('\n');
             const body = ok
-              ? `${marker}\n## 🟡 网页构建完成，正在部署\n\n静态页面和比赛日演示已通过构建检查。提交：\`${context.sha.slice(0, 7)}\``
-              : `${marker}\n## ❌ 网页构建失败\n\n请查看 browser-pages 工作流的 build 任务。提交：\`${context.sha.slice(0, 7)}\``;
+              ? `${marker}\n## 🟡 网页构建完成，正在部署\n\n${details}\n\n提交：\`${context.sha.slice(0, 7)}\``
+              : `${marker}\n## ❌ 网页构建失败\n\n${details}\n\n提交：\`${context.sha.slice(0, 7)}\``;
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
