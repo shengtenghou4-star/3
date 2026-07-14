@@ -6,7 +6,9 @@ import hashlib
 import json
 from typing import Any
 
+from . import adaptive_time as _adaptive_time_module
 from .adaptive_time import AdaptiveCalendar, TimeAdvanceResult, TimeRecommendation
+from .adaptive_time_significance import install_into as _install_time_significance
 from .campaign import Strategy
 from .causal_president_career import (
     CAUSAL_PRESIDENT_SAVE_VERSION,
@@ -14,6 +16,8 @@ from .causal_president_career import (
 )
 from .executive_runtime import ExecutiveGovernmentRuntime
 
+
+_install_time_significance(_adaptive_time_module)
 
 EXECUTIVE_PRESIDENT_SAVE_VERSION = 9
 LEGACY_EXECUTIVE_PRESIDENT_SAVE_VERSION = 8
@@ -35,7 +39,7 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
     def advance(self, months: int = 1, *, interactive: bool = True) -> None:
         """Advance authoritative monthly settlements.
 
-        Player-facing controls should normally call :meth:`advance_time`.  This method is
+        Player-facing controls should normally call :meth:`advance_time`. This method is
         retained for deterministic replay, observer mode and compatibility with tests.
         """
         if months < 0:
@@ -165,7 +169,11 @@ class ExecutivePresidentCareerGame(CausalPresidentCareerGame):
         )
         game.calendar.sync_to_world(game.global_month)
         expected = data.get("fingerprint")
-        actual = game.fingerprint() if version == EXECUTIVE_PRESIDENT_SAVE_VERSION else game._legacy_fingerprint()
+        actual = (
+            game.fingerprint()
+            if version == EXECUTIVE_PRESIDENT_SAVE_VERSION
+            else game._legacy_fingerprint()
+        )
         if expected and actual != expected:
             raise ValueError("executive-president replay fingerprint mismatch")
         return game
