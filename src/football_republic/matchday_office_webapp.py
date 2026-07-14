@@ -1,4 +1,4 @@
-"""Default presidential office with adaptive time and national-team matchday command."""
+"""Default presidential office with adaptive time and stadium matchday command."""
 
 from __future__ import annotations
 
@@ -25,16 +25,17 @@ from football_republic.executive_office_webapp import (
     _visual_desk_tab,
     _visual_meetings_tab,
 )
-from football_republic.matchday_web import (
-    inject_matchday_css,
-    render_matchday_center,
-)
+from football_republic.matchday_web import inject_matchday_css
 from football_republic.office_visuals import (
     inject_cinematic_theme,
     render_cinematic_header,
 )
 from football_republic.president_office_webapp import _css as _base_css
 from football_republic.presidential_office import build_office_packet
+from football_republic.stadium_web import (
+    inject_stadium_css,
+    render_stadium_matchday_center,
+)
 
 
 def main() -> None:
@@ -48,6 +49,7 @@ def main() -> None:
     inject_cinematic_theme()
     inject_timeflow_css()
     inject_matchday_css()
+    inject_stadium_css()
     game = _session()
     game.matchday.sync(game)
     packet = timed_office_packet(game, build_office_packet(game))
@@ -73,7 +75,7 @@ def main() -> None:
     with tabs[0]:
         _visual_desk_tab(game, packet)
     with tabs[1]:
-        render_matchday_center(game)
+        render_stadium_matchday_center(game)
     with tabs[2]:
         _dossier_tab(game, packet, office_state)
     with tabs[3]:
