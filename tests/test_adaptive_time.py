@@ -36,6 +36,7 @@ def test_quiet_opening_period_moves_to_a_public_preparation_checkpoint() -> None
 
     assert recommendation.days > 7
     assert "注册" in recommendation.next_checkpoint
+    assert not any(item.code.startswith("national-team") for item in recommendation.signals)
 
     result = game.advance_time("adaptive")
 
@@ -79,16 +80,26 @@ def test_signed_but_unassigned_decision_stops_time_until_responsibility_is_named
     assert any(item.code.startswith("unassigned:") for item in result.signals_after)
 
 
-def test_fast_forward_rechecks_after_each_month_and_stops_on_new_decision() -> None:
+def test_fast_forward_rechecks_each_settlement_and_never_skips_governance() -> None:
     game = ExecutivePresidentCareerGame()
-    game.calendar.current_date = date(2026, 2, 22)
+    game.calendar.current_date = date(2026, 1, 25)
 
-    result = game.advance_time("fast")
+    registration = game.advance_time("fast")
+    assert game.global_month == 1
+    assert game.calendar.current_date == date(2026, 2, 1)
+    assert registration.world_months_elapsed == 1
 
+    preparation = game.advance_time("fast")
+    assert game.global_month == 1
+    assert game.calendar.current_date == date(2026, 2, 22)
+    assert preparation.world_months_elapsed == 0
+    assert "准备期" in preparation.stopped_reason
+
+    decision_stop = game.advance_time("fast")
     assert game.global_month == 2
     assert game.current_decision is not None
-    assert result.world_months_elapsed == 2
-    assert "亲签" in result.stopped_reason
+    assert decision_stop.world_months_elapsed == 1
+    assert "亲签" in decision_stop.stopped_reason
 
 
 def test_calendar_save_reload_preserves_partial_month_and_fingerprint() -> None:
