@@ -1,13 +1,18 @@
 """Replay-safe national-team command effects.
 
-The long-term world is reconstructed from ordered presidential actions.  Match-window
+The long-term world is reconstructed from ordered presidential actions. Match-window
 costs, supporter reactions and club-owner relationships must therefore enter that same
 external-action stream rather than mutating the world only in memory.
 """
 
 from __future__ import annotations
 
-from .national_team_command import NationalTeamCommandRuntime
+from .national_team_command import (
+    ClubReleaseDispute,
+    MatchWindow,
+    NationalTeamCommandRuntime,
+    SquadMember,
+)
 
 
 class ReplayableNationalTeamCommandRuntime(NationalTeamCommandRuntime):
@@ -35,11 +40,15 @@ class ReplayableNationalTeamCommandRuntime(NationalTeamCommandRuntime):
         state = game.current_campaign.engine.state
         owners = game.current_campaign.football.pyramid.owners
         treasury_before = float(state.treasury)
-        owner_before = {
-            item.club_id: float(owners[item.club_id].relationship_with_fa)
-            for item in self.active_window.disputes
-            if item.club_id in owners
-        } if self.active_window is not None else {}
+        owner_before = (
+            {
+                item.club_id: float(owners[item.club_id].relationship_with_fa)
+                for item in self.active_window.disputes
+                if item.club_id in owners
+            }
+            if self.active_window is not None
+            else {}
+        )
         window = super().resolve_release(game, choice)
         treasury_after = float(state.treasury)
         owner_after = {
@@ -61,7 +70,7 @@ class ReplayableNationalTeamCommandRuntime(NationalTeamCommandRuntime):
                     for club_id, before in owner_before.items()
                 ],
                 "audit_note": (
-                    f"national-team player release arbitration — "
+                    "national-team player release arbitration — "
                     f"{self.RELEASE_CHOICES[choice]['label']}"
                 ),
             },
@@ -90,6 +99,60 @@ class ReplayableNationalTeamCommandRuntime(NationalTeamCommandRuntime):
             },
         )
         return window
+
+    def _next_fixture(self, game):
+        """Never reopen a fixture whose authoritative match month has already arrived."""
+        international = game.current_campaign.football.international
+        for index, local_month in enumerate(international.round_months):
+            window_id_prefix = f"t{game.term_index}-r{index + 1}-"
+            if any(item.id.startswith(window_id_prefix) for item in self.windows):
+                continue
+            if local_month <= game.local_month:
+                continue
+            pair = next(
+                (
+                    (home, away)
+                    for home, away in international.schedule[index]
+                    if international.user_code in {home, away}
+                ),
+                None,
+            )
+            if pair is None:
+                continue
+            home, away = pair
+            opponent_code = away if home == international.user_code else home
+            opponent = international.teams[opponent_code]
+            venue = "主场" if home == international.user_code else "客场"
+            global_month = game.global_month + (local_month - game.local_month)
+            return (
+                index + 1,
+                local_month,
+                global_month,
+                opponent_code,
+                opponent.name,
+                venue,
+            )
+        return None
+
+    @staticmethod
+    def _window_from_dict(data: dict) -> MatchWindow:
+        payload = dict(data)
+        payload["squad"] = tuple(
+            SquadMember(**item) for item in payload.get("squad", [])
+        )
+        payload["omitted_players"] = tuple(payload.get("omitted_players", []))
+        disputes = []
+        for item in payload.get("disputes", []):
+            normalized = dict(item)
+            normalized["player_ids"] = tuple(normalized.get("player_ids", []))
+            normalized["player_names"] = tuple(normalized.get("player_names", []))
+            disputes.append(ClubReleaseDispute(**normalized))
+        payload["disputes"] = disputes
+        payload["unavailable_player_ids"] = list(
+            payload.get("unavailable_player_ids", [])
+        )
+        payload["notes"] = list(payload.get("notes", []))
+        return MatchWindow(**payload)
 
 
 def install_owner_replay(career_history_class) -> None:
