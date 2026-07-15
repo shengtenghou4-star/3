@@ -4,450 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#07131d">
-  <meta name="description" content="Football Republic 足协主席模拟器网页版演示">
-  <title>足球共和国 · 主席比赛日</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --ink:#07131d;
-      --panel:#0b1d29;
-      --panel-2:#102735;
-      --line:rgba(171,198,214,.16);
-      --gold:#d8bb74;
-      --gold-2:#f3db9a;
-      --text:#edf3f5;
-      --muted:#91a6b3;
-      --green:#75c092;
-      --red:#d66f68;
-      --blue:#78acd0;
-      --shadow:0 26px 70px rgba(0,0,0,.34);
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;background:var(--ink)}
-    body{
-      margin:0;min-height:100vh;color:var(--text);
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-      background:
-        radial-gradient(circle at 83% 4%,rgba(79,142,171,.13),transparent 28%),
-        radial-gradient(circle at 12% 96%,rgba(216,187,116,.08),transparent 30%),
-        linear-gradient(145deg,#07131d,#081924 54%,#07131d);
-    }
-    button,a{font:inherit}
-    button{cursor:pointer}
-    .grain{position:fixed;inset:0;pointer-events:none;opacity:.24;z-index:20;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E")}
-    .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
-    aside{
-      position:sticky;top:0;height:100vh;padding:24px 18px;border-right:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(7,20,30,.98),rgba(5,15,23,.96));
-      display:flex;flex-direction:column;z-index:8;
-    }
-    .brand{display:flex;align-items:center;gap:12px;padding:4px 6px 22px}
-    .seal{width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(216,187,116,.62);border-radius:50%;color:var(--gold-2);font-family:Georgia,serif;font-weight:900;background:radial-gradient(circle,rgba(216,187,116,.13),transparent 70%);box-shadow:0 10px 28px rgba(0,0,0,.24)}
-    .brand b{display:block;font-size:1rem}.brand small{display:block;margin-top:2px;color:var(--muted);font-size:.68rem;letter-spacing:.08em}
-    .identity{margin:0 5px 18px;padding:13px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
-    .identity .eyebrow{color:var(--gold);font-size:.62rem;letter-spacing:.13em;font-weight:800}
-    .identity strong{display:block;margin-top:5px}.identity span{display:block;margin-top:3px;color:var(--muted);font-size:.7rem}
-    nav{display:grid;gap:6px}
-    .nav-button{width:100%;text-align:left;padding:11px 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#9db0bc}
-    .nav-button:hover{background:rgba(255,255,255,.035);color:var(--text)}
-    .nav-button.active{border-color:rgba(216,187,116,.26);background:linear-gradient(90deg,rgba(216,187,116,.12),rgba(255,255,255,.02));color:var(--gold-2)}
-    .sidebar-bottom{margin-top:auto}
-    .save-badge{padding:11px 12px;border-radius:10px;background:rgba(117,192,146,.075);border:1px solid rgba(117,192,146,.19);color:#a9cdb6;font-size:.7rem;line-height:1.55}
-    .reset{width:100%;margin-top:9px;padding:10px;border:1px solid rgba(214,111,104,.24);border-radius:10px;background:rgba(214,111,104,.055);color:#ddb0ad}
-    main{min-width:0;padding:22px 28px 50px}
-    .topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:20px}
-    .topbar h1{margin:0;font-size:1.25rem}.topbar p{margin:4px 0 0;color:var(--muted);font-size:.76rem}
-    .clock{padding:10px 13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.025);text-align:right}
-    .clock b{display:block;color:var(--gold-2);font-size:.84rem}.clock span{color:var(--muted);font-size:.68rem}
-    .scene{display:none}.scene.active{display:block;animation:fade .28s ease}
-    @keyframes fade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
-    .hero{
-      position:relative;overflow:hidden;padding:28px;border:1px solid rgba(137,174,195,.21);border-radius:22px;
-      background:linear-gradient(125deg,rgba(14,39,53,.98),rgba(8,22,31,.98) 62%,rgba(17,34,43,.98));box-shadow:var(--shadow)
-    }
-    .hero::after{content:"";position:absolute;right:-80px;top:-130px;width:360px;height:360px;border-radius:50%;border:1px solid rgba(216,187,116,.13);box-shadow:0 0 0 35px rgba(216,187,116,.025),0 0 0 76px rgba(216,187,116,.018)}
-    .hero-kicker{color:var(--gold);font-size:.66rem;letter-spacing:.16em;font-weight:900}
-    .hero h2{position:relative;z-index:1;margin:8px 0 7px;font-size:clamp(1.6rem,3vw,2.75rem);letter-spacing:-.035em}
-    .hero p{position:relative;z-index:1;max-width:760px;margin:0;color:#afbec6;line-height:1.72}
-    .stage-row{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
-    .stage{padding:6px 9px;border:1px solid var(--line);border-radius:999px;color:#6f8490;font-size:.66rem;background:rgba(255,255,255,.018)}
-    .stage.done{color:#9cc4aa;border-color:rgba(117,192,146,.21)}.stage.current{color:#15202a;background:var(--gold);border-color:var(--gold);font-weight:850}
-    .grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);gap:18px;margin-top:18px}
-    .panel{padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,rgba(13,34,47,.9),rgba(8,22,31,.9));box-shadow:0 16px 38px rgba(0,0,0,.18)}
-    .panel h3{margin:0 0 6px;font-size:1rem}.panel-lede{margin:0 0 16px;color:var(--muted);font-size:.76rem;line-height:1.55}
-    .choices{display:grid;gap:9px}
-    .choice{width:100%;padding:14px 15px;text-align:left;border:1px solid rgba(137,174,195,.16);border-radius:12px;background:rgba(255,255,255,.025);color:var(--text);transition:.18s}
-    .choice:hover{transform:translateY(-1px);border-color:rgba(216,187,116,.42);background:rgba(216,187,116,.055)}
-    .choice b{display:block;margin-bottom:4px}.choice span{display:block;color:var(--muted);font-size:.72rem;line-height:1.5}
-    .choice.selected{border-color:var(--gold);background:rgba(216,187,116,.09)}
-    .primary{width:100%;margin-top:13px;padding:12px 14px;border:0;border-radius:11px;color:#13202a;background:linear-gradient(135deg,var(--gold-2),var(--gold));font-weight:900;box-shadow:0 12px 25px rgba(216,187,116,.15)}
-    .primary:disabled{cursor:not-allowed;opacity:.36;box-shadow:none}
-    .secondary{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;color:#b8c6ce;background:rgba(255,255,255,.025)}
-    .brief-list{display:grid;gap:10px}
-    .brief{display:flex;justify-content:space-between;gap:14px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.055)}
-    .brief:last-child{border-bottom:0}.brief span{color:var(--muted);font-size:.72rem}.brief b{font-size:.76rem;text-align:right}
-    .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
-    .metric{padding:12px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.018)}
-    .metric span{display:block;color:var(--muted);font-size:.65rem}.metric b{display:block;margin-top:4px;font-size:1.02rem}
-    .metric.good b{color:#9bc9ab}.metric.warn b{color:#e4c787}.metric.bad b{color:#df918c}
-    .guest-list{display:grid;gap:8px}
-    .guest{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.02)}
-    .guest-avatar{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;color:var(--gold-2);background:linear-gradient(145deg,#214252,#102733);font-family:Georgia,serif;font-weight:900}
-    .guest b{display:block;font-size:.77rem}.guest span{color:var(--muted);font-size:.66rem}
-    .authority{padding:12px 13px;border:1px solid rgba(120,172,208,.19);border-radius:11px;background:rgba(120,172,208,.055);color:#b5c8d3;font-size:.73rem;line-height:1.6}
-    .stadium{
-      overflow:hidden;position:relative;min-height:240px;border:1px solid rgba(216,187,116,.21);border-radius:17px;
-      background:
-        linear-gradient(180deg,rgba(4,13,20,.12),rgba(4,13,20,.85)),
-        radial-gradient(ellipse at center 84%,#37755a 0 20%,#163c31 21% 29%,#132a30 30% 45%,#07131d 46%);
-      box-shadow:var(--shadow)
-    }
-    .floodlights{position:absolute;left:8%;right:8%;top:15px;display:flex;justify-content:space-between;color:#dce8ee;text-shadow:0 0 18px #e7f5ff;font-size:1.8rem;opacity:.9}
-    .scoreboard{position:relative;z-index:2;width:min(600px,90%);margin:45px auto 0;padding:18px;border:1px solid rgba(216,187,116,.32);border-radius:14px;background:rgba(4,13,20,.78);backdrop-filter:blur(7px);text-align:center}
-    .scoreboard small{color:var(--gold);letter-spacing:.12em}.scoreline{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-top:10px}.scoreline strong{font-size:2.3rem}.scoreline b{font-size:.9rem}
-    .match-clock{margin-top:5px;color:var(--muted);font-size:.72rem}
-    .timeline{display:grid;gap:8px;max-height:390px;overflow:auto;padding-right:3px}
-    .event{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:11px;border-left:3px solid rgba(137,174,195,.26);background:rgba(255,255,255,.025);border-radius:0 10px 10px 0}
-    .event.goal-home{border-color:var(--green)}.event.goal-away{border-color:var(--red)}.event b{color:var(--gold-2);font-size:.75rem}.event span{color:#b7c4cb;font-size:.73rem;line-height:1.52}
-    .empty{padding:18px;text-align:center;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.75rem}
-    .quote{padding:18px;border-left:4px solid var(--gold);background:rgba(216,187,116,.06);border-radius:0 12px 12px 0;font-family:Georgia,"Noto Serif SC",serif;font-size:1.02rem;line-height:1.8}
-    .result-banner{text-align:center;padding:22px;border:1px solid rgba(216,187,116,.24);border-radius:15px;background:radial-gradient(circle at 50% 0,rgba(216,187,116,.12),rgba(7,19,29,.85))}
-    .result-banner .big{font-size:2.7rem;font-weight:950}.result-banner span{display:block;color:var(--muted);font-size:.73rem}
-    .archive{display:grid;gap:9px}.record{padding:12px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.02)}.record time{color:var(--gold);font-size:.64rem}.record p{margin:5px 0 0;color:#b6c3ca;font-size:.72rem;line-height:1.55}
-    .notice{margin-top:14px;padding:11px 12px;border:1px solid rgba(117,192,146,.18);border-radius:10px;background:rgba(117,192,146,.055);color:#aacbb7;font-size:.7rem;line-height:1.55}
-    @media(max-width:900px){
-      .app{grid-template-columns:1fr}aside{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 15px}.brand{padding-bottom:10px}.identity{display:none}nav{display:flex;overflow:auto}.nav-button{width:auto;white-space:nowrap}.sidebar-bottom{display:flex;gap:8px;margin-top:10px}.save-badge{flex:1}.reset{width:auto;margin:0}.grid{grid-template-columns:1fr}main{padding:18px 14px 40px}.topbar{align-items:flex-start}.clock{display:none}
-    }
-    @media(max-width:560px){.hero{padding:21px 18px}.panel{padding:16px}.scoreline{gap:7px}.scoreline strong{font-size:1.85rem}.metrics{grid-template-columns:1fr 1fr}.topbar h1{font-size:1.05rem}}
-  </style>
+  <meta name="description" content="Football Republic 足协主席模拟器连续生涯网页版">
+  <title>足球共和国 · 足协主席生涯</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
 <div class="app">
   <aside>
     <div class="brand"><div class="seal">FR</div><div><b>足球共和国</b><small>FOOTBALL REPUBLIC</small></div></div>
-    <div class="identity"><div class="eyebrow">PLAYER IDENTITY LOCKED</div><strong>国家足协主席</strong><span>你只扮演这一名主席；离任即结束可玩生涯。</span></div>
+    <div class="identity"><div class="eyebrow">PLAYER IDENTITY LOCKED</div><strong>国家足协主席</strong><span>你只扮演这一名主席。主教练独立负责阵型、首发与临场换人。</span></div>
     <nav>
       <button class="nav-button active" data-view="office">主席桌面</button>
       <button class="nav-button" data-view="command">国家队指挥中心</button>
       <button class="nav-button" data-view="stadium">比赛现场</button>
+      <button class="nav-button" data-view="campaign">预选赛战报</button>
       <button class="nav-button" data-view="archive">决策档案</button>
     </nav>
     <div class="sidebar-bottom">
-      <div class="save-badge">● 浏览器演示档已启用<br>选择会自动保存在本机。</div>
-      <button class="reset" id="resetButton">重开本场演示</button>
+      <div class="save-badge">● 连续生涯档已启用<br>整届预选赛自动保存在本机。</div>
+      <button class="reset" id="resetButton">重开主席生涯</button>
     </div>
   </aside>
-
   <main>
-    <header class="topbar">
-      <div><h1 id="pageTitle">主席办公室 · 今日要务</h1><p id="pageSubtitle">预选赛比赛日前夕，必须完成由主席承担的现场责任。</p></div>
-      <div class="clock"><b>2026年3月31日 · 19:10</b><span>龙华国家体育场 · 比赛前一日</span></div>
-    </header>
+    <header class="topbar"><div><h1 id="pageTitle">主席办公室 · 国家队窗口</h1><p id="pageSubtitle">连续预选赛生涯，前一场的后果会进入下一场。</p></div><div class="clock"><b id="clockMain">2026年3月</b><span id="clockSub">第1届预选赛 · 第1轮</span></div></header>
 
     <section class="scene active" id="officeScene">
-      <div class="hero">
-        <div class="hero-kicker">PRESIDENTIAL MATCHDAY DOSSIER</div>
-        <h2>国家队主场迎战玄林</h2>
-        <p>主教练已经独立完成名单和技战术准备。你要处理的是体育场礼宾、包厢利益相关方、公众形象和赛后责任。比赛不会等主席办公室慢慢开会。</p>
-        <div class="stage-row" id="stageRow"></div>
-      </div>
-      <div class="grid">
-        <div class="panel">
-          <h3 id="actionTitle">体育场抵达方案</h3>
-          <p class="panel-lede" id="actionLede">不同方案会改变现场镜头、来宾结构、财政支出和球迷观感，但不会改变主教练的阵型。</p>
-          <div id="actionArea"></div>
-        </div>
-        <div class="panel">
-          <h3>主席简报</h3>
-          <p class="panel-lede">这些是你能合法掌握的公开与行政信息。</p>
-          <div class="brief-list">
-            <div class="brief"><span>预选赛轮次</span><b>第1轮</b></div>
-            <div class="brief"><span>比赛性质</span><b>世界杯亚洲区预选赛</b></div>
-            <div class="brief"><span>当前排名</span><b>尚未开赛</b></div>
-            <div class="brief"><span>主教练</span><b>林少源</b></div>
-            <div class="brief"><span>预计到场</span><b>54,200人</b></div>
-          </div>
-          <div class="notice">权力边界：主教练独立负责阵型、首发与临场换人。主席只能保障资源、处理关系、设定责任和决定教练任免。</div>
-        </div>
-      </div>
+      <div class="hero"><div class="hero-kicker">PRESIDENTIAL NATIONAL TEAM CAREER</div><h2 id="fixtureTitle">国家队比赛窗口</h2><p id="fixtureLede"></p><div class="stage-row" id="stageRow"></div></div>
+      <div class="grid"><div class="panel"><h3 id="actionTitle">主席待办</h3><p class="panel-lede" id="actionLede"></p><div id="actionArea"></div></div><div class="panel"><h3>本轮主席简报</h3><p class="panel-lede">只提供主席依法掌握的公开、组织和责任信息。</p><div class="brief-list" id="briefList"></div><div class="notice" style="margin-top:14px">权力边界：你不能发出战术指令，也不能亲自选首发。你能决定资源、征调协调、公开口径、责任目标和主教练任免。</div></div></div>
     </section>
 
     <section class="scene" id="commandScene">
-      <div class="hero">
-        <div class="hero-kicker">NATIONAL TEAM COMMAND CENTRE</div>
-        <h2>技术权力属于教练，组织责任属于主席</h2>
-        <p>这里展示名单、医疗、俱乐部征调与主教练关系。演示档不会向你暴露隐藏能力值，也没有“最佳阵型”按钮。</p>
-      </div>
-      <div class="grid">
-        <div class="panel">
-          <h3>主教练提交名单</h3><p class="panel-lede">25人名单已锁定。主席可以要求解释，但不能直接替换球员。</p>
-          <div class="archive">
-            <div class="record"><time>门将 · 3人</time><p>周启航、杜明岳、蒋泽文。医疗组均确认可正常训练。</p></div>
-            <div class="record"><time>后卫 · 8人</time><p>两名边后卫存在联赛负荷偏高问题，俱乐部已接受联合医疗复核。</p></div>
-            <div class="record"><time>中场 · 8人</time><p>核心组织者邵文恺状态稳定，年轻球员陈修远首次进入正式窗口。</p></div>
-            <div class="record"><time>前锋 · 6人</time><p>主力中锋近三场俱乐部赛事出场270分钟，已执行恢复优先方案。</p></div>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>公开关系状态</h3><p class="panel-lede">只显示社会可观察的判断，不显示隐藏分数。</p>
-          <div class="metrics" id="metricsCommand"></div>
-          <div class="authority" style="margin-top:14px"><b>主教练林少源：</b>“我接受主席对资源、纪律和结果的追问，但具体用谁、怎么踢，由教练组承担。”</div>
-        </div>
-      </div>
+      <div class="hero"><div class="hero-kicker">NATIONAL TEAM COMMAND CENTRE</div><h2>主教练管比赛，主席管制度与责任</h2><p>名单由主教练独立提交。你看到的是医疗结论、俱乐部征调、公众关系和长期压力，不会看到隐藏能力值或“最优阵型”。</p></div>
+      <div class="grid"><div class="panel"><h3>本窗口技术与征调简报</h3><p class="panel-lede" id="squadLede"></p><div class="archive" id="squadBrief"></div></div><div class="panel"><h3>主席可观察状态</h3><p class="panel-lede">这些状态会跨比赛累积。</p><div class="metrics" id="metricsCommand"></div><div class="authority" id="coachQuote" style="margin-top:14px"></div></div></div>
     </section>
 
     <section class="scene" id="stadiumScene">
-      <div class="stadium">
-        <div class="floodlights"><span>✦</span><span>✦</span><span>✦</span><span>✦</span></div>
-        <div class="scoreboard">
-          <small>WORLD CUP QUALIFIER · ROUND 1</small>
-          <div class="scoreline"><b>龙华国家队</b><strong><span id="homeScore">0</span> — <span id="awayScore">0</span></strong><b>玄林国家队</b></div>
-          <div class="match-clock" id="matchClock">等待主席完成体育场礼宾</div>
-        </div>
-      </div>
-      <div class="grid">
-        <div class="panel">
-          <h3>比赛现场时间线</h3><p class="panel-lede">事件依据本场权威赛果生成。你可以经历比赛，但不能发出战术指令。</p>
-          <div class="timeline" id="timeline"><div class="empty">比赛尚未开始。</div></div>
-          <button class="primary" id="advanceMatchButton" disabled>推进现场</button>
-        </div>
-        <div class="panel">
-          <h3>主席包厢</h3><p class="panel-lede" id="boxSummary">来宾名单将在你确定抵达方案后形成。</p>
-          <div class="guest-list" id="guestList"></div>
-          <div class="authority" style="margin-top:14px">包厢里没有战术电话。中场技术简报只供主席了解责任链，不允许越级指挥教练组。</div>
-        </div>
-      </div>
+      <div class="stadium"><div class="floodlights"><span>✦</span><span>✦</span><span>✦</span><span>✦</span></div><div class="scoreboard"><small id="scoreKicker">WORLD CUP QUALIFIER</small><div class="scoreline"><b id="homeTeam">龙华国家队</b><strong><span id="homeScore">0</span> — <span id="awayScore">0</span></strong><b id="awayTeam">对手</b></div><div class="match-clock" id="matchClock">等待主席完成赛前责任</div></div></div>
+      <div class="grid"><div class="panel"><h3>比赛现场时间线</h3><p class="panel-lede">比赛由主教练和球员完成。主席只能观看、接收责任简报和面对镜头。</p><div class="timeline" id="timeline"><div class="empty">比赛尚未开始。</div></div><button class="primary" id="advanceMatchButton" disabled>推进现场</button></div><div class="panel"><h3>主席包厢与现场关系</h3><p class="panel-lede" id="boxSummary"></p><div class="guest-list" id="guestList"></div><div class="authority" style="margin-top:14px">包厢没有战术电话。技术总监可以汇报伤情和责任链，但不得要求主席越级换人。</div></div></div>
+    </section>
+
+    <section class="scene" id="campaignScene">
+      <div class="hero"><div class="hero-kicker">QUALIFYING CAMPAIGN</div><h2 id="campaignTitle">第1届预选赛</h2><p id="campaignLede">十场比赛构成一届完整预选赛。排名、净胜球、教练压力和主席资源会持续变化。</p></div>
+      <div class="grid equal"><div class="panel"><h3>小组积分榜</h3><p class="panel-lede">同组对手也会同步比赛，不会围着主席一支球队静止不动。</p><div id="tableArea"></div></div><div class="panel"><h3>十轮赛程</h3><p class="panel-lede">已经结束的比赛保留比分，当前比赛高亮。</p><div class="schedule" id="scheduleList"></div></div></div>
+      <div class="panel" style="margin-top:18px"><h3>国家队比赛历史</h3><div class="archive" id="matchHistory"></div></div>
     </section>
 
     <section class="scene" id="archiveScene">
-      <div class="hero">
-        <div class="hero-kicker">PRESIDENTIAL RECORD</div>
-        <h2>本场主席决策档案</h2>
-        <p>每一个选择都按照发生顺序保存。刷新网页不会抹掉记录；只有主动重开演示才会清空。</p>
-      </div>
-      <div class="grid">
-        <div class="panel"><h3>工作记录</h3><div class="archive" id="archiveList"></div></div>
-        <div class="panel"><h3>当前后果</h3><div class="metrics" id="metricsArchive"></div><div class="notice" id="endNotice">本场尚未结束。</div></div>
-      </div>
+      <div class="hero"><div class="hero-kicker">PRESIDENTIAL RECORD</div><h2>主席连续决策档案</h2><p>每一场比赛、每一次换帅和每一届预选赛都会按时间保存。刷新网页不会抹掉前面的后果。</p></div>
+      <div class="grid"><div class="panel"><h3>工作记录</h3><div class="archive" id="archiveList"></div></div><div class="panel"><h3>当前长期后果</h3><div class="metrics" id="metricsArchive"></div><div class="notice" id="endNotice" style="margin-top:14px"></div></div></div>
     </section>
   </main>
 </div>
 
-<script>
-(() => {
-  const STORAGE_KEY = "football-republic-browser-demo-v1";
-  const defaults = {
-    phase: "arrival",
-    selected: null,
-    arrivalChoice: null,
-    eventIndex: 0,
-    home: 0,
-    away: 0,
-    postChoice: null,
-    mediaChoice: null,
-    reviewChoice: null,
-    fanTrust: 58,
-    politicalCapital: 61,
-    treasury: 48.0,
-    coachTrust: 56,
-    mediaPressure: 36,
-    records: [{time:"3月31日 19:10", text:"国家队比赛日档案送达主席办公室。"}]
-  };
-  let state = load();
-
-  const stages = [
-    ["arrival","体育场抵达"],["box","主席包厢"],["match","正式比赛"],
-    ["post","终场镜头"],["mixed","混合采访"],["review","教练问责"],["complete","归档"]
-  ];
-  const arrivalOptions = {
-    formal:{title:"标准国家礼宾",body:"政府主管、对方足协主席和协会高层进入主包厢。秩序稳妥，公众观感中性。",fan:0,politics:2,treasury:-0.8,coach:0,media:-1},
-    grassroots:{title:"基层足球代表进入主包厢",body:"减少商业席位，邀请校园教练、女足基层代表和球迷组织。球迷观感上升，但部分赞助方不满。",fan:4,politics:-1,treasury:-0.35,coach:1,media:-2},
-    showcase:{title:"国家级形象展示",body:"扩大礼宾、灯光和媒体联动，邀请更多政府与商业来宾。政治曝光更强，成本和赛果压力同时上升。",fan:-1,politics:4,treasury:-2.4,coach:-1,media:5}
-  };
-  const postOptions = {
-    front:{title:"留在包厢前排面对镜头",body:"无论结果如何都不回避现场，向球员和观众致意。",fan:3,politics:1,coach:2,media:-2},
-    tunnel:{title:"进入球员通道慰问球队",body:"与主教练和队长短暂交谈，不进入更衣室干预技术复盘。",fan:1,politics:0,coach:4,media:0},
-    leave:{title:"从内部通道提前离场",body:"避免情绪化表态，但镜头会将其解释为主席回避责任。",fan:-5,politics:-2,coach:-3,media:6}
-  };
-  const mediaOptions = {
-    responsibility:{title:"协会承担组织责任",body:"“准备、保障和用人机制由足协负责，比赛技术问题由教练组提交复盘。”",fan:3,politics:0,coach:2,media:-3},
-    backing:{title:"公开支持主教练",body:"“教练组拥有完整技术权力，我不会因一场比赛越级干预。”",fan:1,politics:-1,coach:5,media:-1},
-    pressure:{title:"宣布结果进入硬考核",body:"“国家队必须对结果负责，所有岗位都会进入正式考核。”",fan:0,politics:3,coach:-5,media:4}
-  };
-  const reviewOptions = {
-    retain:{title:"继续信任并公开担责",body:"维持教练组稳定，主席承担选帅与保障责任。",fan:2,politics:-1,coach:5,media:-2},
-    technical:{title:"留任并启动独立技术复盘",body:"技术、体能和选人材料进入专项审查，不预设人事结论。",fan:1,politics:1,coach:-1,media:-1},
-    dismiss:{title:"解除主教练职务",body:"支付解约与紧急遴选成本，新教练进入过渡窗口。",fan:2,politics:2,coach:-10,media:2,treasury:-2.4}
-  };
-  const matchEvents = [
-    {minute:"04′",text:"玄林右路反击形成单刀，门将周启航出击封堵。主席包厢第一次明显安静下来。",kind:"chance",home:0,away:0},
-    {minute:"18′",text:"龙华前场反抢成功，邵文恺禁区弧顶低射破门。全场起立，镜头切向主席包厢。",kind:"goal-home",home:1,away:0},
-    {minute:"34′",text:"玄林连续获得定位球。技术总监仅报告防守压力，没有向主席请求战术意见。",kind:"chance",home:1,away:0},
-    {minute:"45+2′",text:"上半场结束。龙华1—0领先，预期进球0.72—0.58。教练组独立返回更衣室。",kind:"half",home:1,away:0},
-    {minute:"58′",text:"玄林利用第二落点扳平比分。包厢来宾开始讨论赛前公开目标，媒体席明显躁动。",kind:"goal-away",home:1,away:1},
-    {minute:"71′",text:"龙华主教练完成换人调整。主席只收到人员变化简报，没有任何干预按钮。",kind:"chance",home:1,away:1},
-    {minute:"83′",text:"替补前锋陈修远前点抢射得分，龙华再次领先。球迷看台爆发持续欢呼。",kind:"goal-home",home:2,away:1},
-    {minute:"90+5′",text:"终场哨响：龙华2—1玄林。官方预期进球1.63—1.18，到场54,286人。",kind:"full",home:2,away:1}
-  ];
-
-  function load(){
-    try{return {...defaults,...JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")};}
-    catch{return structuredClone(defaults);}
-  }
-  function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderAll();}
-  function record(text){state.records.push({time:timeLabel(),text});}
-  function timeLabel(){
-    const labels={arrival:"3月31日 19:10",box:"3月31日 19:30",match:"4月1日 比赛中",post:"4月1日 21:52",mixed:"4月1日 22:05",review:"4月1日 23:10",complete:"4月2日 00:05"};
-    return labels[state.phase]||"比赛窗口";
-  }
-  function apply(delta){
-    state.fanTrust=Math.max(0,Math.min(100,state.fanTrust+(delta.fan||0)));
-    state.politicalCapital=Math.max(0,Math.min(100,state.politicalCapital+(delta.politics||0)));
-    state.treasury=Math.max(0,state.treasury+(delta.treasury||0));
-    state.coachTrust=Math.max(0,Math.min(100,state.coachTrust+(delta.coach||0)));
-    state.mediaPressure=Math.max(0,Math.min(100,state.mediaPressure+(delta.media||0)));
-  }
-  function metricLabel(value){return value>=65?"稳固":value>=45?"尚可":"承压";}
-  function pressureLabel(value){return value>=65?"舆论高压":value>=42?"持续关注":"压力有限";}
-  function renderMetrics(target){
-    target.innerHTML = `
-      <div class="metric ${state.fanTrust>=60?"good":state.fanTrust<45?"bad":"warn"}"><span>球迷信任</span><b>${metricLabel(state.fanTrust)}</b></div>
-      <div class="metric ${state.politicalCapital>=60?"good":state.politicalCapital<45?"bad":"warn"}"><span>政治资本</span><b>${metricLabel(state.politicalCapital)}</b></div>
-      <div class="metric"><span>足协可用资金</span><b>¥${state.treasury.toFixed(2)}M</b></div>
-      <div class="metric ${state.coachTrust>=60?"good":state.coachTrust<45?"bad":"warn"}"><span>主教练关系</span><b>${metricLabel(state.coachTrust)}</b></div>
-      <div class="metric ${state.mediaPressure>=65?"bad":state.mediaPressure>=42?"warn":"good"}"><span>媒体压力</span><b>${pressureLabel(state.mediaPressure)}</b></div>`;
-  }
-  function currentStageIndex(){return stages.findIndex(([id])=>id===state.phase);}
-  function renderStages(){
-    const index=currentStageIndex();
-    document.querySelector("#stageRow").innerHTML=stages.map(([id,label],i)=>`<span class="stage ${i<index?"done":i===index?"current":""}">${label}</span>`).join("");
-  }
-  function choiceButtons(options, selected){
-    return `<div class="choices">${Object.entries(options).map(([key,opt])=>`<button class="choice ${selected===key?"selected":""}" data-choice="${key}"><b>${opt.title}</b><span>${opt.body}</span></button>`).join("")}</div>`;
-  }
-  function renderAction(){
-    const area=document.querySelector("#actionArea");
-    const title=document.querySelector("#actionTitle");
-    const lede=document.querySelector("#actionLede");
-    if(state.phase==="arrival"){
-      title.textContent="体育场抵达方案";lede.textContent="主席必须在比赛日前确定礼宾、安保和包厢原则，时间会在这里停住。";
-      area.innerHTML=choiceButtons(arrivalOptions,state.selected)+`<button class="primary" id="confirmAction" ${state.selected?"":"disabled"}>确认抵达与包厢方案</button>`;
-    }else if(state.phase==="box"){
-      title.textContent="主席包厢已经形成";lede.textContent="来宾带着自己的利益和镜头进入现场。主席可以查看包厢后进入比赛。";
-      area.innerHTML=`<div class="quote">“主席先生，所有来宾已入席。技术团队不会从包厢接收临场指令。”</div><button class="primary" id="confirmAction">前往比赛现场</button>`;
-    }else if(state.phase==="post"){
-      title.textContent="终场镜头";lede.textContent="比赛结束后，主席的第一个动作会先于任何正式文件成为新闻。";
-      area.innerHTML=choiceButtons(postOptions,state.selected)+`<button class="primary" id="confirmAction" ${state.selected?"":"disabled"}>确认终场行动</button>`;
-    }else if(state.phase==="mixed"){
-      title.textContent="混合采访区第一口径";lede.textContent="这句话会成为随后问责会议的政治背景，不能在看完舆情后撤回。";
-      area.innerHTML=choiceButtons(mediaOptions,state.selected)+`<button class="primary" id="confirmAction" ${state.selected?"":"disabled"}>发布现场口径</button>`;
-    }else if(state.phase==="review"){
-      title.textContent="赛后教练问责";lede.textContent="正式比分和现场行为已经进入档案，现在决定主教练去留。";
-      area.innerHTML=choiceButtons(reviewOptions,state.selected)+`<button class="primary" id="confirmAction" ${state.selected?"":"disabled"}>签署赛后处理决定</button>`;
-    }else if(state.phase==="complete"){
-      title.textContent="本场窗口已经归档";lede.textContent="所有选择已保存为本机演示档。";
-      area.innerHTML=`<div class="result-banner"><span>世界杯预选赛第1轮</span><div class="big">龙华 2—1 玄林</div><span>主席现场责任与教练问责已经完成</span></div><button class="secondary" id="openArchive" style="margin-top:12px">查看完整决策档案</button>`;
-    }else{
-      title.textContent="正式比赛进行中";lede.textContent="请切换到“比赛现场”，按时间线经历本场比赛。";
-      area.innerHTML=`<div class="authority">主席只能观察比赛、接收公开简报和面对包厢来宾。阵型、首发、换人以及更衣室讲话均由主教练负责。</div><button class="primary" id="openStadium">打开比赛现场</button>`;
-    }
-    area.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",()=>{state.selected=btn.dataset.choice;renderAll();}));
-    const confirm=area.querySelector("#confirmAction");if(confirm)confirm.addEventListener("click",confirmAction);
-    const openStadium=area.querySelector("#openStadium");if(openStadium)openStadium.addEventListener("click",()=>switchView("stadium"));
-    const openArchive=area.querySelector("#openArchive");if(openArchive)openArchive.addEventListener("click",()=>switchView("archive"));
-  }
-  function confirmAction(){
-    if(state.phase==="arrival"&&state.selected){
-      const choice=arrivalOptions[state.selected];state.arrivalChoice=state.selected;apply(choice);record(`主席确定“${choice.title}”作为体育场抵达与包厢方案。`);
-      state.phase="box";state.selected=null;save();
-    }else if(state.phase==="box"){
-      record("主席进入国家体育场主包厢，来宾席位和媒体动线全部锁定。");state.phase="match";state.selected=null;save();switchView("stadium");
-    }else if(state.phase==="post"&&state.selected){
-      const choice=postOptions[state.selected];state.postChoice=state.selected;apply(choice);record(`终场后，主席选择“${choice.title}”。`);
-      state.phase="mixed";state.selected=null;save();
-    }else if(state.phase==="mixed"&&state.selected){
-      const choice=mediaOptions[state.selected];state.mediaChoice=state.selected;apply(choice);record(`混合采访区第一口径：“${choice.title}”。`);
-      state.phase="review";state.selected=null;save();
-    }else if(state.phase==="review"&&state.selected){
-      const choice=reviewOptions[state.selected];state.reviewChoice=state.selected;apply(choice);record(`主席签署赛后决定：“${choice.title}”。`);
-      state.phase="complete";state.selected=null;save();
-    }
-  }
-  function guestData(){
-    const common=[
-      ["周岑","国家体育总署副署长","关注国家队结果与协会治理"],
-      ["朴正元","玄林足协主席","关注客队礼宾与赛后关系"],
-      ["秦川","前国家队队长","代表技术传统与退役球员意见"],
-      ["曹禹","国家转播平台总监","关注镜头、收视和现场叙事"]
-    ];
-    const extra={
-      formal:[["贺明卓","龙京联合俱乐部董事长","关注国脚征调与职业联盟利益"]],
-      grassroots:[["程晓雨","西岭校园足球教练","代表基层教练与青训家庭"],["傅宁","国家队球迷协会代表","关注票务、看台与球迷尊重"]],
-      showcase:[["顾文韬","国家战略合作企业总裁","关注赞助权益和国家形象"],["苏世安","大型赛事执行委员会主任","关注礼宾、安保与国际展示"]]
-    };
-    return common.concat(extra[state.arrivalChoice]||[]);
-  }
-  function renderGuests(){
-    const list=document.querySelector("#guestList");
-    if(!state.arrivalChoice){list.innerHTML=`<div class="empty">尚未确定体育场方案。</div>`;return;}
-    list.innerHTML=guestData().map(([name,role,interest])=>`<div class="guest"><div class="guest-avatar">${name.slice(0,1)}</div><div><b>${name} · ${role}</b><span>${interest}</span></div></div>`).join("");
-    document.querySelector("#boxSummary").textContent=`${guestData().length}名具名来宾已进入包厢。每个人都带着可以影响后续关系的立场。`;
-  }
-  function renderTimeline(){
-    const container=document.querySelector("#timeline");
-    if(state.eventIndex===0){container.innerHTML=`<div class="empty">比赛尚未开始。主席完成包厢安排后可以推进现场。</div>`;}
-    else container.innerHTML=matchEvents.slice(0,state.eventIndex).map(e=>`<div class="event ${e.kind}"><b>${e.minute}</b><span>${e.text}</span></div>`).join("");
-    const last=state.eventIndex?matchEvents[state.eventIndex-1]:null;
-    document.querySelector("#homeScore").textContent=last?last.home:state.home;
-    document.querySelector("#awayScore").textContent=last?last.away:state.away;
-    document.querySelector("#matchClock").textContent=state.phase==="match"?(last?`${last.minute} · 比赛进行中`:"等待开球"):state.phase==="post"||["mixed","review","complete"].includes(state.phase)?"全场结束 · 龙华2—1玄林":"等待主席完成体育场礼宾";
-    const btn=document.querySelector("#advanceMatchButton");
-    btn.disabled=state.phase!=="match";btn.textContent=state.eventIndex===0?"比赛开球":state.eventIndex<matchEvents.length?"推进到下一现场节点":"比赛已经结束";
-  }
-  function advanceMatch(){
-    if(state.phase!=="match")return;
-    if(state.eventIndex<matchEvents.length){
-      const event=matchEvents[state.eventIndex];state.eventIndex+=1;state.home=event.home;state.away=event.away;
-      if(event.kind==="goal-home")record(`${event.minute} 龙华进球，主席包厢进入全场镜头。`);
-      if(event.kind==="goal-away")record(`${event.minute} 玄林扳平，媒体与来宾压力上升。`);
-      if(event.kind==="full"){record("终场哨响，权威赛果确认为龙华2—1玄林。");state.phase="post";state.selected=null;switchView("office");}
-      save();
-    }
-  }
-  function renderArchive(){
-    const list=document.querySelector("#archiveList");
-    list.innerHTML=state.records.slice().reverse().map(r=>`<div class="record"><time>${r.time}</time><p>${r.text}</p></div>`).join("");
-    renderMetrics(document.querySelector("#metricsArchive"));
-    const notice=document.querySelector("#endNotice");
-    notice.textContent=state.phase==="complete"?"本场窗口已完成。演示档保存在浏览器本机，可随时重开。":"本场尚未完成，时间会在主席必须负责的节点停止。";
-  }
-  function renderAll(){
-    renderStages();renderAction();renderGuests();renderTimeline();renderArchive();
-    renderMetrics(document.querySelector("#metricsCommand"));
-  }
-  function switchView(view){
-    document.querySelectorAll(".nav-button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-    document.querySelectorAll(".scene").forEach(s=>s.classList.remove("active"));
-    const map={office:"officeScene",command:"commandScene",stadium:"stadiumScene",archive:"archiveScene"};
-    document.querySelector("#"+map[view]).classList.add("active");
-    const titles={
-      office:["主席办公室 · 今日要务","预选赛比赛日前夕，必须完成由主席承担的现场责任。"],
-      command:["国家队指挥中心","技术团队独立比赛，主席管理制度、资源与责任。"],
-      stadium:["国家体育场 · 主席包厢","你可以经历比赛，但不能越级指挥主教练。"],
-      archive:["主席决策档案","所有选择按照发生顺序保存在本机。"]
-    };
-    document.querySelector("#pageTitle").textContent=titles[view][0];
-    document.querySelector("#pageSubtitle").textContent=titles[view][1];
-  }
-  document.querySelectorAll(".nav-button").forEach(btn=>btn.addEventListener("click",()=>switchView(btn.dataset.view)));
-  document.querySelector("#advanceMatchButton").addEventListener("click",advanceMatch);
-  document.querySelector("#resetButton").addEventListener("click",()=>{
-    if(confirm("确定清空本场浏览器演示档并重新开始吗？")){localStorage.removeItem(STORAGE_KEY);state=structuredClone(defaults);save();switchView("office");}
-  });
-  renderAll();
-  if(state.phase==="match")switchView("stadium");
-})();
-</script>
+<script src="app.js" defer></script>
 </body>
 </html>
