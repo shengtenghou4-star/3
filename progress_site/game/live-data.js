@@ -1,0 +1,158 @@
+const LIVE_STORAGE_KEY = "football-republic-live-workday-v1";
+const LEGACY_KEYS = ["football-republic-browser-career-v3","football-republic-browser-career-v2"];
+
+const officials = [
+  {id:"gao",name:"高致远",role:"职业联赛部主任",traits:["强硬执法","熟悉俱乐部财务"],capacity:3,integrity:74,negotiation:58},
+  {id:"lin",name:"林若岚",role:"财务监管部主任",traits:["审计严谨","不擅长媒体"],capacity:3,integrity:88,negotiation:46},
+  {id:"qiao",name:"乔牧",role:"青少年足球部主任",traits:["基层网络","执行温和"],capacity:3,integrity:72,negotiation:69},
+  {id:"shen",name:"沈雁秋",role:"竞赛与裁判委员会秘书长",traits:["程序主义","裁判系统人脉"],capacity:3,integrity:63,negotiation:61},
+  {id:"xu",name:"徐澄",role:"商业与媒体部主任",traits:["谈判强势","赞助商信任"],capacity:3,integrity:66,negotiation:86},
+  {id:"he",name:"何竞",role:"赛事安全部主任",traits:["现场处置","地方关系一般"],capacity:3,integrity:79,negotiation:52},
+  {id:"cheng",name:"程晓雨",role:"群众与校园足球司负责人",traits:["学校系统","公众沟通"],capacity:3,integrity:82,negotiation:73},
+  {id:"fang",name:"方岐",role:"主席办公室督查专员",traits:["跨部门协调","政治敏感"],capacity:2,integrity:77,negotiation:78}
+];
+
+const clubs = [
+  {id:"capital",name:"京城联",region:"北方",owner:"远景实业",strength:78,finance:72,wage:84,youth:66,trust:58,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"harbor",name:"海港竞技",region:"东部",owner:"海潮集团",strength:76,finance:79,wage:88,youth:58,trust:62,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"mountain",name:"泰岳",region:"北方",owner:"泰岳城投",strength:69,finance:48,wage:52,youth:74,trust:54,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"south",name:"南粤星城",region:"南方",owner:"星城控股",strength:74,finance:61,wage:67,youth:62,trust:57,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"river",name:"江城先锋",region:"中部",owner:"江城文旅",strength:70,finance:43,wage:38,youth:55,trust:47,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"west",name:"西岭飞马",region:"西部",owner:"西岭能源",strength:67,finance:51,wage:59,youth:69,trust:56,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"lake",name:"东湖",region:"中部",owner:"东湖科技",strength:71,finance:64,wage:73,youth:49,trust:59,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"island",name:"滨岛海鸥",region:"东部",owner:"滨岛港务",strength:65,finance:46,wage:49,youth:61,trust:48,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"north",name:"北岭钢铁",region:"北方",owner:"北岭钢铁",strength:66,finance:55,wage:63,youth:45,trust:51,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"green",name:"青原",region:"西部",owner:"青原农商",strength:62,finance:44,wage:56,youth:77,trust:61,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"coast",name:"南海城",region:"南方",owner:"南海地产",strength:68,finance:39,wage:42,youth:52,trust:44,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0},
+  {id:"phoenix",name:"金陵凤凰",region:"东部",owner:"金陵传媒",strength:73,finance:67,wage:76,youth:64,trust:63,pts:0,gf:0,ga:0,w:0,d:0,l:0,p:0}
+];
+
+const regionProfiles = {
+  北方:{color:"steel",faChair:"罗致海",issues:["老场馆改造","城投俱乐部债务","冬季赛历"]},
+  东部:{color:"coast",faChair:"唐越",issues:["转播权益","豪门竞争平衡","青训跨区挖角"]},
+  中部:{color:"river",faChair:"陆成周",issues:["欠薪风险","校园注册","地方财政收缩"]},
+  南方:{color:"south",faChair:"郑晓平",issues:["外援政策","高温赛历","俱乐部地产依赖"]},
+  西部:{color:"west",faChair:"马庆川",issues:["基层覆盖","长途客场成本","教练人才短缺"]}
+};
+
+const caseTemplates = {
+  wageArrears:{
+    category:"俱乐部治理",title:"江城先锋连续两月欠薪",region:"中部",source:"球员工会紧急函",
+    summary:"一线队和预备队共47名球员未收到完整工资。俱乐部董事长称地方补贴将在两周内到账，球员准备在周末联赛前拒绝训练。",
+    deadline:4,risk:92,design:"arrears",requiredEvidence:2,
+    evidence:[
+      {id:"payroll",title:"工资流水",body:"俱乐部近90日只支付了基本工资的42%，奖金与预备队工资全部拖欠。"},
+      {id:"owner",title:"股东资金证明",body:"所谓“即将到账”的地方补贴尚未列入财政支付计划，股东账户可用现金不足300万元。"},
+      {id:"players",title:"球员代表录音",body:"队长要求先支付青年球员与低薪合同，愿意把高薪球员的剩余款项分期。"},
+      {id:"assets",title:"资产负债表",body:"俱乐部拥有训练基地使用权，但已为银行贷款设置抵押。"}
+    ]
+  },
+  broadcast:{
+    category:"商业谈判",title:"全国转播平台拖延第二季度款项",region:"东部",source:"职业联盟主席来电",
+    summary:"平台以收视增长低于预测为由，扣留12亿元合同款中的18%。弱队现金流开始断裂，豪门则要求单独出售主场版权。",
+    deadline:7,risk:84,design:"broadcast",requiredEvidence:2,
+    evidence:[
+      {id:"contract",title:"主合同违约条款",body:"平台无权单方面按收视率扣款，但连续两轮停播将触发赞助商退出条款。"},
+      {id:"ratings",title:"真实收视数据",body:"总收视下降4%，但年轻观众与付费订阅分别增长11%和8%。"},
+      {id:"clubs",title:"俱乐部立场",body:"三家豪门支持市场化分成，六家中小俱乐部要求保底，另有三家尚未表态。"},
+      {id:"cash",title:"现金流预警",body:"江城先锋、南海城与滨岛海鸥将在20日内出现工资缺口。"}
+    ]
+  },
+  refereeLeak:{
+    category:"纪律与廉政",title:"裁判选派内部聊天记录泄露",region:"全国",source:"媒体调查记者",
+    summary:"聊天记录显示两名俱乐部高管曾向裁判委员会人员询问具体选派，并暗示商业合作。证据尚不完整，但舆论已开始发酵。",
+    deadline:3,risk:88,design:"integrity",requiredEvidence:3,
+    evidence:[
+      {id:"chat",title:"聊天记录原件",body:"记录真实，存在删改痕迹，但关键时间戳与选派会会议程吻合。"},
+      {id:"assign",title:"近12轮选派数据",body:"涉事俱乐部获得的关键判罚并未显著偏高，但相关裁判被重复安排的频率异常。"},
+      {id:"money",title:"商业往来",body:"一家裁判培训供应商与俱乐部关联公司签有咨询合同。"},
+      {id:"whistle",title:"内部举报",body:"年轻裁判称选派系统长期依赖私人沟通，但未见明确指令改变判罚。"}
+    ]
+  },
+  stadium:{
+    category:"赛事安全",title:"五座体育场被列入高风险整改名单",region:"全国",source:"赛事安全部专项报告",
+    summary:"消防、疏散、客队区和安检外包存在不同程度问题。联赛将在九天后迎来德比周，地方要求足协出资共担。",
+    deadline:5,risk:80,design:"stadium",requiredEvidence:2,
+    evidence:[
+      {id:"audit",title:"场馆审计排序",body:"江城、北岭风险最高；南粤与滨岛问题可在短期内整改；青原主要缺少客队隔离设施。"},
+      {id:"quotes",title:"施工报价",body:"完整整改需13.4M，紧急最低方案需7.2M。"},
+      {id:"local",title:"地方承诺",body:"北岭愿承担一半成本，江城只能承担20%，南粤愿自行整改但要求延长限期。"},
+      {id:"fans",title:"球迷组织意见",body:"反对以安全名义长期空场，要求公开每一笔改造和验收结果。"}
+    ]
+  },
+  academy:{
+    category:"青训与儿童保护",title:"青原精英学院被曝违规收费与体罚",region:"西部",source:"家长联名举报",
+    summary:"十五名家长提交缴费凭证和训练视频。学院是西部地区主要人才来源，突然关闭可能让两百多名孩子无处训练。",
+    deadline:4,risk:86,design:"academy",requiredEvidence:3,
+    evidence:[
+      {id:"video",title:"训练视频",body:"一名教练存在明显体罚和侮辱性语言，学院管理层称其已被停职。"},
+      {id:"fees",title:"收费清单",body:"学院收取了未备案的“升队费”和“比赛机会费”，总额约180万元。"},
+      {id:"license",title:"教练执照",body:"涉事教练执照有效，但儿童保护继续教育已逾期两年。"},
+      {id:"alternatives",title:"安置方案",body:"附近四所学校和两家俱乐部可临时接收约160名孩子，剩余名额需要交通补贴。"}
+    ]
+  },
+  foreignRule:{
+    category:"竞赛政策",title:"下赛季外援与本土出场规则待定",region:"全国",source:"职业联赛部呈签件",
+    summary:"豪门要求扩大注册名额，中小俱乐部担心军备竞赛，国家队教练组要求确保本土中轴线有稳定比赛时间。",
+    deadline:12,risk:65,design:"foreign",requiredEvidence:2,
+    evidence:[
+      {id:"minutes",title:"本土球员出场数据",body:"本土门将和中卫出场稳定，但中锋与组织型中场的联赛分钟连续两季下降。"},
+      {id:"quality",title:"比赛质量评估",body:"高水平外援明显提升强强对话节奏，但弱队外援质量差异巨大。"},
+      {id:"cost",title:"俱乐部成本",body:"每增加一个外援注册名额，顶级联赛平均工资支出预计上升3.2%。"},
+      {id:"fans",title:"球迷调查",body:"多数球迷反对一刀切，更支持同时出场限制和青训激励。"}
+    ]
+  },
+  youthFund:{
+    category:"青训与基层",title:"国家青训专项资金年度分配",region:"全国",source:"青少年足球部预算会",
+    summary:"可分配预算只有10M，五大区域都提交了远超额度的项目。你必须决定钱投向比赛、教练、场地还是跨区选材。",
+    deadline:10,risk:70,design:"youth",requiredEvidence:2,
+    evidence:[
+      {id:"north",title:"北方项目",body:"重点是冬季室内训练和县级教练培训，覆盖人数稳定但成本高。"},
+      {id:"east",title:"东部项目",body:"职业学院成熟，主要诉求是跨区赛事和贫困家庭奖学金。"},
+      {id:"central",title:"中部项目",body:"校园联赛规模大，但注册系统混乱，人才重复登记严重。"},
+      {id:"west",title:"西部项目",body:"基层覆盖最弱，交通成本占项目预算近四成。"}
+    ]
+  },
+  licensing:{
+    category:"俱乐部治理",title:"新赛季俱乐部准入标准重审",region:"全国",source:"财务监管部",
+    summary:"四家俱乐部未达到现行资本要求。直接降级会引发地方反弹，放宽标准则会延续欠薪和半途退出风险。",
+    deadline:14,risk:74,design:"licensing",requiredEvidence:3,
+    evidence:[
+      {id:"stress",title:"压力测试",body:"若转播款继续延迟，四家未达标俱乐部中有三家将在半年内出现重大缺口。"},
+      {id:"owners",title:"股东承诺函",body:"两家股东愿意补充资本，一家只愿意提供担保，另一家拒绝追加投入。"},
+      {id:"local",title:"地方政府意见",body:"地方普遍反对立即降级，但愿意接受工资保证金和月度披露。"},
+      {id:"players",title:"球员工会意见",body:"要求任何宽限都必须以工资专户和自由解约权为前提。"}
+    ]
+  },
+  womenLeague:{
+    category:"女足发展",title:"女足职业联赛独立运营方案",region:"全国",source:"女子足球部",
+    summary:"现有女足俱乐部高度依附男足母公司。独立联盟可提高稳定性，但第一年需要足协投入并重新谈判转播与场地。",
+    deadline:16,risk:58,design:"women",requiredEvidence:2,
+    evidence:[
+      {id:"contracts",title:"球员合同状况",body:"三分之一球员仍使用短期或附属合同，医疗和产假保障不统一。"},
+      {id:"audience",title:"观众与转播",body:"现场观众规模较小，但国家队比赛带来的线上关注增长明显。"},
+      {id:"clubs",title:"俱乐部立场",body:"六家支持独立联盟，四家要求足协承担场地成本，两家准备退出。"},
+      {id:"sponsors",title:"赞助意向",body:"两家品牌愿意提供三年冠名，但要求固定周末赛程与独立商业权益。"}
+    ]
+  },
+  nationalWindow:{
+    category:"国家队",title:"国家队六月窗口保障方案",region:"全国",source:"主教练林少源",
+    summary:"两场预选赛相隔五天，主教练要求完整集训和康复资源，俱乐部则要求减少高负荷国脚使用。你只能决定保障与协调，不能决定阵型、首发与换人。",
+    deadline:8,risk:72,design:"national",requiredEvidence:2,
+    evidence:[
+      {id:"medical",title:"医疗负荷报告",body:"六名主力过去21天出场超过五场，其中两人存在肌肉疲劳信号。"},
+      {id:"clubs",title:"俱乐部来函",body:"三家俱乐部要求联合医疗复核，并希望足协承担伤病保险。"},
+      {id:"coach",title:"教练组计划",body:"教练组提出7天集训与两套恢复方案，技术安排未提交主席审批。"},
+      {id:"travel",title:"客场行程",body:"第二场为长途客场，包机可节省11小时但成本较高。"}
+    ]
+  }
+};
+
+const briefingTemplates = [
+  {title:"主席办公会：清理三项积压",body:"各部门被要求把最久未回复的文件带到会议室。",effects:{time:2,execution:2,media:0}},
+  {title:"与职业联盟闭门碰头",body:"俱乐部可以直接表达对准入、赛历和征调的不满。",effects:{time:2,clubTrust:2,politics:-1}},
+  {title:"与球员工会面对面",body:"低薪球员、女足球员和青年球员代表参加，不安排媒体。",effects:{time:2,publicTrust:1,playerTrust:3}},
+  {title:"督查组无通知抽查",body:"随机抽取一项执行中承诺，核对负责人是否真的推进。",effects:{time:3,execution:4,politics:-1}}
+];
+
+const matchWindowDays = [21,49,77];
