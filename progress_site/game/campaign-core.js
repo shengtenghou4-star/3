@@ -57,14 +57,13 @@ function simulateMatch(){
   const ourGoals=Math.max(0,Math.min(5,Math.floor(ourXg+seed(`${state.campaign}-${state.round}-G1`)*1.35)));
   const oppGoals=Math.max(0,Math.min(5,Math.floor(oppXg+seed(`${state.campaign}-${state.round}-G2`)*1.35)));
   const homeGoals=home?ourGoals:oppGoals,awayGoals=home?oppGoals:ourGoals;
-  state.pendingResult={ourGoals,oppGoals,homeGoals,awayGoals,ourXg,oppXg,home};
-  state.matchEvents=buildTimeline(state.pendingResult,f);
+  state.pendingResult={ourGoals,oppGoals,homeGoals,awayGoals,ourXg,oppXg,home};state.matchEvents=buildTimeline(state.pendingResult,f);
 }
 function buildTimeline(r,f){
-  const events=[];const ourMinutes=[12,29,51,68,84].slice(0,r.ourGoals);const oppMinutes=[8,37,59,76,89].slice(0,r.oppGoals);
-  const all=[];ourMinutes.forEach((m,i)=>all.push({m,ours:true,i}));oppMinutes.forEach((m,i)=>all.push({m,ours:false,i}));all.sort((a,b)=>a.m-b.m);
+  const events=[];const ourMinutes=[12,29,51,68,84].slice(0,r.ourGoals);const oppMinutes=[8,37,59,76,89].slice(0,r.oppGoals);const all=[];
+  ourMinutes.forEach((m,i)=>all.push({m,ours:true,i}));oppMinutes.forEach((m,i)=>all.push({m,ours:false,i}));all.sort((a,b)=>a.m-b.m);
   let ours=0,opp=0;events.push({minute:"03′",kind:"chance",home:0,away:0,text:`${f.opponent}在开局阶段试探性压迫，技术总监只向主席报告比赛态势。`});
-  all.forEach(g=>{if(g.ours)ours++;else opp++;const homeScore=r.home?ours:opp;const awayScore=r.home?opp:ours;events.push({minute:`${g.m}′`,kind:g.ours?(r.home?"goal-home":"goal-away"):(r.home?"goal-away":"goal-home"),home:homeScore,away:awayScore,text:g.ours?`龙华完成进球，包厢镜头迅速切向足协主席。`:`${f.opponent}取得进球，赛前目标和主席公开口径重新成为媒体焦点。`});});
+  all.forEach(g=>{if(g.ours)ours++;else opp++;const homeScore=r.home?ours:opp;const awayScore=r.home?opp:ours;events.push({minute:`${g.m}′`,kind:g.ours?(r.home?"goal-home":"goal-away"):(r.home?"goal-away":"goal-home"),home:homeScore,away:awayScore,text:g.ours?"龙华完成进球，包厢镜头迅速切向足协主席。":`${f.opponent}取得进球，赛前目标和主席公开口径重新成为媒体焦点。`});});
   const htOurs=ourMinutes.filter(m=>m<=45).length,htOpp=oppMinutes.filter(m=>m<=45).length;
   events.push({minute:"45+2′",kind:"half",home:r.home?htOurs:htOpp,away:r.home?htOpp:htOurs,text:"半场结束。教练组独立返回更衣室，主席没有阵型、首发或换人按钮。"});
   events.push({minute:"72′",kind:"chance",home:r.home?ours:opp,away:r.home?opp:ours,text:"主教练完成临场人员调整。主席只收到伤病与责任链简报，不得越级指挥。"});
@@ -79,13 +78,10 @@ function applyTable(a,b,ga,gb){const A=state.table[a],B=state.table[b];A.p++;B.p
 function settleMatch(){
   const r=state.pendingResult,f=currentFixture();applyTable("龙华",f.opponent,r.ourGoals,r.oppGoals);simulateOtherMatches();
   state.points=state.table["龙华"].pts;state.gf=state.table["龙华"].gf;state.ga=state.table["龙华"].ga;state.wins=state.table["龙华"].w;state.draws=state.table["龙华"].d;state.losses=state.table["龙华"].l;
-  const outcome=r.ourGoals>r.oppGoals?"胜":r.ourGoals<r.oppGoals?"负":"平";
-  if(outcome==="胜"){apply({fan:3,politics:2,coach:2,media:-2});}else if(outcome==="负"){apply({fan:-4,politics:-3,coach:-2,media:5});}else{apply({media:1});}
-  const fatigueRelief=typeof policyFatigueModifier==="function"?policyFatigueModifier():0;
-  state.fatigue=clamp(state.fatigue+7-(options.prep[state.choices.prep]?.fatigue||0)-fatigueRelief);
+  const outcome=r.ourGoals>r.oppGoals?"胜":r.ourGoals<r.oppGoals?"负":"平";if(outcome==="胜")apply({fan:3,politics:2,coach:2,media:-2});else if(outcome==="负")apply({fan:-4,politics:-3,coach:-2,media:5});else apply({media:1});
+  const fatigueRelief=typeof policyFatigueModifier==="function"?policyFatigueModifier():0;state.fatigue=clamp(state.fatigue+7-(options.prep[state.choices.prep]?.fatigue||0)-fatigueRelief);
   if(typeof policyRevenueDelta==="function")state.treasury=Math.max(0,state.treasury+policyRevenueDelta());
-  state.matchHistory.push({campaign:state.campaign,round:state.round+1,opponent:f.opponent,venue:f.venue,ourGoals:r.ourGoals,oppGoals:r.oppGoals,points:state.points,coach:state.coachName,outcome,xg:`${r.ourXg.toFixed(2)}-${r.oppXg.toFixed(2)}`});
-  record(`正式赛果：龙华${r.ourGoals}—${r.oppGoals}${f.opponent}，本届积分达到${state.points}分。`);
+  state.matchHistory.push({campaign:state.campaign,round:state.round+1,opponent:f.opponent,venue:f.venue,ourGoals:r.ourGoals,oppGoals:r.oppGoals,points:state.points,coach:state.coachName,outcome,xg:`${r.ourXg.toFixed(2)}-${r.oppXg.toFixed(2)}`});record(`正式赛果：龙华${r.ourGoals}—${r.oppGoals}${f.opponent}，本届积分达到${state.points}分。`);
 }
 function sortedTable(){return Object.values(state.table).sort((a,b)=>b.pts-a.pts||((b.gf-b.ga)-(a.gf-a.ga))||b.gf-a.gf);}
 function position(){return sortedTable().findIndex(t=>t.name==="龙华")+1;}
@@ -96,22 +92,19 @@ function renderMetrics(target){target.innerHTML=`<div class="metric ${state.fanT
 function renderBrief(){
   const f=currentFixture();let items;
   if(state.phase==="governance"||state.phase==="incident"){
-    const weak=Object.entries(state.ecology).sort((a,b)=>a[1]-b[1]).slice(0,3);
-    items=[["治理周期",`第${state.governanceCycle}次政策会议`],["政策容量",`${state.governanceCapacity}项`],["执行中",`${state.policyPipeline.length}项`],["最弱环节",weak.map(([k])=>ecologyNames[k]).join("、")],["本轮国家队",f?`${f.venue==="home"?"主场":"客场"}对阵${f.opponent}`:"本届已结束"],["足协资金",`¥${state.treasury.toFixed(1)}M`]];
-  }else if(f){
-    items=[["预选赛轮次",`第${state.round+1}/10轮`],["比赛",`${f.venue==="home"?"主场":"客场"}对阵${f.opponent}`],["当前积分",`${state.points}分 · 第${position()}位`],["主教练",`${state.coachName} · ${state.coachStatus}`],["比赛地点",f.city],["制度环境",`人才${metricLabel(state.ecology.youthPipeline)} · 赛历${metricLabel(state.ecology.calendarHealth)}`]];
-  }else items=[["本届战绩",`${state.wins}胜${state.draws}平${state.losses}负`],["最终积分",`${state.points}分`],["最终排名",`第${position()}位`],["主教练",state.coachName]];
+    const weak=Object.entries(state.ecology).sort((a,b)=>a[1]-b[1]).slice(0,3);items=[["治理周期",`第${state.governanceCycle}次政策会议`],["政策容量",`${state.governanceCapacity}项`],["执行中",`${state.policyPipeline.length}项`],["最弱环节",weak.map(([k])=>ecologyNames[k]).join("、")],["本轮国家队",f?`${f.venue==="home"?"主场":"客场"}对阵${f.opponent}`:"本届已结束"],["足协资金",`¥${state.treasury.toFixed(1)}M`]];
+  }else if(f)items=[["预选赛轮次",`第${state.round+1}/10轮`],["比赛",`${f.venue==="home"?"主场":"客场"}对阵${f.opponent}`],["当前积分",`${state.points}分 · 第${position()}位`],["主教练",`${state.coachName} · ${state.coachStatus}`],["比赛地点",f.city],["制度环境",`人才${metricLabel(state.ecology.youthPipeline)} · 赛历${metricLabel(state.ecology.calendarHealth)}`]];
+  else items=[["本届战绩",`${state.wins}胜${state.draws}平${state.losses}负`],["最终积分",`${state.points}分`],["最终排名",`第${position()}位`],["主教练",state.coachName]];
   document.querySelector("#briefList").innerHTML=items.map(([a,b])=>`<div class="brief"><span>${a}</span><b>${b}</b></div>`).join("");
 }
 function renderHeader(){
-  const f=currentFixture();const governance=state.phase==="governance"||state.phase==="incident";
-  document.querySelector("#clockMain").textContent=f?campaignDate(f):`第${state.campaign}届结束`;
+  const f=currentFixture();const governance=state.phase==="governance"||state.phase==="incident";document.querySelector("#clockMain").textContent=f?campaignDate(f):`第${state.campaign}届结束`;
   document.querySelector("#clockSub").textContent=governance?`第${state.governanceCycle}次国家足球治理会议`:f?`第${state.campaign}届预选赛 · 第${state.round+1}轮`:"等待主席决定下一届";
   document.querySelector("#fixtureTitle").textContent=governance?"国家足球治理会议":f?`${f.venue==="home"?"主场":"客场"}对阵${f.opponent}`:`第${state.campaign}届预选赛完成`;
   document.querySelector("#fixtureLede").textContent=governance?"国家队只占主席工作的一部分。俱乐部准入、欠薪、青训、裁判、转播、赛历、校园与女足政策会先进入执行链，再影响后续赛季与国家队。":f?`这是连续十轮中的第${state.round+1}场。此前政策和危机造成的长期后果会进入本窗口。`:"本届十轮比赛已经全部结束。结果与治理遗产会成为下一届主席生涯的起点。";
 }
 function renderAction(){
-  const area=document.querySelector("#actionArea"),title=document.querySelector("#actionTitle"),lede=document.querySelector("#actionLede");const f=currentFixture();
+  const area=document.querySelector("#actionArea"),title=document.querySelector("#actionTitle"),lede=document.querySelector("#actionLede"),f=currentFixture();
   if((state.phase==="governance"||state.phase==="incident")&&typeof renderGovernanceAction==="function"){renderGovernanceAction(area,title,lede);return;}
   const config={prep:["批准集训保障","集训预算、训练强度和恢复安排由主席批准。","prep","确认集训方案"],release:["处理俱乐部征调争议","国脚负荷与俱乐部赛程发生冲突，主席必须在协会权威和长期合作之间选择。","release","签署征调处理"],mandate:["确定赛前责任口径","目标可以内部化，也可以公开化；它会改变教练压力与公众预期。","mandate","确认赛前责任"],arrival:[f?.venue==="home"?"确定体育场抵达与包厢方案":"确定客场代表团与礼宾方案","现场礼宾、来宾结构和镜头安排属于主席责任。","arrival","确认现场方案"],post:["终场后的第一个动作","镜头会先记录主席行为，正式问责文件随后才到。","post","确认终场行动"],mixed:["混合采访区第一口径","这句话会成为赛后人事处理的政治背景。","mixed","发布现场口径"],review:["赛后教练问责","比分、预期进球和本届走势已经进入档案。现在决定主教练去留。","review","签署赛后处理决定"]};
   if(config[state.phase]){const [t,l,g,b]=config[state.phase];title.textContent=t;lede.textContent=l;area.innerHTML=choiceButtons(g)+`<button class="primary" id="confirmAction" ${state.selected?"":"disabled"}>${b}</button>`;}
@@ -119,8 +112,7 @@ function renderAction(){
   else if(state.phase==="match"){title.textContent="正式比赛进行中";lede.textContent="切换至比赛现场，逐节点经历比赛。";area.innerHTML='<div class="authority">你只能观察比赛、面对包厢来宾和接收责任简报。不能发出战术指令。</div><button class="primary" id="openStadium">打开比赛现场</button>';}
   else if(state.phase==="between"){const h=state.matchHistory.at(-1);title.textContent=`第${h.round}轮已经归档`;lede.textContent="本轮后果已进入下一场。";area.innerHTML=`<div class="result-banner"><span>第${h.round}轮 · ${h.venue==="home"?"主场":"客场"}</span><div class="big">龙华 ${h.ourGoals}—${h.oppGoals} ${h.opponent}</div><span>当前${state.points}分 · 小组第${position()}位</span></div><button class="primary" id="nextMatch">进入下一工作窗口</button>`;}
   else if(state.phase==="campaign_complete"){const status=state.points>=20?"直接晋级":state.points>=15?"进入附加赛":"无缘晋级";title.textContent=`第${state.campaign}届：${status}`;lede.textContent="主席生涯不会因为一届比赛结束而自动清零。";area.innerHTML=`<div class="result-banner"><span>十轮预选赛最终结果</span><div class="big">${state.points}分 · 第${position()}位</div><span>${state.wins}胜${state.draws}平${state.losses}负 · ${status}</span></div><button class="primary" id="nextCampaign">保留治理遗产，开始下一届</button>`;}
-  area.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",()=>{state.selected=btn.dataset.choice;renderAll();}));
-  area.querySelector("#confirmAction")?.addEventListener("click",confirmAction);area.querySelector("#openStadium")?.addEventListener("click",()=>switchView("stadium"));area.querySelector("#nextMatch")?.addEventListener("click",nextMatch);area.querySelector("#nextCampaign")?.addEventListener("click",nextCampaign);
+  area.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",()=>{state.selected=btn.dataset.choice;renderAll();}));area.querySelector("#confirmAction")?.addEventListener("click",confirmAction);area.querySelector("#openStadium")?.addEventListener("click",()=>switchView("stadium"));area.querySelector("#nextMatch")?.addEventListener("click",nextMatch);area.querySelector("#nextCampaign")?.addEventListener("click",nextCampaign);
 }
 function confirmAction(){
   if(["prep","release","mandate","arrival","post","mixed","review"].includes(state.phase)&&!state.selected)return;
@@ -139,18 +131,18 @@ function confirmAction(){
   state.selected=null;save();
 }
 function nextMatch(){
-  state.round++;
-  if(typeof advanceGovernanceSystems==="function")advanceGovernanceSystems();
-  state.phase=state.round>=baseFixtures.length?"campaign_complete":(state.round%2===0?"governance":"prep");
-  if(state.phase==="governance"&&typeof openGovernanceWindow==="function")openGovernanceWindow();
+  state.round++;const finished=state.round>=baseFixtures.length;
+  if(typeof advanceGovernanceSystems==="function")advanceGovernanceSystems(!finished);
+  if(finished)state.phase="campaign_complete";
+  else{
+    const scheduledGovernance=state.round%2===0;if(scheduledGovernance&&typeof openGovernanceWindow==="function")openGovernanceWindow();
+    if(state.pendingIncident){state.resumeAfterIncident=scheduledGovernance?"governance":"prep";state.phase="incident";}else state.phase=scheduledGovernance?"governance":"prep";
+  }
   state.selected=null;state.eventIndex=0;state.matchEvents=[];state.pendingResult=null;state.choices={};state.fatigue=clamp(state.fatigue-9);
-  if(state.phase==="campaign_complete")record(`第${state.campaign}届预选赛结束：${state.points}分，小组第${position()}位。`);
-  save();switchView("office");
+  if(state.phase==="campaign_complete")record(`第${state.campaign}届预选赛结束：${state.points}分，小组第${position()}位。`);save();switchView("office");
 }
 function nextCampaign(){
   const preserved=clone(state);state=clone(defaults);state.campaign=preserved.campaign+1;
   ["fanTrust","politicalCapital","treasury","coachTrust","mediaPressure","clubRelations","fatigue","coachName","coachIndex","coachStatus","records","matchHistory","coachHistory","governanceCycle","activePolicies","policyPipeline","policyHistory","incidentHistory","ecology","stakeholders"].forEach(key=>state[key]=clone(preserved[key]));
-  state.fatigue=clamp(state.fatigue-20);state.phase="governance";state.governanceCapacity=2;state.pendingIncident=null;ensureTable();
-  if(typeof openGovernanceWindow==="function")openGovernanceWindow();
-  record(`第${state.campaign}届预选赛与新一轮治理议程启动，上一届政策和利益关系全部保留。`);save();switchView("office");
+  state.fatigue=clamp(state.fatigue-20);state.phase="governance";state.pendingIncident=null;ensureTable();if(typeof openGovernanceWindow==="function")openGovernanceWindow();record(`第${state.campaign}届预选赛与新一轮治理议程启动，上一届政策和利益关系全部保留。`);save();switchView("office");
 }
