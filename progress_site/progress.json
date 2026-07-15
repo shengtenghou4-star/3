@@ -9,29 +9,13 @@
     "summary": "浏览器版现在每届包含10场完整预选赛，积分榜、净胜球、教练压力、俱乐部关系、财政、疲劳和舆论都会跨轮次累积。完成一届后可以保留所有长期后果继续下一届，不再打一场就结束。",
     "pr": 41,
     "merge_commit": "pending merge",
-    "validation": "CI verification in progress"
+    "validation": "198 tests passed in 11.23s"
   },
   "latest_highlights": [
-    {
-      "label": "赛程",
-      "title": "一届不再只有一场比赛",
-      "body": "每届拥有10轮主客场预选赛，对手同步比赛，积分榜和赛程会随着每一轮真实变化。"
-    },
-    {
-      "label": "长期后果",
-      "title": "前一场会真正影响后一场",
-      "body": "集训强度、征调处理、公开目标、换帅、财政、球迷信任、媒体压力和俱乐部关系都会进入后续窗口。"
-    },
-    {
-      "label": "生涯",
-      "title": "十轮打完还能继续下一届",
-      "body": "晋级、附加赛或出局后，主席可以保留教练、历史、资源和政治后果开始下一届预选赛。"
-    },
-    {
-      "label": "边界",
-      "title": "比赛变多，但你仍然只当主席",
-      "body": "主教练继续独立决定名单、阵型、首发和换人；玩家负责资源、关系、目标、公开责任与任免。"
-    }
+    {"label":"赛程","title":"一届不再只有一场比赛","body":"每届拥有10轮主客场预选赛，对手同步比赛，积分榜和赛程会随着每一轮真实变化。"},
+    {"label":"长期后果","title":"前一场会真正影响后一场","body":"集训强度、征调处理、公开目标、换帅、财政、球迷信任、媒体压力和俱乐部关系都会进入后续窗口。"},
+    {"label":"生涯","title":"十轮打完还能继续下一届","body":"晋级、附加赛或出局后，主席可以保留教练、历史、资源和政治后果开始下一届预选赛。"},
+    {"label":"边界","title":"比赛变多，但你仍然只当主席","body":"主教练继续独立决定名单、阵型、首发和换人；玩家负责资源、关系、目标、公开责任与任免。"}
   ],
   "milestones": [
     {"code":"M7","title":"固定主席身份","status":"完成","date":"2026-07-14","description":"玩家永远只扮演开局主席；离任即结束可玩生涯，后续只能旁观。"},
@@ -59,13 +43,6 @@
     {"title":"执行失败后的问责仪式","body":"换人、收权、公开担责和独立复盘拥有各自的会议、文件、媒体与组织后果。"},
     {"title":"主席任期与离任结局","body":"把连续国家队生涯接入正式任期、支持基础、调查风险和不可逆离任。"}
   ],
-  "play": {
-    "command": "python -m pip install -e '.[dev,ui]' && football-republic-history",
-    "description": "网页可直接进行多届10轮国家队预选赛；命令行启动完整足协主席长期生涯"
-  },
-  "links": {
-    "repository": "https://github.com/shengtenghou4-star/3",
-    "pulls": "https://github.com/shengtenghou4-star/3/pulls?q=is%3Apr+is%3Aclosed",
-    "issues": "https://github.com/shengtenghou4-star/3/issues"
-  }
+  "play": {"command":"python -m pip install -e '.[dev,ui]' && football-republic-history","description":"网页可直接进行多届10轮国家队预选赛；命令行启动完整足协主席长期生涯"},
+  "links": {"repository":"https://github.com/shengtenghou4-star/3","pulls":"https://github.com/shengtenghou4-star/3/pulls?q=is%3Apr+is%3Aclosed","issues":"https://github.com/shengtenghou4-star/3/issues"}
 }
