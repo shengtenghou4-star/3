@@ -8,7 +8,7 @@
     "title": "网页版从一场样板升级为连续预选赛生涯",
     "summary": "浏览器版现在每届包含10场完整预选赛，积分榜、净胜球、教练压力、俱乐部关系、财政、疲劳和舆论都会跨轮次累积。完成一届后可以保留所有长期后果继续下一届，不再打一场就结束。",
     "pr": 41,
-    "merge_commit": "pending merge",
+    "merge_commit": "3a3bf547acab86912caa890a7d0b5cbbc4e8f39d",
     "validation": "198 tests passed in 11.23s"
   },
   "latest_highlights": [
