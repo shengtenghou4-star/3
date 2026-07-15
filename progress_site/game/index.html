@@ -4,39 +4,62 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#07131d">
-  <meta name="description" content="Football Republic 足协主席模拟器连续生涯网页版">
+  <meta name="description" content="Football Republic 足协主席治理与国家队连续生涯网页版">
   <title>足球共和国 · 足协主席生涯</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="policy.css">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
 <div class="app">
   <aside>
     <div class="brand"><div class="seal">FR</div><div><b>足球共和国</b><small>FOOTBALL REPUBLIC</small></div></div>
-    <div class="identity"><div class="eyebrow">PLAYER IDENTITY LOCKED</div><strong>国家足协主席</strong><span>你只扮演这一名主席。主教练独立负责阵型、首发与临场换人。</span></div>
+    <div class="identity"><div class="eyebrow">PLAYER IDENTITY LOCKED</div><strong>国家足协主席</strong><span>你治理整个足球体系。主教练独立负责阵型、首发与临场换人。</span></div>
     <nav>
       <button class="nav-button active" data-view="office">主席桌面</button>
+      <button class="nav-button" data-view="policy">政策与治理</button>
       <button class="nav-button" data-view="command">国家队指挥中心</button>
       <button class="nav-button" data-view="stadium">比赛现场</button>
       <button class="nav-button" data-view="campaign">预选赛战报</button>
       <button class="nav-button" data-view="archive">决策档案</button>
     </nav>
     <div class="sidebar-bottom">
-      <div class="save-badge">● 连续生涯档已启用<br>整届预选赛自动保存在本机。</div>
+      <div class="save-badge">● 主席长期生涯档已启用<br>政策、危机和比赛全部保存在本机。</div>
       <button class="reset" id="resetButton">重开主席生涯</button>
     </div>
   </aside>
   <main>
-    <header class="topbar"><div><h1 id="pageTitle">主席办公室 · 国家队窗口</h1><p id="pageSubtitle">连续预选赛生涯，前一场的后果会进入下一场。</p></div><div class="clock"><b id="clockMain">2026年3月</b><span id="clockSub">第1届预选赛 · 第1轮</span></div></header>
+    <header class="topbar"><div><h1 id="pageTitle">主席办公室 · 今日要务</h1><p id="pageSubtitle">政策治理与国家队窗口共同构成主席任期。</p></div><div class="clock"><b id="clockMain">2026年3月</b><span id="clockSub">第1届预选赛 · 治理会议</span></div></header>
 
     <section class="scene active" id="officeScene">
-      <div class="hero"><div class="hero-kicker">PRESIDENTIAL NATIONAL TEAM CAREER</div><h2 id="fixtureTitle">国家队比赛窗口</h2><p id="fixtureLede"></p><div class="stage-row" id="stageRow"></div></div>
-      <div class="grid"><div class="panel"><h3 id="actionTitle">主席待办</h3><p class="panel-lede" id="actionLede"></p><div id="actionArea"></div></div><div class="panel"><h3>本轮主席简报</h3><p class="panel-lede">只提供主席依法掌握的公开、组织和责任信息。</p><div class="brief-list" id="briefList"></div><div class="notice" style="margin-top:14px">权力边界：你不能发出战术指令，也不能亲自选首发。你能决定资源、征调协调、公开口径、责任目标和主教练任免。</div></div></div>
+      <div class="hero"><div class="hero-kicker">PRESIDENTIAL GOVERNANCE DOSSIER</div><h2 id="fixtureTitle">国家足球治理会议</h2><p id="fixtureLede"></p><div class="stage-row" id="stageRow"></div></div>
+      <div class="grid"><div class="panel"><h3 id="actionTitle">主席待办</h3><p class="panel-lede" id="actionLede"></p><div id="actionArea"></div></div><div class="panel"><h3>主席简报</h3><p class="panel-lede">只提供主席依法掌握的组织、财政、执行和责任信息。</p><div class="brief-list" id="briefList"></div><div class="notice" style="margin-top:14px">权力边界：主席可以制定规则、安排预算、协调部门、问责执行和任免主教练；不能亲自选首发、定阵型或遥控换人。</div></div></div>
+    </section>
+
+    <section class="scene" id="policyScene">
+      <div class="hero"><div class="hero-kicker">NATIONAL FOOTBALL GOVERNMENT</div><h2>政策不是加成卡，而是一条执行链</h2><p>选择政策模型、实施强度和财政来源。俱乐部、球员、地方足协、赞助商、政府与球迷会产生不同反应，效果需要跨轮次落地，也可能诱发新的危机。</p></div>
+      <div class="policy-toolbar">
+        <div><span>本次会议剩余政策容量</span><b id="policyCapacity">2项</b></div>
+        <div><span>可用资金</span><b id="policyTreasury">¥48.0M</b></div>
+        <div><span>执行中的政策</span><b id="pipelineCount">0项</b></div>
+        <button class="secondary compact-button" id="closeGovernanceButton">结束本次政策会议</button>
+      </div>
+      <div class="policy-layout">
+        <div class="panel policy-domains"><h3>政策议程</h3><p class="panel-lede">十二条政策路线上，每次会议最多推进两项。调整既有政策也会消耗政治与执行能力。</p><div id="policyDomainList"></div></div>
+        <div class="panel policy-dossier"><h3 id="policyDossierTitle">选择一条政策路线</h3><p class="panel-lede" id="policyDossierLede">先选领域，再确定制度模型和实施方式。</p><div id="policyModelArea"></div><div id="rolloutArea"></div><button class="primary" id="enactPolicyButton" disabled>签发政策文件</button><div class="notice" id="policyCostPreview" style="margin-top:12px">尚未形成政策文本。</div></div>
+        <div class="panel"><h3>利益相关方会签</h3><p class="panel-lede">不是好感度装饰。低支持会拖慢落实、制造泄密或迫使政策变形。</p><div class="stakeholder-list" id="stakeholderList"></div></div>
+      </div>
+      <div class="grid equal">
+        <div class="panel"><h3>足球生态体检</h3><p class="panel-lede">这些指标由政策、执行滞后和危机共同改变，并影响俱乐部生存、人才供给和国家队环境。</p><div class="ecology-grid" id="ecologyGrid"></div></div>
+        <div class="panel"><h3>政策执行链</h3><p class="panel-lede">文件签发不等于效果出现。试点、分阶段和全国强推拥有不同时间与阻力。</p><div class="archive" id="policyPipeline"></div></div>
+      </div>
+      <div class="panel" id="incidentPanel" style="margin-top:18px"><h3>治理危机</h3><p class="panel-lede" id="incidentLede">当前没有必须立即处置的系统危机。</p><div id="incidentArea"></div></div>
+      <div class="panel" style="margin-top:18px"><h3>现行政策与历史</h3><div class="policy-history-grid"><div><h4>现行制度</h4><div class="archive" id="activePolicyList"></div></div><div><h4>历次签发</h4><div class="archive" id="policyHistory"></div></div></div></div>
     </section>
 
     <section class="scene" id="commandScene">
-      <div class="hero"><div class="hero-kicker">NATIONAL TEAM COMMAND CENTRE</div><h2>主教练管比赛，主席管制度与责任</h2><p>名单由主教练独立提交。你看到的是医疗结论、俱乐部征调、公众关系和长期压力，不会看到隐藏能力值或“最优阵型”。</p></div>
-      <div class="grid"><div class="panel"><h3>本窗口技术与征调简报</h3><p class="panel-lede" id="squadLede"></p><div class="archive" id="squadBrief"></div></div><div class="panel"><h3>主席可观察状态</h3><p class="panel-lede">这些状态会跨比赛累积。</p><div class="metrics" id="metricsCommand"></div><div class="authority" id="coachQuote" style="margin-top:14px"></div></div></div>
+      <div class="hero"><div class="hero-kicker">NATIONAL TEAM COMMAND CENTRE</div><h2>主教练管比赛，主席管制度与责任</h2><p>名单由主教练独立提交。你看到的是医疗、征调、人才池和制度环境，不会看到隐藏能力值或“最优阵型”。</p></div>
+      <div class="grid"><div class="panel"><h3>本窗口技术与征调简报</h3><p class="panel-lede" id="squadLede"></p><div class="archive" id="squadBrief"></div></div><div class="panel"><h3>主席可观察状态</h3><p class="panel-lede">比赛状态和治理状态会互相传导。</p><div class="metrics" id="metricsCommand"></div><div class="authority" id="coachQuote" style="margin-top:14px"></div></div></div>
     </section>
 
     <section class="scene" id="stadiumScene">
@@ -45,20 +68,22 @@
     </section>
 
     <section class="scene" id="campaignScene">
-      <div class="hero"><div class="hero-kicker">QUALIFYING CAMPAIGN</div><h2 id="campaignTitle">第1届预选赛</h2><p id="campaignLede">十场比赛构成一届完整预选赛。排名、净胜球、教练压力和主席资源会持续变化。</p></div>
-      <div class="grid equal"><div class="panel"><h3>小组积分榜</h3><p class="panel-lede">同组对手也会同步比赛，不会围着主席一支球队静止不动。</p><div id="tableArea"></div></div><div class="panel"><h3>十轮赛程</h3><p class="panel-lede">已经结束的比赛保留比分，当前比赛高亮。</p><div class="schedule" id="scheduleList"></div></div></div>
+      <div class="hero"><div class="hero-kicker">QUALIFYING CAMPAIGN</div><h2 id="campaignTitle">第1届预选赛</h2><p id="campaignLede">十场比赛构成一届完整预选赛。排名、净胜球、教练压力和治理环境会持续变化。</p></div>
+      <div class="grid equal"><div class="panel"><h3>小组积分榜</h3><p class="panel-lede">同组对手同步比赛。</p><div id="tableArea"></div></div><div class="panel"><h3>十轮赛程</h3><p class="panel-lede">治理会议穿插在国家队窗口之间。</p><div class="schedule" id="scheduleList"></div></div></div>
       <div class="panel" style="margin-top:18px"><h3>国家队比赛历史</h3><div class="archive" id="matchHistory"></div></div>
     </section>
 
     <section class="scene" id="archiveScene">
-      <div class="hero"><div class="hero-kicker">PRESIDENTIAL RECORD</div><h2>主席连续决策档案</h2><p>每一场比赛、每一次换帅和每一届预选赛都会按时间保存。刷新网页不会抹掉前面的后果。</p></div>
+      <div class="hero"><div class="hero-kicker">PRESIDENTIAL RECORD</div><h2>主席连续决策档案</h2><p>政策、执行、危机、比赛、换帅和历届预选赛都按时间保存。刷新网页不会抹掉前面的后果。</p></div>
       <div class="grid"><div class="panel"><h3>工作记录</h3><div class="archive" id="archiveList"></div></div><div class="panel"><h3>当前长期后果</h3><div class="metrics" id="metricsArchive"></div><div class="notice" id="endNotice" style="margin-top:14px"></div></div></div>
     </section>
   </main>
 </div>
 
 <script src="campaign-data.js" defer></script>
+<script src="policy-data.js" defer></script>
 <script src="campaign-core.js" defer></script>
+<script src="policy-core.js" defer></script>
 <script src="campaign-ui.js" defer></script>
 </body>
 </html>
