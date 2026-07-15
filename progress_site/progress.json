@@ -7,9 +7,9 @@
     "date": "2026-07-15",
     "title": "网页版重构为持续运转的主席工作日",
     "summary": "旧版固定政策会议和三选一流程已被替换。新版同时运行多个有截止日的案件，主席需要查阅证据、自由调整方案参数、点名负责人、设定期限与执法强度、持续督办并在日后验收；十二家俱乐部的联赛、财务、欠薪和青训也会每周推进。",
-    "pr": 44,
-    "merge_commit": "pending merge",
-    "validation": "pending CI"
+    "pr": 46,
+    "merge_commit": "7ffb447a32bd80c3cb619c7b28b0f29c9948487e",
+    "validation": "205 tests passed in 11.13s"
   },
   "latest_highlights": [
     {"label":"持续游玩","title":"工作台不会处理两张卡就停下来","body":"多个案件并行推进，新案件按日期进入，未处理事项会逾期恶化，系统始终保持可处理的工作队列。"},
