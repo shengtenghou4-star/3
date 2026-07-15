@@ -1,9 +1,15 @@
 from pathlib import Path
+import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[1]
 LANDING = ROOT / "progress_site" / "index.html"
-GAME = ROOT / "progress_site" / "game" / "index.html"
+GAME_DIR = ROOT / "progress_site" / "game"
+GAME = GAME_DIR / "index.html"
+STYLE = GAME_DIR / "styles.css"
+DATA = GAME_DIR / "campaign-data.js"
+CORE = GAME_DIR / "campaign-core.js"
+UI = GAME_DIR / "campaign-ui.js"
 PAGES_WORKFLOW = ROOT / ".github" / "workflows" / "browser-pages.yml"
 
 
@@ -13,41 +19,112 @@ def test_browser_demo_is_deployed_with_the_progress_site() -> None:
 
     assert 'href="game/"' in landing
     assert "进入网页版演示" in landing
-    assert "足球共和国 · 主席比赛日" in game
-    assert "football-republic-browser-demo-v1" in game
-    assert "localStorage" in game
+    assert "足球共和国 · 足协主席生涯" in game
+    assert "campaign-data.js" in game
+    assert "campaign-core.js" in game
+    assert "campaign-ui.js" in game
+    for asset in (STYLE, DATA, CORE, UI):
+        assert asset.exists()
 
 
-def test_browser_demo_preserves_presidential_authority_boundary() -> None:
+def test_browser_career_preserves_presidential_authority_boundary() -> None:
+    combined = "\n".join(
+        path.read_text(encoding="utf-8") for path in (GAME, DATA, CORE, UI)
+    )
+
+    assert "你只扮演这一名主席" in combined
+    assert "主教练独立负责阵型、首发与临场换人" in combined
+    assert "不能发出战术指令" in combined
+    assert "chooseFormation" not in combined
+    assert "selectStartingEleven" not in combined
+    assert "substitutionButton" not in combined
+
+
+def test_browser_career_contains_a_full_recurring_campaign() -> None:
+    data = DATA.read_text(encoding="utf-8")
+    core = CORE.read_text(encoding="utf-8")
+    ui = UI.read_text(encoding="utf-8")
+
+    assert data.count("opponent:") == 10
+    for phase in (
+        "prep",
+        "release",
+        "mandate",
+        "arrival",
+        "box",
+        "match",
+        "post",
+        "mixed",
+        "review",
+        "between",
+    ):
+        assert f'"{phase}"' in data + core
+    assert "campaign_complete" in core
+    assert "nextCampaign" in core
+    assert "matchHistory" in data + core + ui
+    assert "tableArea" in GAME.read_text(encoding="utf-8")
+    assert "预选赛战报" in GAME.read_text(encoding="utf-8")
+
+
+def test_browser_campaign_engine_can_finish_ten_matches_and_continue() -> None:
+    source = DATA.read_text(encoding="utf-8") + CORE.read_text(encoding="utf-8")
+    harness = r'''
+const memory = new Map();
+const localStorage = {
+  getItem(key) { return memory.has(key) ? memory.get(key) : null; },
+  setItem(key, value) { memory.set(key, value); },
+  removeItem(key) { memory.delete(key); },
+};
+function renderAll() {}
+function switchView() {}
+'''
+    # The stubs must be visible before the campaign source executes because load()
+    # reads localStorage immediately.
+    script = harness + source + r'''
+for (let index = 0; index < 10; index += 1) {
+  state.choices = {prep: "balanced", mandate: "private", arrival: "formal"};
+  if (needsRelease()) state.choices.release = "compensate";
+  simulateMatch();
+  settleMatch();
+  state.phase = "between";
+  nextMatch();
+}
+if (state.round !== 10) throw new Error(`round=${state.round}`);
+if (state.phase !== "campaign_complete") throw new Error(state.phase);
+if (state.matchHistory.length !== 10) throw new Error(`history=${state.matchHistory.length}`);
+if (state.table["龙华"].p !== 10) throw new Error(`played=${state.table["龙华"].p}`);
+const previousHistory = state.matchHistory.length;
+const previousCampaign = state.campaign;
+nextCampaign();
+if (state.campaign !== previousCampaign + 1) throw new Error("campaign did not advance");
+if (state.round !== 0 || state.phase !== "prep") throw new Error("new campaign did not reset schedule");
+if (state.matchHistory.length !== previousHistory) throw new Error("history did not persist");
+console.log("continuous-campaign-ok");
+'''
+    completed = subprocess.run(
+        ["node", "-e", script],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "continuous-campaign-ok" in completed.stdout
+
+
+def test_browser_demo_is_local_asset_only_and_mobile_responsive() -> None:
     game = GAME.read_text(encoding="utf-8")
-
-    assert "你只扮演这一名主席" in game
-    assert "主教练独立负责阵型、首发与临场换人" in game
-    assert "不能发出战术指令" in game
-    assert "chooseFormation" not in game
-    assert "selectStartingEleven" not in game
-    assert "substitutionButton" not in game
-
-
-def test_browser_demo_contains_the_full_matchday_state_machine() -> None:
-    game = GAME.read_text(encoding="utf-8")
-
-    for phase in ("arrival", "box", "match", "post", "mixed", "review", "complete"):
-        assert f'"{phase}"' in game
-    for scene in ("主席桌面", "国家队指挥中心", "比赛现场", "决策档案"):
-        assert scene in game
-    assert "龙华2—1玄林" in game
-    assert "混合采访区第一口径" in game
-    assert "签署赛后处理决定" in game
-
-
-def test_browser_demo_is_dependency_free_and_mobile_responsive() -> None:
-    game = GAME.read_text(encoding="utf-8")
+    style = STYLE.read_text(encoding="utf-8")
+    combined_js = "\n".join(
+        path.read_text(encoding="utf-8") for path in (DATA, CORE, UI)
+    )
 
     assert "https://" not in game
-    assert "<script src=" not in game
-    assert "@media(max-width:900px)" in game
+    assert "https://" not in combined_js
+    assert 'src="campaign-' in game
+    assert "@media(max-width:900px)" in style
     assert 'name="viewport"' in game
+    for path in (DATA, CORE, UI):
+        subprocess.run(["node", "--check", str(path)], check=True, cwd=ROOT)
 
 
 def test_browser_pages_workflow_builds_and_deploys_the_game() -> None:
